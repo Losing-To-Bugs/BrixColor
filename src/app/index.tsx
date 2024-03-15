@@ -4,10 +4,14 @@ import HelloWorld from "@/components/HelloWorld";
 import Icons from "@icons";
 import {SendIcon} from "@icons"
 import {Link} from "expo-router";
+import ScanCamera from "@/components/ScanCamera";
 
 export default function App() {
     return (
         <View style={styles.container}>
+
+            <ScanCamera/>
+
             <HelloWorld/>
 
             {/*Two ways of using the same component*/}
