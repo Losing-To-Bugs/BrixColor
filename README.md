@@ -13,3 +13,5 @@ Navigate to http://localhost:8081
 
 # Project Structure
 This project uses [Expo Router](https://docs.expo.dev/router/create-pages/) to define pages in the file-based routing convention.
+
+More specifically, it leverages the [Expo Drawer](https://dev.to/aaronksaunders/expo-router-drawer-navigation-from-the-docs-231k) for the user to easily navigate between pages such as Settings.
