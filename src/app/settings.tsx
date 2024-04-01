@@ -1,164 +1,295 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Switch, StyleSheet, Platform } from "react-native";
-import { SelectCountry } from "react-native-element-dropdown";
+import React, { useState } from "react";
+import { View, Text, Switch, StyleSheet } from "react-native";
+import { ThemeProvider, useTheme } from "../components/ThemeContext";
+import RNPickerSelect from "react-native-picker-select";
 
-export default function Settings() {
-  const [toggle1, setToggle1] = useState(false);
-  const [toggle2, setToggle2] = useState(false);
-  const [toggle3, setToggle3] = useState(false);
-  const [toggle4, setToggle4] = useState(false);
-  const [selectedValue, setSelectedValue] = useState("1");
-  const [selectedValue2, setSelectedValue2] = useState("1");
-  const [selectedValue3, setSelectedValue3] = useState("1");
-  const dropdownData = [
-    {
-      label: "Option 1",
-      value: "1",
-      image: {
-        uri: "https://cdn.icon-icons.com/icons2/2348/PNG/512/x_warning_badged_outline_icon_142947.png",
-      },
-    },
-    { label: "Option 2", value: "2" },
-    { label: "Option 3", value: "3" },
-    { label: "Option 4", value: "4" },
-  ];
-  const dropdownData2 = [
+const Settings = () => {
+  const [toggleScans, setTogglescans] = useState(false);
+  const [toggleUI, setToggleUI] = useState(false);
+  const [toggleAudio, setToggleAudio] = useState(false);
+  const [toggleCapture, setToggleCapture] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("1");
+  const [selectedTextSize, setSelectedTextSize] = useState("1");
+  const dropdownLanguage = [
     { label: "Option 1", value: "1" },
     { label: "Option 2", value: "2" },
     { label: "Option 3", value: "3" },
     { label: "Option 4", value: "4" },
   ];
-  const dropdownData3 = [
-    { label: "Option 1", value: "1" },
-    { label: "Option 2", value: "2" },
-    { label: "Option 3", value: "3" },
-    { label: "Option 4", value: "4" },
-  ];
-  const handleToggle1 = (value: boolean) => {
-    setToggle1(value);
+  const handleToggleScans = (value: boolean) => {
+    setTogglescans(value);
     // Save the toggle state to storage or perform any other action
   };
 
-  const handleToggle2 = (value: boolean) => {
-    setToggle2(value);
+  const handleToggleUI = (value: boolean) => {
+    setToggleUI(value);
     // Save the toggle state to storage or perform any other action
   };
 
-  const handleToggle3 = (value: boolean) => {
-    setToggle3(value);
+  const handleToggleAudio = (value: boolean) => {
+    setToggleAudio(value);
     // Save the toggle state to storage or perform any other action
   };
 
-  const handleToggle4 = (value: boolean) => {
-    setToggle4(value);
+  const handleToggleCapture = (value: boolean) => {
+    setToggleCapture(value);
     // Save the toggle state to storage or perform any other action
   };
 
+  //These handle selection of the theme and adding an array to use for picker.
+  const { theme, setTheme, themes, fontSize, setFontSize, fontSizes } =
+    useTheme();
+  const handleChangeTheme = (selectedTheme) => {
+    setTheme(selectedTheme);
+  };
+  const handleChangeFont = (selectedFontSize) => {
+    setFontSize(selectedFontSize);
+  };
+  const themeOptions = Object.keys(themes).map((themeKey) => ({
+    label: themeKey,
+    value: themeKey,
+  }));
+  const FontOptions = Object.keys(fontSizes).map((themeKey) => ({
+    label: themeKey,
+    value: themeKey,
+  }));
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: themes[theme].backgroundColor },
+      ]}
+    >
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Settings</Text>
+        <Text style={[styles.headerText, { color: themes[theme].textColor }]}>
+          Settings
+        </Text>
       </View>
-      <View style={styles.divider} />
+      <View
+        style={[
+          styles.divider,
+          { backgroundColor: themes[theme].dividerColor },
+        ]}
+      />
 
       <View>
-        <Text>Select Language:</Text>
-        <SelectCountry
-          style={styles.dropdownContainer}
-          selectedTextStyle={styles.selectedTextStyle}
-          placeholderStyle={styles.placeholderStyle}
-          imageStyle={styles.imageStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          search
-          maxHeight={200}
-          value={selectedValue}
-          data={dropdownData}
-          valueField="value"
-          labelField="label"
-          imageField="image"
-          placeholder="Select country"
-          searchPlaceholder="Search..."
-          onChange={(e) => {
-            setSelectedValue(e.value);
+        <Text style={{ color: themes[theme].textColor, marginLeft: 5 }}>
+          Select Language:
+        </Text>
+        <RNPickerSelect
+          placeholder={{}}
+          items={dropdownLanguage}
+          style={{
+            iconContainer: {
+              top: 20,
+              right: 10,
+            },
+            inputIOS: {
+              color: themes[theme].textColor,
+              margin: 5,
+              fontSize: 16,
+              paddingVertical: 12,
+              paddingHorizontal: 10,
+              borderWidth: 1,
+              borderColor: themes[theme].dividerColor,
+              borderRadius: 4,
+              paddingRight: 30,
+              marginBottom: 10,
+            },
           }}
+          Icon={() => {
+            return (
+              <View
+                style={{
+                  backgroundColor: "transparent",
+                  borderTopWidth: 10,
+                  borderTopColor: themes[theme].textColor,
+                  borderRightWidth: 10,
+                  borderRightColor: "transparent",
+                  borderLeftWidth: 10,
+                  borderLeftColor: "transparent",
+                  width: 0,
+                  height: 0,
+                  marginTop: 5,
+                }}
+              />
+            );
+          }}
+          onValueChange={(itemValue, itemIndex) =>
+            setSelectedLanguage(itemValue)
+          }
         />
       </View>
 
       <View style={styles.toggleContainer}>
-        <Text>Save Scans to Phone</Text>
-        <Switch value={toggle1} onValueChange={handleToggle1} />
-      </View>
-      <Text style={styles.header}>ACCESSIBILITY SETTINGS</Text>
-      <View style={styles.toggleContainer}>
-        <Text>High Contrast UI</Text>
-        <Switch value={toggle2} onValueChange={handleToggle2} />
-      </View>
-      <View style={styles.toggleContainer}>
-        <Text>Audio Narration </Text>
-        <Switch value={toggle3} onValueChange={handleToggle3} />
-      </View>
-      <View style={styles.toggleContainer}>
-        <Text>Capture with Volume Button</Text>
-        <Switch value={toggle4} onValueChange={handleToggle4} />
-      </View>
-      <View>
-        <Text>Select Text color:</Text>
-        <SelectCountry
-          style={styles.dropdownContainer}
-          selectedTextStyle={styles.selectedTextStyle}
-          placeholderStyle={styles.placeholderStyle}
-          imageStyle={styles.imageStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          search
-          maxHeight={200}
-          value={selectedValue2}
-          data={dropdownData2}
-          valueField="value"
-          labelField="label"
-          imageField="image"
-          placeholder="Select country"
-          searchPlaceholder="Search..."
-          onChange={(e) => {
-            setSelectedValue2(e.value);
+        <Text style={{ color: themes[theme].textColor }}>
+          Save Scans to Phone
+        </Text>
+        <Switch
+          trackColor={{
+            false: themes[theme].switchOffColor,
+            true: themes[theme].switchOnColor,
           }}
+          ios_backgroundColor={themes[theme].switchOffColor}
+          thumbColor={themes[theme].switchColor}
+          value={toggleScans}
+          onValueChange={handleToggleScans}
+        />
+      </View>
+      <Text style={[styles.header2, { color: themes[theme].textColor }]}>
+        ACCESSIBILITY SETTINGS
+      </Text>
+      <View style={styles.toggleContainer}>
+        <Text style={{ color: themes[theme].textColor }}>High Contrast UI</Text>
+        <Switch
+          trackColor={{
+            false: themes[theme].switchOffColor,
+            true: themes[theme].switchOnColor,
+          }}
+          ios_backgroundColor={themes[theme].switchOffColor}
+          thumbColor={themes[theme].switchColor}
+          value={toggleUI}
+          onValueChange={handleToggleUI}
+        />
+      </View>
+      <View style={styles.toggleContainer}>
+        <Text style={{ color: themes[theme].textColor }}>Audio Narration </Text>
+        <Switch
+          trackColor={{
+            false: themes[theme].switchOffColor,
+            true: themes[theme].switchOnColor,
+          }}
+          ios_backgroundColor={themes[theme].switchOffColor}
+          thumbColor={themes[theme].switchColor}
+          value={toggleAudio}
+          onValueChange={handleToggleAudio}
+        />
+      </View>
+      <View style={styles.toggleContainer}>
+        <Text style={{ color: themes[theme].textColor }}>
+          Capture with Volume Button
+        </Text>
+        <Switch
+          trackColor={{
+            false: themes[theme].switchOffColor,
+            true: themes[theme].switchOnColor,
+          }}
+          ios_backgroundColor={themes[theme].switchOffColor}
+          thumbColor={themes[theme].switchColor}
+          value={toggleCapture}
+          onValueChange={handleToggleCapture}
         />
       </View>
       <View>
-        <Text>Select Text Size</Text>
-        <SelectCountry
-          style={styles.dropdownContainer}
-          selectedTextStyle={styles.selectedTextStyle}
-          placeholderStyle={styles.placeholderStyle}
-          imageStyle={styles.imageStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          search
-          maxHeight={200}
-          value={selectedValue3}
-          data={dropdownData3}
-          valueField="value"
-          labelField="label"
-          imageField="image"
-          placeholder="Select country"
-          searchPlaceholder="Search..."
-          onChange={(e) => {
-            setSelectedValue3(e.value);
+        <Text style={{ color: themes[theme].textColor, marginLeft: 5 }}>
+          Select UI color:
+        </Text>
+        <RNPickerSelect
+          placeholder={{}}
+          style={{
+            iconContainer: {
+              top: 20,
+              right: 10,
+            },
+            inputIOS: {
+              color: themes[theme].textColor,
+              margin: 5,
+              fontSize: 16,
+              paddingVertical: 12,
+              paddingHorizontal: 10,
+              borderWidth: 1,
+              borderColor: themes[theme].dividerColor,
+              borderRadius: 4,
+              paddingRight: 30,
+              marginBottom: 10,
+            },
           }}
+          Icon={() => {
+            return (
+              <View
+                style={{
+                  backgroundColor: "transparent",
+                  borderTopWidth: 10,
+                  borderTopColor: themes[theme].textColor,
+                  borderRightWidth: 10,
+                  borderRightColor: "transparent",
+                  borderLeftWidth: 10,
+                  borderLeftColor: "transparent",
+                  width: 0,
+                  height: 0,
+                  marginTop: 5,
+                }}
+              />
+            );
+          }}
+          onValueChange={(value) => handleChangeTheme(value)}
+          items={themeOptions}
+          value={theme}
         />
       </View>
+      <View>
+        <Text style={{ color: themes[theme].textColor, marginLeft: 5 }}>
+          Select Text Size
+        </Text>
+        <RNPickerSelect
+          placeholder={{}}
+          style={{
+            iconContainer: {
+              top: 20,
+              right: 10,
+            },
+            inputIOS: {
+              color: themes[theme].textColor,
+              margin: 5,
+              fontSize: 16,
+              paddingVertical: 12,
+              paddingHorizontal: 10,
+              borderWidth: 1,
+              borderColor: themes[theme].dividerColor,
+              borderRadius: 4,
+              paddingRight: 30,
+              marginBottom: 10,
+            },
+          }}
+          Icon={() => {
+            return (
+              <View
+                style={{
+                  backgroundColor: "transparent",
+                  borderTopWidth: 10,
+                  borderTopColor: themes[theme].textColor,
+                  borderRightWidth: 10,
+                  borderRightColor: "transparent",
+                  borderLeftWidth: 10,
+                  borderLeftColor: "transparent",
+                  width: 0,
+                  height: 0,
+                  marginTop: 5,
+                }}
+              />
+            );
+          }}
+          onValueChange={(value) => handleChangeFont(value)}
+          items={FontOptions}
+          value={fontSize}
+        />
+      </View>
+      <Text style={{ fontSize: fontSizes[fontSize].fontSize, marginLeft: 5 }}>
+        Test Text for font sizing
+      </Text>
     </View>
   );
-}
-
+};
+export default () => {
+  return (
+    <ThemeProvider>
+      <Settings />
+    </ThemeProvider>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    marginTop: 30,
-    fontSize: 16,
   },
   headerContainer: {
     alignItems: "center",
@@ -169,9 +300,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
   },
+  header2: {
+    margin: 5,
+    marginTop: 30,
+    fontSize: 16,
+  },
   divider: {
     height: 1,
-    backgroundColor: "black",
     marginBottom: 10,
   },
   toggleContainer: {
@@ -179,30 +314,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
     justifyContent: "space-between",
-  },
-  dropdownContainer: {
-    margin: 16,
-    height: 50,
-    borderBottomColor: "gray",
-    borderBottomWidth: 0.5,
-  },
-  imageStyle: {
-    width: 24,
-    height: 24,
-  },
-  placeholderStyle: {
-    fontSize: 16,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  iconStyle: {
-    width: 20,
-    height: 20,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
+    margin: 5,
   },
 });
