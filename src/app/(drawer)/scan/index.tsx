@@ -6,14 +6,10 @@ import buttonStyles from "@/styles/button";
 import {Drawer} from "expo-router/drawer";
 import {Feather, FontAwesome, Ionicons} from "@expo/vector-icons";
 import {useState} from "react";
-import {useNavigation} from "expo-router";
-import {DrawerNavigationProp} from "@react-navigation/drawer/src/types";
-import {ParamListBase} from "@react-navigation/native";
+import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 
 export default function Page() {
     const [flashOn, setFlash] = useState(false)
-    const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
-
     return (
         <View style={pageStyles.container}>
             <Drawer.Screen
@@ -24,9 +20,7 @@ export default function Page() {
 
 
             <View style={pageStyles.header}>
-                <TouchableOpacity style={[{marginLeft: 15}]} onPress={() => navigation.openDrawer()}>
-                    <Feather name="menu" color="white" size={32} />
-                </TouchableOpacity>
+                <BrixDrawerToggleButton style={[{marginLeft: 15}]} />
 
                 <TouchableOpacity style={[{marginRight: 15}]}>
                     <Feather name="help-circle" color="white" size={32} />
