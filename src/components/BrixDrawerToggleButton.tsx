@@ -1,4 +1,4 @@
-import {StyleSheet, Text, TextProps, TouchableOpacity, TouchableOpacityProps} from "react-native";
+import {TouchableOpacity, TouchableOpacityProps} from "react-native";
 import {Feather} from "@expo/vector-icons";
 import {useNavigation} from "expo-router";
 import {DrawerNavigationProp} from "@react-navigation/drawer/src/types";
