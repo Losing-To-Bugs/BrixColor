@@ -1,7 +1,11 @@
 import {Button, Text, View, ViewProps} from "react-native";
-import {Camera, CameraType} from "expo-camera";
+import {Camera, CameraType, FlashMode} from "expo-camera";
 
-export default function ScanCamera(props: ViewProps) {
+export type ScanCameraProps = ViewProps & {
+    flashOn: boolean
+}
+
+export default function ScanCamera(props: ScanCameraProps) {
     const [permission, requestPermission] = Camera.useCameraPermissions()
 
     if (!permission) {
@@ -21,7 +25,7 @@ export default function ScanCamera(props: ViewProps) {
 
     return (<>
         <View style={[props.style, {backgroundColor: 'black'}]}>
-            <Camera style={{width: '100%', height: '100%'}} type={CameraType.back}>
+            <Camera style={{width: '100%', height: '100%'}} type={CameraType.back} flashMode={props.flashOn ? FlashMode.torch : FlashMode.off}>
                 {props.children}
             </Camera>
         </View>

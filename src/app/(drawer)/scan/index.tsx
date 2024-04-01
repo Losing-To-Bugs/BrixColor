@@ -1,13 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Pressable } from 'react-native';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import ScanCamera from "@/components/ScanCamera";
-import BrixText from "@/components/BrixText";
 import pageStyles from "@/styles/page";
 import buttonStyles from "@/styles/button";
-import { DrawerToggleButton } from "@react-navigation/drawer";
 import {Drawer} from "expo-router/drawer";
+import {Feather, FontAwesome, Ionicons} from "@expo/vector-icons";
+import {useState} from "react";
+import {useNavigation} from "expo-router";
+import {DrawerNavigationProp} from "@react-navigation/drawer/src/types";
+import {ParamListBase} from "@react-navigation/native";
 
 export default function Page() {
+    const [flashOn, setFlash] = useState(false)
+    const navigation = useNavigation<DrawerNavigationProp<ParamListBase>>();
+
     return (
         <View style={pageStyles.container}>
             <Drawer.Screen
@@ -16,27 +22,31 @@ export default function Page() {
                 }}
             />
 
-            <View style={pageStyles.header}>
-                <DrawerToggleButton/>
 
-                <Pressable style={[buttonStyles.placeholder, {marginRight: 15}]}>
-                    <BrixText>Help</BrixText>
-                </Pressable>
+            <View style={pageStyles.header}>
+                <TouchableOpacity style={[{marginLeft: 15}]} onPress={() => navigation.openDrawer()}>
+                    <Feather name="menu" color="white" size={32} />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={[{marginRight: 15}]}>
+                    <Feather name="help-circle" color="white" size={32} />
+                </TouchableOpacity>
             </View>
 
-            <ScanCamera style={styles.camera}>
+            <ScanCamera style={styles.camera} flashOn={flashOn}>
                 <View style={styles.control}>
-                    <Pressable style={[buttonStyles.placeholder]}>
-                        <BrixText>Flash</BrixText>
-                    </Pressable>
+                    <TouchableOpacity style={buttonStyles.circle} />
+                    <View style={{flexDirection: 'row', gap: 30}}>
+                        <TouchableOpacity onPress={() => setFlash(!flashOn)}>
+                            {flashOn ? <Ionicons name="flash" color="white" size={32}/> : <Ionicons name="flash-off" color="white" size={32}/>}
+                        </TouchableOpacity>
 
-                    <Pressable style={[buttonStyles.placeholder]}>
-                        <BrixText>Shutter</BrixText>
-                    </Pressable>
+                        <TouchableOpacity>
+                            <FontAwesome name="photo" color="white" size={32} />
+                        </TouchableOpacity>
+                    </View>
 
-                    <Pressable style={[buttonStyles.placeholder]}>
-                        <BrixText>Open</BrixText>
-                    </Pressable>
+
                 </View>
             </ScanCamera>
 
@@ -58,7 +68,7 @@ const styles = StyleSheet.create({
 
     control: {
         flex: 3/8,
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 30,
