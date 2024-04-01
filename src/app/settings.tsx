@@ -8,14 +8,17 @@ const Settings = () => {
   const [toggleUI, setToggleUI] = useState(false);
   const [toggleAudio, setToggleAudio] = useState(false);
   const [toggleCapture, setToggleCapture] = useState(false);
+
+  //might not use the select language here. For now temporpary.
   const [selectedLanguage, setSelectedLanguage] = useState("1");
-  const [selectedTextSize, setSelectedTextSize] = useState("1");
   const dropdownLanguage = [
     { label: "Option 1", value: "1" },
     { label: "Option 2", value: "2" },
     { label: "Option 3", value: "3" },
     { label: "Option 4", value: "4" },
   ];
+
+  //These handle all the toggles.
   const handleToggleScans = (value: boolean) => {
     setTogglescans(value);
     // Save the toggle state to storage or perform any other action
@@ -36,7 +39,7 @@ const Settings = () => {
     // Save the toggle state to storage or perform any other action
   };
 
-  //These handle selection of the theme and adding an array to use for picker.
+  //These handle selection of the theme and font size.
   const { theme, setTheme, themes, fontSize, setFontSize, fontSizes } =
     useTheme();
   const handleChangeTheme = (selectedTheme) => {
@@ -53,6 +56,7 @@ const Settings = () => {
     label: themeKey,
     value: themeKey,
   }));
+
   return (
     <View
       style={[
@@ -287,6 +291,8 @@ export default () => {
     </ThemeProvider>
   );
 };
+
+//All the syling still needs to be perfected. Including inline
 const styles = StyleSheet.create({
   container: {
     flex: 1,
