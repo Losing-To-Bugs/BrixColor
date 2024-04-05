@@ -19,7 +19,7 @@ export default function DrawerLayout() {
                 options={{
                     drawerLabel: "Settings",
                     title: 'Settings',
-                    headerShown: true,
+                    headerShown: false,
                 }}
             />
 
