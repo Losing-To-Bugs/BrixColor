@@ -10,6 +10,11 @@ import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 
 export default function Page() {
     const [flashOn, setFlash] = useState(false)
+
+    const handleFlashPress = () => {
+        setFlash(!flashOn)
+    }
+
     return (
         <View style={pageStyles.container}>
             <Drawer.Screen
@@ -18,10 +23,12 @@ export default function Page() {
                 }}
             />
 
-
+            {/* Header */}
             <View style={pageStyles.header}>
+                {/* Opens and closes drawer */}
                 <BrixDrawerToggleButton style={[{marginLeft: 15}]} />
 
+                {/* Help button */}
                 <TouchableOpacity style={[{marginRight: 15}]}>
                     <Feather name="help-circle" color="white" size={32} />
                 </TouchableOpacity>
@@ -29,12 +36,17 @@ export default function Page() {
 
             <ScanCamera style={styles.camera} flashOn={flashOn}>
                 <View style={styles.control}>
+
+                    {/* Shutter button */}
                     <TouchableOpacity style={buttonStyles.circle} />
+
                     <View style={{flexDirection: 'row', gap: 30}}>
-                        <TouchableOpacity onPress={() => setFlash(!flashOn)}>
+                        {/* Flash button */}
+                        <TouchableOpacity onPress={handleFlashPress}>
                             {flashOn ? <Ionicons name="flash" color="white" size={32}/> : <Ionicons name="flash-off" color="white" size={32}/>}
                         </TouchableOpacity>
 
+                        {/* Open photos button */}
                         <TouchableOpacity>
                             <FontAwesome name="photo" color="white" size={32} />
                         </TouchableOpacity>
