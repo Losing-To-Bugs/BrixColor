@@ -2,10 +2,12 @@ import React from 'react';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Button, TextInput, ActivityIndicator, Image } from 'react-native'
 import { auth } from "../../services/firebaseConfig"
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'expo-router';
-import SignIn from "../components/SignIn"
+import SignIn from "@/components/SignIn"
+import ResetPage from '@/components/ResetPage';
 
+// need to implement persistence of user
 
 const LoginPage = () =>{
     const router = useRouter()
@@ -22,9 +24,10 @@ const LoginPage = () =>{
 
     // switch between rendering the form as login and sign-up then use these
     const [renderSignUp, setRenderSignUp] = useState(false);
-    const [isLengthValid, setIsLengthValid] = useState(false)
-    const [hasNumber, setHasNumber] = useState(false)
-    const [hasSpecialCharacter, setHasSpecialCharacter] = useState(false)
+    const [renderResetScreen, setRenderResetScreen] = useState(false);
+
+    const [resetScreenError, setResetScreenError] = useState("")
+    const [renderResetScreenError, setRenderResetScreenError] = useState(false)
 
 
 
@@ -36,7 +39,7 @@ const LoginPage = () =>{
 
         switch (code) {
           case 'auth/invalid-email':
-            setLoginError('Invalid email address. Please enter a valid email.');
+            setLoginError('Invalid email address. No Accounts Match this Email.');
             break;
           case 'auth/user-not-found':
             setLoginError('User not found. Please check your email or sign up.');
@@ -88,12 +91,28 @@ const LoginPage = () =>{
             .finally(() =>{
                 setIsLoading(false)
             })
-    }   
+    } 
+
+    const handlePasswordReset = async (myEmail: string) =>{
+        try{
+            await sendPasswordResetEmail(auth, myEmail)
+            return 0
+        }
+        catch(err){
+            handleFirebaseAuthError(err.message)
+            setRenderResetScreenError(true)
+            return -1
+        }
+    }
 
 
 
     const renderLogin = (check: boolean) =>{
         setRenderSignUp(check)
+        setRenderResetScreen(check)
+
+        setRenderLoginError(false);
+        setLoginError("");
     }   
 
 
@@ -113,7 +132,7 @@ const LoginPage = () =>{
             </View>
             
             // login form
-            ) : (!renderSignUp) ? (
+            ) : (!renderSignUp && !renderResetScreen) ? (
                 <View style={{flex: 1}} >
                     <View style={{marginTop: 10, height: "15%", justifyContent: "center", alignItems: "center"}}>
                         <Image source={require("../../assets/images/BrixColor-cropped.jpeg")} style={{height: "100%", resizeMode: "contain"}} />
@@ -191,7 +210,13 @@ const LoginPage = () =>{
                                     returnKeyType='done'
                                 />
                             </View>
-                        {/* </View> */}
+                        
+                        <TouchableOpacity style={{flexGrow: 0, alignItems: "center"}} onPress={() =>{setRenderResetScreen(true)}}>
+                            <Text style={{textAlign: "center", color: "#3E74FF", fontSize: 12}} >
+                                Reset Password
+                            </Text>
+                        </TouchableOpacity>
+
                         <View style={{height: "15%"}} >
                             {password.length > 0 && <Button title={showPass ? 'Show Password': 'Hide Password'} onPress={() => {
                                 setShowPass(!showPass)
@@ -201,19 +226,16 @@ const LoginPage = () =>{
                     </View>
                     
                     <View style={{flex: 0.8}} >
-
-                        {/* <View style={{flex: 1,  alignItems: "center", paddingTop: 20}}>
-                            <TouchableOpacity style={{height: "40%", alignItems: "center"}} onPress={googleSignIn} >
-                                <Image source={require("../../assets/images/GoogleSignInLight.png")}  style={{height: "100%", resizeMode:"contain"}} />
-                            </TouchableOpacity>
-                        </View>  */}
                         
                         <View style={{flex: 0.5, alignItems: "center"}} >
                         <Button title='Login' onPress={login} accessibilityLabel='Login Button' />
                         </View>
                     </View>
                 </View>
-            ) : 
+            ) : (!renderSignUp && renderResetScreen) ?  (
+                
+                <ResetPage setRenderReset={renderLogin} handleReset={handlePasswordReset} renderLoginError={renderResetScreenError} loginError={loginError}/>
+            ): 
             
             // sign in form
 
