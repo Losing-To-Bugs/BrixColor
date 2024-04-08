@@ -10,7 +10,7 @@ import { ThemeProvider } from "../components/ThemeContext";
 
 function App() {
     return (
-        <Redirect href="/login" />
+        <Redirect href="/LoginPage" />
     );
 }
 
