@@ -18,15 +18,13 @@ const LoginPage = () =>{
 
     const [showPass, setShowPass] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
-    const [renderEmailError, setRenderEmailError] = useState(false)
+    // const [renderEmailError, setRenderEmailError] = useState(false)
     const [renderLoginError, setRenderLoginError] = useState(false)
     const [loginError, setLoginError] = useState('')
 
     // switch between rendering the form as login and sign-up then use these
     const [renderSignUp, setRenderSignUp] = useState(false);
     const [renderResetScreen, setRenderResetScreen] = useState(false);
-
-    const [resetScreenError, setResetScreenError] = useState("")
     const [renderResetScreenError, setRenderResetScreenError] = useState(false)
 
 
@@ -162,14 +160,15 @@ const LoginPage = () =>{
                                 </View>
 
                             </View>
-                            {renderEmailError && 
+
+                            { /** renderEmailError && 
                                 <View style={{flexGrow: 1, alignItems: "center"}} >
                                     <View style={{ marginTop: 10, width: "80%", alignItems: "center", height: null}} >
                                         <Text style={{textAlign: "center", color: "red"}} >Please Enter a Valid Email</Text>
                                     </View>
                                 </View>
                             
-                            }
+                            **/}
                             {renderLoginError && 
                                 <View style={{flexGrow: 1, alignItems: "center"}} >
                                     <View style={{marginTop: 10, width: "80%", alignItems: "center", height: null}} >
