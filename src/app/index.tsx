@@ -1,3 +1,4 @@
+import {Redirect} from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View } from "react-native";
 import HelloWorld from "@/components/HelloWorld";
@@ -7,23 +8,12 @@ import { Link } from "expo-router";
 import ScanCamera from "@/components/ScanCamera";
 import { ThemeProvider } from "../components/ThemeContext";
 
-const App = () => {
-  return (
-    <View style={styles.container}>
-      <ScanCamera />
+function App() {
+    return (
+        <Redirect href="/login" />
+    );
+}
 
-      <HelloWorld />
-
-      {/*Two ways of using the same component*/}
-      <Icons.Send />
-      <SendIcon />
-      <StatusBar style="auto" />
-
-      {/*Link that navigates to /settings*/}
-      <Link href="/settings">Settings</Link>
-    </View>
-  );
-};
 export default () => {
   return (
     <ThemeProvider>

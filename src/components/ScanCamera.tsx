@@ -1,7 +1,11 @@
-import {Button, StyleSheet, Text, View} from "react-native";
-import {Camera, CameraType} from "expo-camera";
+import {Button, Text, View, ViewProps} from "react-native";
+import {Camera, CameraType, FlashMode} from "expo-camera";
 
-export default function ScanCamera() {
+export type ScanCameraProps = ViewProps & {
+    flashOn: boolean
+}
+
+export default function ScanCamera(props: ScanCameraProps) {
     const [permission, requestPermission] = Camera.useCameraPermissions()
 
     if (!permission) {
@@ -10,7 +14,7 @@ export default function ScanCamera() {
     }
 
     if (!permission.granted) {
-        return (<View>
+        return (<View style={props.style}>
             <Text>Please grant access to camera usage in app settings.</Text>
             <Button
                 title="Request Permission"
@@ -20,23 +24,10 @@ export default function ScanCamera() {
     }
 
     return (<>
-        <View style={styles.container}>
-            <Camera style={styles.camera} type={CameraType.back}>
-                <View>
-
-                </View>
+        <View style={[props.style, {backgroundColor: 'black'}]}>
+            <Camera style={{width: '100%', height: '100%'}} type={CameraType.back} flashMode={props.flashOn ? FlashMode.torch : FlashMode.off}>
+                {props.children}
             </Camera>
         </View>
     </>)
 }
-
-const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        height: '50%',
-    },
-
-    camera: {
-        flex: 1
-    }
-})
