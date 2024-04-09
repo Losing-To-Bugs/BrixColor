@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, Button, TextInput, ActivityIndicator, Ima
 import { auth } from "../../services/firebaseConfig"
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
     handleFirebaseAuthError: Function,
@@ -58,6 +59,10 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
             return
         }
 
+        // reset the previous errors
+        setRenderEmailError(false)
+        setRenderLoginError(false)
+
         // render loading wheel
         setIsLoading(true)
 
@@ -92,16 +97,20 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
             .then((userCredential) => {
                 // logged in successfully
                 // store info and update state
-                // console.log(userCredential);
-                setUID(userCredential.user['uid'])
-                router.back()
+               
+                setUID(userCredential.user['uid']);
+
+                storeData("uid", userCredential.user['uid']);
+                storeData("username", userName);
+
+                router.replace("/(drawer)/scan")
             })
             .catch((err) =>{
                 // serve error message and re-try
                 handleFirebaseAuthError(err.message)
                 setRenderLoginError(true)
 
-                // console.error(err)
+                console.error(err)
             })
             .finally(() =>{
                 setIsLoading(false)
@@ -129,6 +138,18 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
         // update password state variable
         setPassword(trimVal);
     }
+
+    const storeData = async (key: string, value: string) => {
+        try {
+          await AsyncStorage.setItem(key, value);
+          return 0;
+        } catch (e) {
+          console.error("Problem Saving " + key)
+          return -1;
+        }
+    };
+
+
 
     return (
         <View style={{flex: 1}}>
@@ -196,7 +217,7 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
                             setUserName(trimVal)
                         }} 
                         value={userName} 
-                        style={{height: "100%", width: '90%', textAlign: "center", borderColor: (renderLoginError || renderUsernameError) ? "#FF4D4D" : "#3E74FF", borderWidth: 1, borderRadius: 10}} 
+                        style={{height: "100%", width: '90%', textAlign: "center", borderColor: (renderUsernameError) ? "#FF4D4D" : "#3E74FF", borderWidth: 1, borderRadius: 10}} 
                         accessible={true} 
                         accessibilityLabel='Username Input Field'
                         returnKeyType='done'
@@ -267,7 +288,7 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
                                 handlePassChange(val)
                             }}  
                             value={password} 
-                            style={{height: "100%", width: '90%', textAlign: "center", borderColor: (renderLoginError || ((verPass.length > 0) && !confirmState)) ? "#FF4D4D" : "#3E74FF", borderWidth: 1, borderRadius: 10}} 
+                            style={{height: "100%", width: '90%', textAlign: "center", borderColor: (((verPass.length > 0) && !confirmState)) ? "#FF4D4D" : "#3E74FF", borderWidth: 1, borderRadius: 10}} 
                             accessible={true} 
                             accessibilityLabel='Password Input Field' 
                             secureTextEntry={showPass} 
@@ -293,7 +314,7 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
                                 setVerPass(trimVal)
                             }}  
                             value={verPass} 
-                            style={{height: "100%", width: '90%', textAlign: "center", borderColor: (renderLoginError || ((verPass.length > 0) && !confirmState)) ? "#FF4D4D" : "#3E74FF", borderWidth: 1, borderRadius: 10}} 
+                            style={{height: "100%", width: '90%', textAlign: "center", borderColor: (((verPass.length > 0) && !confirmState)) ? "#FF4D4D" : "#3E74FF", borderWidth: 1, borderRadius: 10}} 
                             accessible={true} 
                             accessibilityLabel='Password Input Field' 
                             secureTextEntry={showPass} 

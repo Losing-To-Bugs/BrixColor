@@ -6,6 +6,7 @@ import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/aut
 import { useRouter } from 'expo-router';
 import SignIn from "@/components/SignIn"
 import ResetPage from '@/components/ResetPage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // need to implement persistence of user
 
@@ -37,7 +38,7 @@ const LoginPage = () =>{
 
         switch (code) {
           case 'auth/invalid-email':
-            setLoginError('Invalid email address. No Accounts Match this Email.');
+            renderSignUp ? setLoginError('Invalid email address.') : setLoginError('Invalid email address. No Accounts Match this Email.');
             break;
           case 'auth/user-not-found':
             setLoginError('User not found. Please check your email or sign up.');
@@ -61,6 +62,16 @@ const LoginPage = () =>{
         }
     };
     
+    const storeData = async (key: string, value: string) => {
+        try {
+          await AsyncStorage.setItem(key, value);
+          return 0;
+        } catch (e) {
+            console.error(e)
+        //   console.error("Problem Saving" + key)
+          return -1;
+        }
+    };
 
     // handle login 
     const login = () =>{
@@ -76,7 +87,9 @@ const LoginPage = () =>{
                 // store info and update state
                 // console.log(userCredential)
                 setUID(userCredential.user['uid'])
-                router.back()
+
+                storeData("uid", userCredential.user['uid']);
+                router.replace("/(drawer)/scan")
                 
             })
             .catch((err) =>{
