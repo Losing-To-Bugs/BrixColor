@@ -1,13 +1,19 @@
 {
   "expo": {
-    "name": "BrixColor",
-    "slug": "BrixColor",
+    "name": "expoEAStest",
+    "plugins": [
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera."
+        }
+      ]
+    ],
+    "slug": "expoEAStest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "brixcolor.com",
-    "backgroundColor": "#000000",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -17,7 +23,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.brixcolorfinder.expoEAStest"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,19 +33,12 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
-        }
-      ]
-    ]
+    "extra": {
+      "eas": {
+        "projectId": "de91a614-e8e8-43ba-a6c3-5f91322e9b9b"
+      }
+    }
   }
 }
