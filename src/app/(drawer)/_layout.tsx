@@ -1,9 +1,12 @@
 import { Drawer } from "expo-router/drawer";
 import { useState, useEffect } from "react";
-import { TouchableOpacity, Text } from "react-native";
+import {TouchableOpacity, Text, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
-import { useRouter } from "expo-router";
+import {
+    DrawerContentComponentProps,
+    DrawerContentScrollView,
+} from "@react-navigation/drawer";
+import {Link, useRouter} from "expo-router";
 
 function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () => void; isLoggedIn: boolean }) {
     const router = useRouter();
@@ -15,20 +18,27 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
     return (
         <>
             <DrawerContentScrollView {...props}>
-                <DrawerItemList {...props} />
-                <TouchableOpacity
-                    onPress={() => {
-                        // if logged in you will logout
-                        if (props.isLoggedIn) {
-                            props.handleLogout();
-                        } else {
-                            // if logged out, log in
-                            router.push("/LoginPage");
-                        }
-                    }}
-                >
-                    <Text style={{ textAlign: "center", fontSize: 20, color: "blue" }}>{props.isLoggedIn ? "Logout" : "Login"}</Text>
-                </TouchableOpacity>
+                <View style={{gap: 10}}>
+                    <Link href="/scan/settings" asChild>
+                        <TouchableOpacity style={{padding: 16}}>
+                            <Text style={{fontSize: 16}}>Settings</Text>
+                        </TouchableOpacity>
+                    </Link>
+
+                    <TouchableOpacity
+                        onPress={() => {
+                            // if logged in you will logout
+                            if (props.isLoggedIn) {
+                                props.handleLogout();
+                            } else {
+                                // if logged out, log in
+                                router.push("/LoginPage");
+                            }
+                        }}
+                    >
+                        <Text style={{ textAlign: "center", fontSize: 20, color: "blue" }}>{props.isLoggedIn ? "Logout" : "Login"}</Text>
+                    </TouchableOpacity>
+                </View>
             </DrawerContentScrollView>
         </>
     );
@@ -83,14 +93,6 @@ export default function DrawerLayout() {
                 name="scan"
                 options={{
                     drawerLabel: "Scan",
-                    headerShown: false,
-                }}
-            />
-            <Drawer.Screen
-                name="settings"
-                options={{
-                    drawerLabel: "Settings",
-                    title: "Settings",
                     headerShown: false,
                 }}
             />
