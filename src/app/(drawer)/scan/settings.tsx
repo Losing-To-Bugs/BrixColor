@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { View, Text, Switch, StyleSheet } from "react-native";
 import { ThemeProvider, useTheme } from "@/components/ThemeContext";
 import RNPickerSelect from "react-native-picker-select";
-import Drawer from "expo-router/drawer";
+import { useRouter} from "expo-router";
+import { HeaderBackButton } from '@react-navigation/elements';
 
 const Settings = () => {
     const [toggleScans, setTogglescans] = useState(false);
@@ -18,6 +19,8 @@ const Settings = () => {
         { label: "Option 3", value: "3" },
         { label: "Option 4", value: "4" },
     ];
+
+    const router = useRouter()
 
     //These handle all the toggles.
     const handleToggleScans = (value: boolean) => {
@@ -65,17 +68,16 @@ const Settings = () => {
                 { backgroundColor: themes[theme].backgroundColor },
             ]}
         >
-            {/* Disables the header */}
-            <Drawer.Screen
-                options={{
-                    headerShown: false,
-                }}
-            />
 
             <View style={styles.headerContainer}>
+                <HeaderBackButton style={{flex: 1,}} onPress={() => router.dismiss()} />
+
                 <Text style={[styles.headerText, { color: themes[theme].textColor }]}>
                     Settings
                 </Text>
+
+                {/* This is the best way to center the header text while still keeping the back button to the right*/}
+                <View style={{flex: 1}}></View>
             </View>
             <View
                 style={[
@@ -306,13 +308,14 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     headerContainer: {
-        alignItems: "center",
-        justifyContent: "center",
         marginBottom: 10,
+        flexDirection: 'row',
     },
     headerText: {
+        alignSelf: 'center',
         fontSize: 24,
         fontWeight: "bold",
+        flex: 1,
     },
     header2: {
         margin: 5,
