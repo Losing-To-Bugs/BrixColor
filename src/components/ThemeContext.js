@@ -2,29 +2,50 @@
 import React, { createContext, useState, useContext } from 'react';
 
 const themes = {
-  light: {
+  Light: {
     backgroundColor: '#ffffff',
     textColor: '#000000',
     dividerColor: "#000000",
-    switchColor: '#ffffff',
     switchOffColor: '#ffffff',
     switchOnColor: '#00FF00',
+    primaryColor: '#0055BF',
+    secondaryColor: '#C91A09',
   },
-  dark: {
+  Dark: {
+    backgroundColor: '#3D3D3D',
+    textColor: '#ffffff',
+    dividerColor: "#ffffff",
+    switchOffColor: '#FF0000',
+    switchOnColor: '#00FF00',
+    primaryColor: '#0055BF',
+    secondaryColor: '#C91A09',
+  },
+  Royal: {
     backgroundColor: '#000000',
     textColor: '#ffffff',
     dividerColor: "#ffffff",
-    switchColor: '#ffffff',
     switchOffColor: '#FF0000',
     switchOnColor: '#00FF00',
+    primaryColor: '#002263',
+    secondaryColor: '#8B6508',
   },
-  blue: {
-    backgroundColor: '#6495ED',
+  Sunset: {
+    backgroundColor: '#000000',
     textColor: '#ffffff',
     dividerColor: "#ffffff",
-    switchColor: '#ffffff',
-    switchOffColor: '#FFFF00',
+    switchOffColor: '#FF0000',
     switchOnColor: '#00FF00',
+    primaryColor: '#01084F',
+    secondaryColor: '#FF7954',
+  },
+  Fall: {
+    backgroundColor: '#000000',
+    textColor: '#ffffff',
+    dividerColor: "#ffffff",
+    switchOffColor: '#FF0000',
+    switchOnColor: '#00FF00',
+    primaryColor: '#F55A00',
+    secondaryColor: '#FFE433',
   },
   
   // Define more themes here...
@@ -33,7 +54,7 @@ const fontSizes = {
   Small: {
     fontSize: 14
   },
-  default: {
+  Medium: {
     fontSize: 16
   },
   Big: {
@@ -46,8 +67,8 @@ const fontSizes = {
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
-  const [fontSize, setFontSize] = useState('default');
+  const [theme, setTheme] = useState('Light');
+  const [fontSize, setFontSize] = useState('Medium');
   return (
     <ThemeContext.Provider value={{ theme, setTheme, themes, fontSize, setFontSize, fontSizes }}>
       {children}
