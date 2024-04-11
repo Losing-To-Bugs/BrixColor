@@ -1,14 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Switch, StyleSheet } from "react-native";
-import { ThemeProvider, useTheme } from "@/components/ThemeContext";
+import { SettingsProvider, useSettings } from "@/components/SettingsContext";
 import RNPickerSelect from "react-native-picker-select";
 import { useRouter } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Settings = () => {
-  const [toggleScans, setTogglescans] = useState(false);
-  const [toggleAudio, setToggleAudio] = useState(false);
-  const [toggleCapture, setToggleCapture] = useState(false);
+  const saveSettingsToStorage = async (key, value) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      console.error("Error saving settings:", error);
+    }
+  };
+
+  const {
+    theme,
+    themes,
+    setTheme,
+    fontSize,
+    fontSizes,
+    setFontSize,
+    toggleScans,
+    setTogglescans,
+    toggleAudio,
+    setToggleAudio,
+    toggleCapture,
+    setToggleCapture,
+  } = useSettings();
 
   //might not use the select language here. For now temporpary.
   const [selectedLanguage, setSelectedLanguage] = useState("1");
@@ -16,31 +36,33 @@ const Settings = () => {
 
   const router = useRouter();
 
-  //These handle all the toggles.
   const handleToggleScans = (value: boolean) => {
     setTogglescans(value);
-    // Save the toggle state to storage or perform any other action
+    saveSettingsToStorage("toggleScans", JSON.stringify(value));
   };
 
   const handleToggleAudio = (value: boolean) => {
     setToggleAudio(value);
-    // Save the toggle state to storage or perform any other action
+    saveSettingsToStorage("toggleAudio", JSON.stringify(value));
   };
 
   const handleToggleCapture = (value: boolean) => {
     setToggleCapture(value);
-    // Save the toggle state to storage or perform any other action
+    saveSettingsToStorage("toggleCapture", JSON.stringify(value));
+  };
+
+  const handleChangeTheme = (selectedTheme) => {
+    setTheme(selectedTheme);
+    saveSettingsToStorage("theme", selectedTheme);
+  };
+
+  const handleChangeFontSize = (selectedFontSize) => {
+    setFontSize(selectedFontSize);
+    saveSettingsToStorage("fontSize", selectedFontSize);
   };
 
   //These handle selection of the theme and font size.
-  const { theme, setTheme, themes, fontSize, setFontSize, fontSizes } =
-    useTheme();
-  const handleChangeTheme = (selectedTheme) => {
-    setTheme(selectedTheme);
-  };
-  const handleChangeFont = (selectedFontSize) => {
-    setFontSize(selectedFontSize);
-  };
+
   const themeOptions = Object.keys(themes).map((themeKey) => ({
     label: themeKey,
     value: themeKey,
@@ -65,10 +87,10 @@ const Settings = () => {
         />
         <Text
           style={[
-            styles.headerText,
             {
               color: themes[theme].textColor,
               fontSize: fontSizes[fontSize].fontSize + 6,
+              fontWeight: "bold",
             },
           ]}
         >
@@ -306,7 +328,7 @@ const Settings = () => {
               />
             );
           }}
-          onValueChange={(value) => handleChangeFont(value)}
+          onValueChange={(value) => handleChangeFontSize(value)}
           items={FontOptions}
           value={fontSize}
         />
@@ -316,9 +338,9 @@ const Settings = () => {
 };
 export default () => {
   return (
-    <ThemeProvider>
+    <SettingsProvider>
       <Settings />
-    </ThemeProvider>
+    </SettingsProvider>
   );
 };
 
@@ -333,7 +355,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerText: {},
   header2: {
     margin: 5,
     marginTop: 30,
