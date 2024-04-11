@@ -18,18 +18,28 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.capstone.BrixColor"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.brixcolorfinder.BrixColor"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.example.brixcolor"
+      "package": "com.example.brixcolor",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f7b3e2a0-302b-4265-9c75-7ba7b8eba9a1"
+      }
     },
     "plugins": [
       "expo-router",
@@ -40,7 +50,20 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/crashlytics",
+      [
+        "expo-build-properties",
+        {
+          "ios" :{
+            "deploymentTarget" : "13.4",
+            "useFrameworks" : "static"
+          }
+        }
       ]
+
     ]
   }
 }
