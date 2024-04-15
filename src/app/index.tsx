@@ -1,14 +1,12 @@
 import { Redirect } from "expo-router";
 import { StyleSheet, View } from "react-native";
-import { ThemeProvider } from "../components/ThemeContext";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState, useEffect } from "react"
+import { SettingsProvider } from "../components/SettingsContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState, useEffect } from "react";
 
 function App() {
-
   const [redirectUrl, setRedirectUrl] = useState(null);
-  const [UID, setUID] = useState("")
-
+  const [UID, setUID] = useState("");
 
   // if saved data exists, the user is logged in
   useEffect(() => {
@@ -16,7 +14,7 @@ function App() {
       try {
         const value = await AsyncStorage.getItem("uid");
         if (value !== null) {
-          setUID(value)
+          setUID(value);
           setRedirectUrl("/(drawer)/scan");
         } else {
           setRedirectUrl("/LoginPage");
@@ -24,7 +22,7 @@ function App() {
       } catch (e) {
         console.error(e);
       }
-    }
+    };
 
     updateLoginStatus();
 
@@ -38,9 +36,7 @@ function App() {
     // }
 
     // meh();
-      
   }, []);
-
 
   if (redirectUrl) {
     return <Redirect href={redirectUrl} />;
@@ -52,9 +48,9 @@ function App() {
 
 export default () => {
   return (
-    <ThemeProvider>
+    <SettingsProvider>
       <App />
-    </ThemeProvider>
+    </SettingsProvider>
   );
 };
 
