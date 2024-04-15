@@ -74,6 +74,7 @@ const Settings = () => {
 
   return (
     <View
+      accessible={false}
       style={[
         styles.container,
         { backgroundColor: themes[theme].backgroundColor },
@@ -81,11 +82,13 @@ const Settings = () => {
     >
       <View style={styles.headerContainer}>
         <HeaderBackButton
+          accessibilityLabel="Back button"
           labelStyle={{ fontSize: fontSizes[fontSize].fontSize }}
           style={styles.backButton}
           onPress={() => router.dismiss()}
         />
         <Text
+          accessible={false}
           style={[
             {
               color: themes[theme].textColor,
@@ -104,7 +107,7 @@ const Settings = () => {
         ]}
       />
 
-      <View>
+      <View accessible={true} accessibilityLabel="Language selection">
         <Text
           style={{
             color: themes[theme].textColor,
@@ -161,6 +164,7 @@ const Settings = () => {
 
       <View style={styles.toggleContainer}>
         <Text
+          accessible={false}
           style={{
             color: themes[theme].textColor,
             fontSize: fontSizes[fontSize].fontSize,
@@ -176,9 +180,14 @@ const Settings = () => {
           ios_backgroundColor={themes[theme].switchOffColor}
           value={toggleScans}
           onValueChange={handleToggleScans}
+          accessible={true}
+          accessibilityLabel="Save Scans to Phone"
+          accessibilityRole="switch"
+          accessibilityValue={{ text: toggleScans ? "true" : "false" }}
         />
       </View>
       <Text
+        accessible={false}
         style={[
           styles.header2,
           {
@@ -191,6 +200,7 @@ const Settings = () => {
       </Text>
       <View style={styles.toggleContainer}>
         <Text
+          accessible={false}
           style={{
             color: themes[theme].textColor,
             fontSize: fontSizes[fontSize].fontSize,
@@ -206,10 +216,15 @@ const Settings = () => {
           ios_backgroundColor={themes[theme].switchOffColor}
           value={toggleAudio}
           onValueChange={handleToggleAudio}
+          accessible={true}
+          accessibilityLabel="App Audio Narration"
+          accessibilityRole="switch"
+          accessibilityValue={{ text: toggleScans ? "true" : "false" }}
         />
       </View>
       <View style={styles.toggleContainer}>
         <Text
+          accessible={false}
           style={{
             color: themes[theme].textColor,
             fontSize: fontSizes[fontSize].fontSize,
@@ -225,9 +240,13 @@ const Settings = () => {
           ios_backgroundColor={themes[theme].switchOffColor}
           value={toggleCapture}
           onValueChange={handleToggleCapture}
+          accessible={true}
+          accessibilityLabel="Scan with volume buttons"
+          accessibilityRole="switch"
+          accessibilityValue={{ text: toggleScans ? "true" : "false" }}
         />
       </View>
-      <View>
+      <View accessible={true} accessibilityLabel="Select UI Theme">
         <Text
           style={{
             color: themes[theme].textColor,
@@ -235,7 +254,7 @@ const Settings = () => {
             fontSize: fontSizes[fontSize].fontSize,
           }}
         >
-          Select UI color:
+          Select UI Theme:
         </Text>
         <RNPickerSelect
           placeholder={{}}
@@ -280,7 +299,7 @@ const Settings = () => {
           value={theme}
         />
       </View>
-      <View>
+      <View accessible={true} accessibilityLabel="Select Text Font Size">
         <Text
           style={{
             color: themes[theme].textColor,
@@ -288,7 +307,7 @@ const Settings = () => {
             fontSize: fontSizes[fontSize].fontSize,
           }}
         >
-          Select Text Size
+          Select Text Font Size
         </Text>
         <RNPickerSelect
           placeholder={{}}
