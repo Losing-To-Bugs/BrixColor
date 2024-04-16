@@ -7,12 +7,25 @@ import {Drawer} from "expo-router/drawer";
 import {Feather, FontAwesome, Ionicons} from "@expo/vector-icons";
 import {useState} from "react";
 import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
+import * as ImagePicker from 'expo-image-picker';
 
 export default function Page() {
     const [flashOn, setFlash] = useState(false)
+    const [imageUri, setImageUri] = useState<string>(null)
 
     const handleFlashPress = () => {
         setFlash(!flashOn)
+    }
+
+    const handleImagePickPress = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setImageUri(result.assets[0].uri);
+        }
     }
 
     return (
@@ -59,7 +72,8 @@ export default function Page() {
                         </TouchableOpacity>
 
                         {/* Open photos button */}
-                        <TouchableOpacity accessibilityLabel="Open photos"
+                        <TouchableOpacity onPress={handleImagePickPress}
+                                          accessibilityLabel="Open photos"
                                           accessibilityHint="Open photo album to choose picture to scan"
                                           accessibilityRole="button">
                             <FontAwesome name="photo" color="white" size={32} />
