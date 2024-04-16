@@ -357,9 +357,7 @@ const Settings = () => {
 };
 export default () => {
   return (
-    <SettingsProvider>
       <Settings />
-    </SettingsProvider>
   );
 };
 

@@ -1,29 +1,39 @@
-import { Drawer } from "expo-router/drawer";
-import { useState, useEffect } from "react";
-import {TouchableOpacity, Text, View} from "react-native";
+import {Drawer} from "expo-router/drawer";
+import {useEffect, useState} from "react";
+import {Text, TouchableOpacity, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-    DrawerContentComponentProps,
-    DrawerContentScrollView,
-} from "@react-navigation/drawer";
-import {Link, useRouter} from "expo-router";
+import {DrawerContentComponentProps, DrawerContentScrollView,} from "@react-navigation/drawer";
+import {useRouter} from "expo-router";
+import {SettingsProvider, useSettings} from "@/components/SettingsContext";
+import {BrixDrawerItem} from "@/app/components/BrixDrawerItem";
 
 function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () => void; isLoggedIn: boolean }) {
     const router = useRouter();
+
+    const {
+        theme,
+        themes,
+        fontSize,
+        fontSizes,
+    } = useSettings();
 
     useEffect(() =>{
     // console.log(props.isLoggedIn)
     }, [props.isLoggedIn])
 
+    // Styles
+    const drawerItemStyle = {
+        fontSize: fontSizes[fontSize].fontSize,
+        color: themes[theme].textColor,
+    }
+
     return (
         <>
-            <DrawerContentScrollView {...props}>
+            <DrawerContentScrollView {...props} style={{backgroundColor: themes[theme].backgroundColor}}>
                 <View style={{gap: 10}}>
-                    <Link href="/scan/settings" asChild>
-                        <TouchableOpacity style={{padding: 16}}>
-                            <Text style={{fontSize: 16}}>Settings</Text>
-                        </TouchableOpacity>
-                    </Link>
+                    <BrixDrawerItem href="/scan/settings">
+                        <Text style={drawerItemStyle}>Settings</Text>
+                    </BrixDrawerItem>
 
                     <TouchableOpacity
                         onPress={() => {
@@ -85,17 +95,19 @@ export default function DrawerLayout() {
     }
 
     return (
-        <Drawer
-            screenOptions={{ headerShown: false, swipeEdgeWidth: 0 }}
-            drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} isLoggedIn={isLoggedIn} />}
-        >
-            <Drawer.Screen
-                name="scan"
-                options={{
-                    drawerLabel: "Scan",
-                    headerShown: false,
-                }}
-            />
-        </Drawer>
+        <SettingsProvider>
+            <Drawer
+                screenOptions={{ headerShown: false, swipeEdgeWidth: 0 }}
+                drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} isLoggedIn={isLoggedIn} />}
+            >
+                <Drawer.Screen
+                    name="scan"
+                    options={{
+                        drawerLabel: "Scan",
+                        headerShown: false,
+                    }}
+                />
+            </Drawer>
+        </SettingsProvider>
     );
 }
