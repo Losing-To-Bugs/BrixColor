@@ -29,7 +29,10 @@ export default function Page() {
                 <BrixDrawerToggleButton style={[{marginLeft: 15}]} />
 
                 {/* Help button */}
-                <TouchableOpacity style={[{marginRight: 15}]}>
+                <TouchableOpacity style={[{marginRight: 15}]}
+                                  accessibilityLabel="Help"
+                                  accessibilityHint="Display useful instructions on how to use the application"
+                                  accessibilityRole="button">
                     <Feather name="help-circle" color="white" size={32} />
                 </TouchableOpacity>
             </View>
@@ -38,16 +41,27 @@ export default function Page() {
                 <View style={styles.control}>
 
                     {/* Shutter button */}
-                    <TouchableOpacity style={buttonStyles.circle} />
+                    <TouchableOpacity style={buttonStyles.circle}
+                                      accessibilityLabel="Shutter button"
+                                      accessibilityHint="Takes photo to scan brick"
+                                      accessibilityRole="button"/>
 
                     <View style={{flexDirection: 'row', gap: 30}}>
                         {/* Flash button */}
-                        <TouchableOpacity onPress={handleFlashPress}>
+                        <TouchableOpacity onPress={handleFlashPress}
+                                          accessibilityLabel="Toggle flash"
+                                          accessibilityHint="Toggles the camera flash"
+                                          accessibilityRole="togglebutton"
+                                          accessibilityState={{checked: flashOn}}
+
+                        >
                             {flashOn ? <Ionicons name="flash" color="white" size={32}/> : <Ionicons name="flash-off" color="white" size={32}/>}
                         </TouchableOpacity>
 
                         {/* Open photos button */}
-                        <TouchableOpacity>
+                        <TouchableOpacity accessibilityLabel="Open photos"
+                                          accessibilityHint="Open photo album to choose picture to scan"
+                                          accessibilityRole="button">
                             <FontAwesome name="photo" color="white" size={32} />
                         </TouchableOpacity>
                     </View>

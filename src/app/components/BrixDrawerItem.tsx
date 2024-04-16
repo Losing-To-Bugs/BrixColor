@@ -4,8 +4,6 @@ import {TouchableOpacity} from "react-native";
 
 export function BrixDrawerItem(props: LinkProps) {
     return <Link href={props.href} asChild>
-        <TouchableOpacity style={{padding: 16}}>
-            {props.children}
-        </TouchableOpacity>
+        <TouchableOpacity style={{padding: 16}} {...props} />
     </Link>;
 }

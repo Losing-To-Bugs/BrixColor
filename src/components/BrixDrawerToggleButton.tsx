@@ -12,7 +12,11 @@ export default function BrixDrawerToggleButton(props: BrixDrawerToggleButtonProp
 
 
     return (<>
-        <TouchableOpacity style={props.style} onPress={() => navigation.openDrawer()}>
+        <TouchableOpacity style={props.style} onPress={() => navigation.openDrawer()}
+                          accessibilityLabel="Open Menu"
+                          accessibilityRole="button"
+
+        >
             <Feather name="menu" color="white" size={props.size ?? 32} />
         </TouchableOpacity>
     </>)
