@@ -1,32 +1,73 @@
-import { StatusBar } from 'expo-status-bar';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {StatusBar} from 'expo-status-bar';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import ScanCamera from "@/components/ScanCamera";
 import pageStyles from "@/styles/page";
 import buttonStyles from "@/styles/button";
 import {Drawer} from "expo-router/drawer";
 import {Feather, FontAwesome, Ionicons} from "@expo/vector-icons";
-import {useState} from "react";
+import {useRef, useState} from "react";
 import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 import * as ImagePicker from 'expo-image-picker';
+import {Camera, ImageType} from "expo-camera";
 
+async function predict(imageUri) {
+    const url = 'https://nasty-impalas-brake.loca.lt/'
+
+    const localUri = imageUri;
+    const formData = new FormData();
+    formData.append("file", {uri: localUri, type: 'image/jpeg', name: 'brix.jpg'});
+
+    const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'content-type': 'multipart/form-data',
+        },
+    })
+
+    const {preds} = await response.json()
+    return preds
+}
 export default function Page() {
     const [flashOn, setFlash] = useState(false)
-    const [imageUri, setImageUri] = useState<string>(null)
+    const [preds, setPreds] = useState([])
 
+    const camera = useRef<Camera>(null)
     const handleFlashPress = () => {
         setFlash(!flashOn)
     }
 
     const handleImagePickPress = async () => {
+        setPreds([])
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             quality: 1,
         });
 
-        if (!result.canceled) {
-            setImageUri(result.assets[0].uri);
+        if (result.canceled) {
+            return
         }
+
+        const preds = await predict(result.assets[0].uri)
+
+        setPreds(preds)
     }
+
+    const handleShutter = async () => {
+        setPreds([])
+        const result = await camera.current.takePictureAsync({
+            imageType: ImageType.jpg
+        })
+
+        const preds = await predict(result.uri)
+        setPreds(preds)
+    }
+
+    const Predictions = () => (<>
+        <View>
+            {preds.map((pred, i) => (<Text style={{fontSize: 24, color: 'white'}} key={i}>{pred}</Text>))}
+        </View>
+    </>)
 
     return (
         <View style={pageStyles.container}>
@@ -50,11 +91,13 @@ export default function Page() {
                 </TouchableOpacity>
             </View>
 
-            <ScanCamera style={styles.camera} flashOn={flashOn}>
+            <ScanCamera style={styles.camera} flashOn={flashOn} ref={ref => {camera.current = ref}}>
+                {preds.length > 0 ? <Predictions/> : <Text>No results</Text>}
                 <View style={styles.control}>
 
                     {/* Shutter button */}
-                    <TouchableOpacity style={buttonStyles.circle}
+                    <TouchableOpacity onPress={handleShutter}
+                                      style={buttonStyles.circle}
                                       accessibilityLabel="Shutter button"
                                       accessibilityHint="Takes photo to scan brick"
                                       accessibilityRole="button"/>
