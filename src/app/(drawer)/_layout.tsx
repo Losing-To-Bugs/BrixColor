@@ -7,6 +7,7 @@ import {
     DrawerContentScrollView,
 } from "@react-navigation/drawer";
 import {Link, useRouter} from "expo-router";
+import {SettingsProvider} from "@/components/SettingsContext";
 
 function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () => void; isLoggedIn: boolean }) {
     const router = useRouter();
@@ -85,17 +86,19 @@ export default function DrawerLayout() {
     }
 
     return (
-        <Drawer
-            screenOptions={{ headerShown: false, swipeEdgeWidth: 0 }}
-            drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} isLoggedIn={isLoggedIn} />}
-        >
-            <Drawer.Screen
-                name="scan"
-                options={{
-                    drawerLabel: "Scan",
-                    headerShown: false,
-                }}
-            />
-        </Drawer>
+        <SettingsProvider>
+            <Drawer
+                screenOptions={{ headerShown: false, swipeEdgeWidth: 0 }}
+                drawerContent={(props) => <DrawerContent {...props} handleLogout={handleLogout} isLoggedIn={isLoggedIn} />}
+            >
+                <Drawer.Screen
+                    name="scan"
+                    options={{
+                        drawerLabel: "Scan",
+                        headerShown: false,
+                    }}
+                />
+            </Drawer>
+        </SettingsProvider>
     );
 }
