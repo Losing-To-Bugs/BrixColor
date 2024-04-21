@@ -1,6 +1,6 @@
-import {Button, Text, View, ViewProps} from "react-native";
+import {Button, Text, View} from "react-native";
 import {Camera, CameraProps, CameraType, FlashMode} from "expo-camera";
-import {forwardRef, LegacyRef} from "react";
+import {forwardRef} from "react";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,

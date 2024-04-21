@@ -9,9 +9,10 @@ import {useRef, useState} from "react";
 import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 import * as ImagePicker from 'expo-image-picker';
 import {Camera, ImageType} from "expo-camera";
+import inferenceApiUrl from "@/services/apiConfig";
 
 async function predict(imageUri) {
-    const url = 'https://nasty-impalas-brake.loca.lt/'
+    const url = inferenceApiUrl
 
     const localUri = imageUri;
     const formData = new FormData();
@@ -48,7 +49,7 @@ export default function Page() {
             return
         }
 
-        const preds = await predict(result.assets[0].uri)
+        const preds = await predict(result.assets[0].uri).catch(console.error)
 
         setPreds(preds)
     }
@@ -59,13 +60,13 @@ export default function Page() {
             imageType: ImageType.jpg
         })
 
-        const preds = await predict(result.uri)
+        const preds = await predict(result.uri).catch(console.error)
         setPreds(preds)
     }
 
     const Predictions = () => (<>
-        <View>
-            {preds.map((pred, i) => (<Text style={{fontSize: 24, color: 'white'}} key={i}>{pred}</Text>))}
+        <View style={{position: 'absolute'}}>
+            {preds?.map((pred, i) => (<Text style={{fontSize: 24, color: 'white'}} key={i}>{pred}</Text>))}
         </View>
     </>)
 
@@ -92,7 +93,7 @@ export default function Page() {
             </View>
 
             <ScanCamera style={styles.camera} flashOn={flashOn} ref={ref => {camera.current = ref}}>
-                {preds.length > 0 ? <Predictions/> : <Text>No results</Text>}
+                {preds && preds.length > 0 ? <Predictions/> : <></>}
                 <View style={styles.control}>
 
                     {/* Shutter button */}
