@@ -22,6 +22,9 @@ const Settings = () => {
     fontSize,
     fontSizes,
     setFontSize,
+    iconSize,
+    setIconSize,
+    iconSizes,
     toggleScans,
     setTogglescans,
     toggleAudio,
@@ -61,6 +64,10 @@ const Settings = () => {
     saveSettingsToStorage("fontSize", selectedFontSize);
   };
 
+  const handleChangeIconSize = (selectedIconSize) => {
+    setIconSize(selectedIconSize);
+    saveSettingsToStorage("iconSize", selectedIconSize);
+  };
   //These handle selection of the theme and font size.
 
   const themeOptions = Object.keys(themes).map((themeKey) => ({
@@ -71,7 +78,10 @@ const Settings = () => {
     label: themeKey,
     value: themeKey,
   }));
-
+  const IconOptions = Object.keys(iconSizes).map((themeKey) => ({
+    label: themeKey,
+    value: themeKey,
+  }));
   return (
     <View
       accessible={false}
@@ -352,12 +362,67 @@ const Settings = () => {
           value={fontSize}
         />
       </View>
+      <View accessible={true} accessibilityLabel="Select Icon Size">
+        <Text
+          style={{
+            color: themes[theme].textColor,
+            marginLeft: 5,
+            fontSize: fontSizes[fontSize].fontSize,
+          }}
+        >
+          Select Icon Size
+        </Text>
+        <RNPickerSelect
+          placeholder={{}}
+          style={{
+            iconContainer: {
+              top: 20,
+              right: 10,
+            },
+            inputIOS: {
+              color: themes[theme].textColor,
+              margin: 5,
+              fontSize: fontSizes[fontSize].fontSize,
+              paddingVertical: 12,
+              paddingHorizontal: 10,
+              borderWidth: 1,
+              borderColor: themes[theme].dividerColor,
+              borderRadius: 4,
+              paddingRight: 30,
+              marginBottom: 10,
+            },
+          }}
+          Icon={() => {
+            return (
+              <View
+                style={{
+                  backgroundColor: "transparent",
+                  borderTopWidth: 10,
+                  borderTopColor: themes[theme].textColor,
+                  borderRightWidth: 10,
+                  borderRightColor: "transparent",
+                  borderLeftWidth: 10,
+                  borderLeftColor: "transparent",
+                  width: 0,
+                  height: 0,
+                  marginTop: 5,
+                }}
+              />
+            );
+          }}
+          onValueChange={(value) => handleChangeIconSize(value)}
+          items={IconOptions}
+          value={iconSize}
+        />
+      </View>
     </View>
   );
 };
 export default () => {
   return (
+    <SettingsProvider>
       <Settings />
+    </SettingsProvider>
   );
 };
 
