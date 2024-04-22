@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Switch, StyleSheet } from "react-native";
+import { View, Text, Switch, StyleSheet, ScrollView } from "react-native";
 import { SettingsProvider, useSettings } from "@/components/SettingsContext";
 import RNPickerSelect from "react-native-picker-select";
 import { useRouter } from "expo-router";
@@ -309,6 +309,55 @@ const Settings = () => {
           value={theme}
         />
       </View>
+      <View
+        style={[
+          styles.colorContainer,
+          { backgroundColor: themes[theme].backgroundColor },
+        ]}
+      >
+        <View
+          style={[
+            styles.colorBlock,
+            { backgroundColor: themes[theme].textColor },
+          ]}
+        >
+          <Text
+            style={{
+              color: themes[theme].backgroundColor,
+            }}
+          >
+            Text Color
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.colorBlock,
+            { backgroundColor: themes[theme].primaryColor },
+          ]}
+        >
+          <Text
+            style={{
+              color: themes[theme].textColor,
+            }}
+          >
+            Primary Color
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.colorBlock,
+            { backgroundColor: themes[theme].secondaryColor },
+          ]}
+        >
+          <Text
+            style={{
+              color: themes[theme].textColor,
+            }}
+          >
+            Secondary Color
+          </Text>
+        </View>
+      </View>
       <View accessible={true} accessibilityLabel="Select Text Font Size">
         <Text
           style={{
@@ -419,11 +468,7 @@ const Settings = () => {
   );
 };
 export default () => {
-  return (
-    <SettingsProvider>
-      <Settings />
-    </SettingsProvider>
-  );
+  return <Settings />;
 };
 
 //All the syling still needs to be perfected. Including inline
@@ -439,7 +484,7 @@ const styles = StyleSheet.create({
   },
   header2: {
     margin: 5,
-    marginTop: 30,
+    marginTop: 5,
     fontSize: 16,
   },
   backButton: {
@@ -456,5 +501,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     justifyContent: "space-between",
     margin: 5,
+  },
+  colorBlock: {
+    width: 70,
+    height: 70,
+    borderRadius: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  colorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginBottom: 5,
   },
 });

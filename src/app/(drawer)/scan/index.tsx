@@ -10,7 +10,7 @@ import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 import * as ImagePicker from "expo-image-picker";
 import { SettingsProvider, useSettings } from "@/components/SettingsContext";
 
-export default function Page() {
+const Page = () => {
   const [flashOn, setFlash] = useState(false);
   const [imageUri, setImageUri] = useState<string>(null);
 
@@ -30,92 +30,95 @@ export default function Page() {
   };
   const { theme, themes, fontSize, fontSizes, iconSize, iconSizes } =
     useSettings();
+
   return (
-    <SettingsProvider>
-      <View style={pageStyles.container}>
-        <Drawer.Screen
-          options={{
-            headerShown: false,
-          }}
+    <View style={pageStyles.container}>
+      <Drawer.Screen
+        options={{
+          headerShown: false,
+        }}
+      />
+      {/* Header */}
+      <View style={pageStyles.header}>
+        {/* Opens and closes drawer */}
+        <BrixDrawerToggleButton
+          style={[{ marginLeft: 15 }]}
+          size={iconSizes[iconSize].Size}
         />
 
-        {/* Header */}
-        <View style={pageStyles.header}>
-          {/* Opens and closes drawer */}
-          <BrixDrawerToggleButton style={[{ marginLeft: 15 }]} />
-
-          {/* Help button */}
-          <TouchableOpacity
-            style={[{ marginRight: 15 }]}
-            accessibilityLabel="Help"
-            accessibilityHint="Display useful instructions on how to use the application"
-            accessibilityRole="button"
-          >
-            <Feather
-              name="help-circle"
-              color="white"
-              size={iconSizes[iconSize]}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <ScanCamera style={styles.camera} flashOn={flashOn}>
-          <View style={styles.control}>
-            {/* Shutter button */}
-            <TouchableOpacity
-              style={buttonStyles.circle}
-              accessibilityLabel="Shutter button"
-              accessibilityHint="Takes photo to scan brick"
-              accessibilityRole="button"
-            />
-
-            <View style={{ flexDirection: "row", gap: 30 }}>
-              {/* Flash button */}
-              <TouchableOpacity
-                onPress={handleFlashPress}
-                accessibilityLabel="Toggle flash"
-                accessibilityHint="Toggles the camera flash"
-                accessibilityRole="togglebutton"
-                accessibilityState={{ checked: flashOn }}
-              >
-                {flashOn ? (
-                  <Ionicons
-                    name="flash"
-                    color="white"
-                    size={iconSizes[iconSize]}
-                  />
-                ) : (
-                  <Ionicons
-                    name="flash-off"
-                    color="white"
-                    size={iconSizes[iconSize]}
-                  />
-                )}
-              </TouchableOpacity>
-
-              {/* Open photos button */}
-              <TouchableOpacity
-                onPress={handleImagePickPress}
-                accessibilityLabel="Open photos"
-                accessibilityHint="Open photo album to choose picture to scan"
-                accessibilityRole="button"
-              >
-                <FontAwesome
-                  name="photo"
-                  color="white"
-                  size={iconSizes[iconSize]}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </ScanCamera>
-
-        <StatusBar style="auto" />
+        {/* Help button */}
+        <TouchableOpacity
+          style={[{ marginRight: 15 }]}
+          accessibilityLabel="Help"
+          accessibilityHint="Display useful instructions on how to use the application"
+          accessibilityRole="button"
+        >
+          <Feather
+            name="help-circle"
+            color="white"
+            size={iconSizes[iconSize].Size}
+          />
+        </TouchableOpacity>
       </View>
-    </SettingsProvider>
-  );
-}
 
+      <ScanCamera style={styles.camera} flashOn={flashOn}>
+        <View style={styles.control}>
+          {/* Shutter button */}
+          <TouchableOpacity
+            style={buttonStyles.circle}
+            accessibilityLabel="Shutter button"
+            accessibilityHint="Takes photo to scan brick"
+            accessibilityRole="button"
+          />
+
+          <View style={{ flexDirection: "row", gap: 30 }}>
+            {/* Flash button */}
+            <TouchableOpacity
+              onPress={handleFlashPress}
+              accessibilityLabel="Toggle flash"
+              accessibilityHint="Toggles the camera flash"
+              accessibilityRole="togglebutton"
+              accessibilityState={{ checked: flashOn }}
+            >
+              {flashOn ? (
+                <Ionicons
+                  name="flash"
+                  color="white"
+                  size={iconSizes[iconSize].Size}
+                />
+              ) : (
+                <Ionicons
+                  name="flash-off"
+                  color="white"
+                  size={iconSizes[iconSize].Size}
+                />
+              )}
+            </TouchableOpacity>
+
+            {/* Open photos button */}
+            <TouchableOpacity
+              onPress={handleImagePickPress}
+              accessibilityLabel="Open photos"
+              accessibilityHint="Open photo album to choose picture to scan"
+              accessibilityRole="button"
+            >
+              <FontAwesome
+                name="photo"
+                color="white"
+                size={iconSizes[iconSize].Size}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScanCamera>
+
+      <StatusBar style="auto" />
+    </View>
+  );
+};
+export default () => {
+  return <Page />;
+};
 const styles = StyleSheet.create({
   camera: {
     flex: 10,
