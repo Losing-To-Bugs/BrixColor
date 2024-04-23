@@ -65,11 +65,28 @@ const fontSizes = {
     fontSize: 20,
   },
 };
+
+const iconSizes = {
+  Small: {
+    Size: 24,
+  },
+  Medium: {
+    Size: 32,
+  },
+  Big: {
+    Size: 40,
+  },
+  Huge: {
+    Size: 48,
+  },
+};
+
 const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
   const [theme, setTheme] = useState("Light");
   const [fontSize, setFontSize] = useState("Medium");
+  const [iconSize, setIconSize] = useState("Medium");
   const [toggleScans, setTogglescans] = useState(false);
   const [toggleAudio, setToggleAudio] = useState(false);
   const [toggleCapture, setToggleCapture] = useState(false);
@@ -86,6 +103,11 @@ export const SettingsProvider = ({ children }) => {
         const savedFontSize = await AsyncStorage.getItem("fontSize");
         if (savedFontSize !== null) {
           setFontSize(savedFontSize);
+        }
+
+        const savedIconSize = await AsyncStorage.getItem("iconSize");
+        if (savedIconSize !== null) {
+          setIconSize(savedIconSize);
         }
 
         const savedToggleScans = await AsyncStorage.getItem("toggleScans");
@@ -119,6 +141,9 @@ export const SettingsProvider = ({ children }) => {
         fontSize,
         setFontSize,
         fontSizes,
+        iconSize,
+        setIconSize,
+        iconSizes,
         toggleScans,
         setTogglescans,
         toggleAudio,
