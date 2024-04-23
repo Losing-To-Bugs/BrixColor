@@ -187,7 +187,7 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
 
                         {/* log in button */}
                         <View style={{flex: 1, flexDirection: "column"}} >
-                            <TouchableOpacity onPress={ () => {setRenderSignUp(false)}} accessibilityLabel='Log In Button'>
+                            <TouchableOpacity onPress={ () => {setRenderSignUp(false)}} accessibilityLabel='Log In Button' accessibilityHint='double tap to navigate to login form' accessibilityRole='button'>
                                 <Text style={{fontSize: 12, paddingLeft: 2.5, color: "blue"}}>
                                     Log In
                                 </Text>
@@ -342,7 +342,7 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
                     {/* create account container and button */}
                     <View style={{flex: 1, justifyContent: "flex-end"}}>
                         <View style={{flex: 0.5, justifyContent: "flex-end", marginBottom: 10, alignItems: "center"}} >
-                            <TouchableOpacity onPress={signup} accessibilityLabel='Submit Button'>
+                            <TouchableOpacity onPress={signup} accessibilityLabel='Account Creation Submit Button' accessibilityHint='double tap to submit form' accessibilityRole='button'>
                                 <Text style={{textAlign: "center", fontSize: 20, color: "blue"}} >
                                     Create Account
                                 </Text>

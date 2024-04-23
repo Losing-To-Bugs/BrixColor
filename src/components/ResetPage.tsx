@@ -57,7 +57,7 @@ const ResetPage: React.FC<Props> = ({setRenderReset, handleReset, renderLoginErr
 
                         {/* Go back button */}
                         <View style={{flex: 1, flexDirection: "column"}} >
-                            <TouchableOpacity onPress={ () => {setRenderReset(false)}} accessibilityLabel='Go Back Button'>
+                            <TouchableOpacity onPress={ () => {setRenderReset(false)}} accessibilityLabel='Go Back Button' accessibilityHint='Double tap to go back to sign in page.'>
                                 <Text style={{fontSize: 12, paddingLeft: 2.5, color: "blue"}}>
                                     Go Back
                                 </Text>
@@ -131,7 +131,9 @@ const ResetPage: React.FC<Props> = ({setRenderReset, handleReset, renderLoginErr
                                     }
                                     
                                     }} 
-                                    accessibilityLabel='Submit Button'>
+                                    accessibilityLabel='Submit Button'
+                                    accessibilityHint='double tap to send reset'
+                                    >
                                     <Text style={{textAlign: "center", fontSize: 20, color: "blue"}} >
                                         Reset Password
                                     </Text>

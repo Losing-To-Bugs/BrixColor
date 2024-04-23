@@ -134,7 +134,7 @@ const LoginPage = () =>{
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#4d5ab0'}}>
 
         
-        <View style={{height: '70%', width: '80%', backgroundColor: 'white', borderRadius: 20, justifyContent: 'space-between'}} accessible={true} accessibilityLabel='login form'> 
+        <View style={{height: '70%', width: '80%', backgroundColor: 'white', borderRadius: 20, justifyContent: 'space-between'}}> 
         
             {/* loading wheel */}
             {isLoading ? (
@@ -165,7 +165,7 @@ const LoginPage = () =>{
                                     </Text>
                                 </View>
                                 <View style={{flex: 1, flexDirection: "column"}} >
-                                    <TouchableOpacity onPress={ () => {setRenderSignUp(true)}}>
+                                    <TouchableOpacity onPress={ () => {setRenderSignUp(true)}} accessibilityLabel='Sign Up Button' accessibilityRole='button' accessibilityHint='double tap to navigate to sign up form'>
                                         <Text style={{fontSize: 12, paddingLeft: 2.5, color: "blue"}}>
                                             Sign Up
                                         </Text>
@@ -223,7 +223,7 @@ const LoginPage = () =>{
                                 />
                             </View>
                         
-                        <TouchableOpacity style={{flexGrow: 0, alignItems: "center"}} onPress={() =>{setRenderResetScreen(true)}}>
+                        <TouchableOpacity style={{flexGrow: 0, alignItems: "center"}} onPress={() =>{setRenderResetScreen(true)}} accessibilityLabel='Reset Password Button' accessibilityRole='button' accessibilityHint='double tap to navigate to reset page'>
                             <Text style={{textAlign: "center", color: "#3E74FF", fontSize: 12}} >
                                 Reset Password
                             </Text>
@@ -240,7 +240,7 @@ const LoginPage = () =>{
                     <View style={{flex: 0.8}} >
                         
                         <View style={{flex: 0.5, alignItems: "center"}} >
-                        <Button title='Login' onPress={login} accessibilityLabel='Login Button' />
+                        <Button title='Login' onPress={login} accessibilityLabel='Login Button'/>
                         </View>
                     </View>
                 </View>
