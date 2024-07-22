@@ -83,14 +83,15 @@ const Settings = () => {
     value: themeKey,
   }));
   return (
-    <View
+    <ScrollView
       accessible={false}
       style={[
         styles.container,
         { backgroundColor: themes[theme].backgroundColor },
       ]}
     >
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer, { backgroundColor: themes[theme].primaryColor },
+      ]} >
         <HeaderBackButton
           accessibilityLabel="Back button"
           labelStyle={{ fontSize: fontSizes[fontSize].fontSize }}
@@ -101,7 +102,7 @@ const Settings = () => {
           accessible={false}
           style={[
             {
-              color: themes[theme].textColor,
+              color: themes[theme].textColor2,
               fontSize: fontSizes[fontSize].fontSize + 6,
               fontWeight: "bold",
             },
@@ -110,18 +111,34 @@ const Settings = () => {
           Settings
         </Text>
       </View>
-      <View
+      <Text
+        accessible={false}
         style={[
-          styles.divider,
-          { backgroundColor: themes[theme].dividerColor },
+          styles.header2,
+          {
+            color: themes[theme].textColor,
+            fontSize: fontSizes[fontSize].fontSize + 4,
+            paddingTop: 25
+          },
         ]}
-      />
-
-      <View accessible={true} accessibilityLabel="Language selection">
+      >
+        General Settings
+      </Text>
+      <View accessible={false} style={[
+        styles.container,
+        { backgroundColor: themes[theme].backgroundColor2,
+          marginHorizontal: 10,
+          borderRadius: 5,
+          paddingTop: 5
+         },
+      ]}>
+      
+        <View accessible={true} accessibilityLabel="Language selection">
         <Text
           style={{
             color: themes[theme].textColor,
             marginLeft: 5,
+            marginVertical: 0,
             fontSize: fontSizes[fontSize].fontSize,
           }}
         >
@@ -171,7 +188,12 @@ const Settings = () => {
           }
         />
       </View>
-
+      <View
+        style={[
+          styles.divider,
+          { backgroundColor: themes[theme].dividerColor },
+        ]}
+      />
       <View style={styles.toggleContainer}>
         <Text
           accessible={false}
@@ -196,6 +218,8 @@ const Settings = () => {
           accessibilityValue={{ text: toggleScans ? "true" : "false" }}
         />
       </View>
+
+      </View>
       <Text
         accessible={false}
         style={[
@@ -203,11 +227,20 @@ const Settings = () => {
           {
             color: themes[theme].textColor,
             fontSize: fontSizes[fontSize].fontSize + 4,
+            paddingTop: 25
           },
         ]}
       >
-        ACCESSIBILITY SETTINGS
+        Accessibility Settings
       </Text>
+      <View accessible={false} style={[
+             styles.container,
+             { backgroundColor: themes[theme].backgroundColor2,
+               marginHorizontal: 10,
+               borderRadius: 5,
+               paddingTop: 5
+              },
+      ]}>
       <View style={styles.toggleContainer}>
         <Text
           accessible={false}
@@ -232,6 +265,12 @@ const Settings = () => {
           accessibilityValue={{ text: toggleScans ? "true" : "false" }}
         />
       </View>
+      <View
+        style={[
+          styles.divider,
+          { backgroundColor: themes[theme].dividerColor },
+        ]}
+      />
       <View style={styles.toggleContainer}>
         <Text
           accessible={false}
@@ -256,6 +295,12 @@ const Settings = () => {
           accessibilityValue={{ text: toggleScans ? "true" : "false" }}
         />
       </View>
+      <View
+        style={[
+          styles.divider,
+          { backgroundColor: themes[theme].dividerColor },
+        ]}
+      />
       <View accessible={true} accessibilityLabel="Select UI Theme">
         <Text
           style={{
@@ -311,53 +356,10 @@ const Settings = () => {
       </View>
       <View
         style={[
-          styles.colorContainer,
-          { backgroundColor: themes[theme].backgroundColor },
+          styles.divider,
+          { backgroundColor: themes[theme].dividerColor },
         ]}
-      >
-        <View
-          style={[
-            styles.colorBlock,
-            { backgroundColor: themes[theme].textColor },
-          ]}
-        >
-          <Text
-            style={{
-              color: themes[theme].backgroundColor,
-            }}
-          >
-            Text Color
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.colorBlock,
-            { backgroundColor: themes[theme].primaryColor },
-          ]}
-        >
-          <Text
-            style={{
-              color: themes[theme].textColor,
-            }}
-          >
-            Primary Color
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.colorBlock,
-            { backgroundColor: themes[theme].secondaryColor },
-          ]}
-        >
-          <Text
-            style={{
-              color: themes[theme].textColor,
-            }}
-          >
-            Secondary Color
-          </Text>
-        </View>
-      </View>
+      />
       <View accessible={true} accessibilityLabel="Select Text Font Size">
         <Text
           style={{
@@ -411,6 +413,12 @@ const Settings = () => {
           value={fontSize}
         />
       </View>
+      <View
+        style={[
+          styles.divider,
+          { backgroundColor: themes[theme].dividerColor },
+        ]}
+      />
       <View accessible={true} accessibilityLabel="Select Icon Size">
         <Text
           style={{
@@ -464,7 +472,8 @@ const Settings = () => {
           value={iconSize}
         />
       </View>
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 export default () => {
@@ -477,7 +486,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    marginVertical: 10,
+    marginVertical: 0,
+    paddingVertical: 15,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -486,6 +496,8 @@ const styles = StyleSheet.create({
     margin: 5,
     marginTop: 5,
     fontSize: 16,
+    opacity: .75,
+  fontWeight: 'bold'
   },
   backButton: {
     position: "absolute",

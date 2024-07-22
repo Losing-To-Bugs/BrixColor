@@ -4,17 +4,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const themes = {
   Light: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#E0E0E0",
+    backgroundColor2: "#ffffff",
     textColor: "#000000",
-    dividerColor: "#000000",
+    textColor2: "#ffffff",
+    dividerColor: "#E0E0E0",
     switchOffColor: "#ffffff",
-    switchOnColor: "#00FF00",
-    primaryColor: "#0055BF",
-    secondaryColor: "#C91A09",
+    switchOnColor: "#0055BF",
+    primaryColor: "#C91A09",
+    secondaryColor: "#00FF00",
   },
   Dark: {
     backgroundColor: "#3D3D3D",
+    backgroundColor2: "#E0E0E0",
     textColor: "#ffffff",
+    textColor2: "#000000",
     dividerColor: "#ffffff",
     switchOffColor: "#FF0000",
     switchOnColor: "#00FF00",
@@ -23,7 +27,9 @@ const themes = {
   },
   Royal: {
     backgroundColor: "#000000",
+    backgroundColor2: "#E0E0E0",
     textColor: "#ffffff",
+    textColor2: "#000000",
     dividerColor: "#ffffff",
     switchOffColor: "#FF0000",
     switchOnColor: "#00FF00",
@@ -32,7 +38,9 @@ const themes = {
   },
   Sunset: {
     backgroundColor: "#000000",
+    backgroundColor2: "#E0E0E0",
     textColor: "#ffffff",
+    textColor2: "#000000",
     dividerColor: "#ffffff",
     switchOffColor: "#FF0000",
     switchOnColor: "#00FF00",
@@ -41,7 +49,9 @@ const themes = {
   },
   Fall: {
     backgroundColor: "#000000",
+    backgroundColor2: "#E0E0E0",
     textColor: "#ffffff",
+    textColor2: "#000000",
     dividerColor: "#ffffff",
     switchOffColor: "#FF0000",
     switchOnColor: "#00FF00",
