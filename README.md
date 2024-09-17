@@ -89,3 +89,77 @@ xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer dire
 Run `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
 
 More info: https://dev.to/lico/react-nativewithout-expo-run-hello-world-app-on-iphone-device-cfi
+
+## Testing
+This project uses [Jest](https://jestjs.io/docs/using-matchers)
+as a testing framework and the 
+[React Native Testing Library](https://testing-library.com/docs/react-native-testing-library/example-intro/) 
+that lets you test components in a user-centric way.
+
+### Examples
+> Testing a simple component
+```tsx
+import {Text, View} from "react-native";
+import {render} from '@testing-library/react-native';
+
+
+const MyComponent = () => (<View><Text>Hello, world!</Text></View>)
+
+describe('<MyComponent />', () => {
+    // PASSES
+    test('it renders', () => {
+        render(<MyComponent />);
+    });
+
+    // PASSES
+    test('it has correct text', () => {
+        const { getByText } = render(<MyComponent />);
+        getByText('Hello, world!');
+    });
+
+    // FAILS
+    test('it has correct text', () => {
+        const { getByText } = render(<MyComponent />);
+        getByText('Hello, mom!');
+    });
+});
+```
+
+> Testing a button
+```tsx
+import {fireEvent, render} from "@testing-library/react-native";
+import {useState} from "react";
+import {Pressable, Text, View} from "react-native";
+
+const MyComponent = () => {
+    const [pressed, setPressed] = useState(false);
+
+    if (pressed) {
+        return (<>
+            <View><Text>Pressed!</Text></View>
+        </>)
+    }
+
+    return (<>
+        <View>
+            <Pressable onPress={() => setPressed(true)}>
+                <Text>Press me!</Text>
+            </Pressable>
+        </View>
+    </>)
+}
+
+describe('<MyComponent />', () => {
+    test('it renders', () => {
+        render(<MyComponent />);
+    });
+
+    test('it changes on press', () => {
+        const { getByText } = render(<MyComponent />);
+
+        fireEvent.press(getByText('Press me!'));
+        getByText('Pressed!')
+    });
+});
+```
+
