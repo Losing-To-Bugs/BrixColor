@@ -32,11 +32,12 @@ NODE_ENV=development npx expo start
 NODE_ENV=development npx expo start
 ```
 
-## Deploy development build to iOS
+## Deploy development build to iOS for the first time
 Prerequisites:
 - Device running MacOS
 - Apple ID account
 - Cable to tether iOS device to Mac
+- **Mac and iOS device on same network**
 
 ### 1. Install Xcode from App store on mac
 https://apps.apple.com/us/app/xcode/id497799835?mt=12
@@ -71,14 +72,12 @@ Retry the provisioning and proceed if no error messages arise.
 
 This command will prompt for which device to target when building. To deploy to your iOS device, connect it to the mac with a cable and it should appear in the menu prompt.
 
-You'll most likely get an error after running this command, indicating you need to set up Xcode for this project.
-
 ### 6. Trust developer in iOS
 After the build finishes, it should appear in your iOS device in 'Recently Added', but you first need to go to Settings > General > VPN & Device Management > Developer App
 
 Press 'Trust' for the developer account used to build the app. 
 
-## Troubleshooting
+### Troubleshooting
 
 ### a)
 ```
