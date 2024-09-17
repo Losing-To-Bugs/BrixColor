@@ -12,6 +12,8 @@ import * as ImagePicker from "expo-image-picker";
 import { SettingsProvider, useSettings } from "@/components/SettingsContext";
 import {Camera, ImageType} from "expo-camera";
 import inferenceApiUrl from "@/services/apiConfig";
+import {useIconFonts} from "@/hooks/useIconFonts";
+import IconCharacters from "@/constants/icon-characters";
 
 async function predict(imageUri) {
     const url = inferenceApiUrl
@@ -78,11 +80,7 @@ const Page = () => {
     const { theme, themes, fontSize, fontSizes, iconSize, iconSizes } =
         useSettings();
 
-    const [loaded] = useFonts({
-        Ionicons: require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf'),
-        Feather: require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Feather.ttf'),
-        FontAwesome: require('@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/FontAwesome.ttf'),
-    });
+    const [loaded] = useIconFonts();
 
     if (!loaded) {
         return null
@@ -110,7 +108,7 @@ const Page = () => {
                     accessibilityHint="Display useful instructions on how to use the application"
                     accessibilityRole="button"
                 >
-                    <Text style={{ fontFamily: 'Ionicons', fontSize: 30, color: 'white' }}></Text>
+                    <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Help}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -135,9 +133,9 @@ const Page = () => {
                             accessibilityState={{ checked: flashOn }}
                         >
                             {flashOn ? (
-                                <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}></Text>
+                                <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Flash}</Text>
                             ) : (
-                                <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}></Text>
+                                <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.FlashOff}</Text>
                             )}
                         </TouchableOpacity>
 
@@ -148,7 +146,7 @@ const Page = () => {
                             accessibilityHint="Open photo album to choose picture to scan"
                             accessibilityRole="button"
                         >
-                            <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}></Text>
+                            <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Images}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
