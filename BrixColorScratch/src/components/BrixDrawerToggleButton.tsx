@@ -1,5 +1,4 @@
-import {Text, TouchableOpacity, TouchableOpacityProps} from "react-native";
-import {Feather} from "@expo/vector-icons";
+import {TouchableOpacity, TouchableOpacityProps} from "react-native";
 import {useNavigation} from "expo-router";
 import {DrawerNavigationProp} from "@react-navigation/drawer/src/types";
 import {ParamListBase} from "@react-navigation/native";
@@ -17,7 +16,6 @@ export default function BrixDrawerToggleButton(props: BrixDrawerToggleButtonProp
                           accessibilityRole="button"
 
         >
-            {/*<Text style={{ fontFamily: 'Ionicons', fontSize: 32, color: 'white' }}>{IconCharacters.Menu}</Text>*/}
             <Ionicons
                 name="reorder-three-outline"
                 size={32}

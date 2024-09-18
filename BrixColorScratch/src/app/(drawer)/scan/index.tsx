@@ -11,8 +11,6 @@ import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 
 function Page() {
     const [flashOn, setFlash] = useState(false)
-    const [preds, setPreds] = useState([])
-    const [imageUri, setImageUri] = useState<string>(null);
 
     // const camera = useRef<Camera>(null)
     const handleFlashPress = () => {
@@ -68,14 +66,12 @@ function Page() {
                                     size={32}
                                     color={'white'}
                                 />
-                                // <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Flash}</Text>
                             ) : (
                                 <Ionicons
                                     name="flash-off"
                                     size={32}
                                     color={'white'}
                                 />
-                                // <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.FlashOff}</Text>
                             )}
                         </TouchableOpacity>
 
