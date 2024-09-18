@@ -76,7 +76,6 @@ export default function DrawerLayout() {
             const userData = await AsyncStorage.getItem("uid");
             const loggedIn = userData !== null;
             setIsLoggedIn(loggedIn);
-            console.log(loggedIn)
         } catch (error) {
             console.error("Error checking login status:", error);
         }
