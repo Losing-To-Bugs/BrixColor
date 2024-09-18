@@ -94,15 +94,18 @@ const Settings = () => {
       ]} >
         <HeaderBackButton
           accessibilityLabel="Back button"
-          labelStyle={{ fontSize: fontSizes[fontSize].fontSize }}
-          style={styles.backButton}
+          labelStyle={{ fontSize: fontSizes[fontSize].fontSize, color: themes[theme].headerColor }}
+          tintColor={themes[theme].headerColor}
+          style={[
+            styles.backButton
+          ]}
           onPress={() => router.dismiss()}
         />
         <Text
           accessible={false}
           style={[
             {
-              color: themes[theme].textColor2,
+              color: themes[theme].headerColor,
               fontSize: fontSizes[fontSize].fontSize + 6,
               fontWeight: "bold",
             },
@@ -207,7 +210,7 @@ const Settings = () => {
         <Switch
           trackColor={{
             false: themes[theme].switchOffColor,
-            true: themes[theme].switchOnColor,
+            true: themes[theme].primaryColor,
           }}
           ios_backgroundColor={themes[theme].switchOffColor}
           value={toggleScans}
@@ -254,7 +257,7 @@ const Settings = () => {
         <Switch
           trackColor={{
             false: themes[theme].switchOffColor,
-            true: themes[theme].switchOnColor,
+            true: themes[theme].primaryColor,
           }}
           ios_backgroundColor={themes[theme].switchOffColor}
           value={toggleAudio}
@@ -284,7 +287,7 @@ const Settings = () => {
         <Switch
           trackColor={{
             false: themes[theme].switchOffColor,
-            true: themes[theme].switchOnColor,
+            true: themes[theme].primaryColor,
           }}
           ios_backgroundColor={themes[theme].switchOffColor}
           value={toggleCapture}
