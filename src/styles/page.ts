@@ -8,6 +8,8 @@ const pageStyles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '100%',
         backgroundColor: 'black',
+        paddingStart: 15,
+        paddingEnd: 15
     },
 
     container: {

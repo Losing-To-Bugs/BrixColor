@@ -1,123 +1,51 @@
+import {TouchableOpacity, View} from "react-native";
+import {Drawer} from "expo-router/drawer";
+import React, {useState} from "react";
+import {StyleSheet} from "react-native";
 import {StatusBar} from "expo-status-bar";
-import { StyleSheet, Text, TouchableOpacity , View} from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import ScanCamera from "@/components/ScanCamera";
 import pageStyles from "@/styles/page";
 import buttonStyles from "@/styles/button";
-import { Drawer } from "expo-router/drawer";
-import { Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
-import { useFonts } from "expo-font";
-import { useRef, useState} from "react";
 import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
-import * as ImagePicker from "expo-image-picker";
-import { SettingsProvider, useSettings } from "@/components/SettingsContext";
-import {Camera, ImageType} from "expo-camera";
-import inferenceApiUrl from "@/services/apiConfig";
-import {useIconFonts} from "@/hooks/useIconFonts";
-import IconCharacters from "@/constants/icon-characters";
 
-async function predict(imageUri) {
-    const url = inferenceApiUrl
-
-    const localUri = imageUri;
-    const formData = new FormData();
-    formData.append("file", {uri: localUri, type: 'image/jpeg', name: 'brix.jpg'});
-
-    const response = await fetch(url, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'content-type': 'multipart/form-data',
-        },
-    })
-
-    const {preds} = await response.json()
-    return preds
-}
-const Page = () => {
+function Page() {
     const [flashOn, setFlash] = useState(false)
-    const [preds, setPreds] = useState([])
-    const [imageUri, setImageUri] = useState<string>(null);
 
-    const camera = useRef<Camera>(null)
+    // const camera = useRef<Camera>(null)
     const handleFlashPress = () => {
         setFlash(!flashOn);
-  };
-
-  const handleImagePickPress = async () => {
-    setPreds([])
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            quality: 1,
-        });
-
-        if (result.canceled) {
-            return
-        }
-
-        setImageUri(result.assets[0].uri);
-
-        const preds = await predict(result.assets[0].uri).catch(console.error)
-
-        setPreds(preds)
-    }
-
-    const handleShutter = async () => {
-        setPreds([])
-        const result = await camera.current.takePictureAsync({
-            imageType: 'jpg'
-        })
-
-        const preds = await predict(result.uri).catch(console.error)
-        setPreds(preds)
-    }
-
-    const Predictions = () => (<>
-        <View style={{position: 'absolute'}}>
-            {preds?.map((pred, i) => (<Text style={{fontSize: 24, color: 'white'}} key={i}>{pred}</Text>))}
-        </View>
-    </>)
-
-    const { theme, themes, fontSize, fontSizes, iconSize, iconSizes } =
-        useSettings();
-
-    const [loaded] = useIconFonts();
-
-    if (!loaded) {
-        return null
-    }
+    };
 
     return (
         <View style={pageStyles.container}>
-            <Drawer.Screen
-                options={{
-                    headerShown: false,
-                }}
-            />
-            {/* Header */}
+            <Drawer.Screen options={{headerShown: false}} />
+
             <View style={pageStyles.header}>
-                {/* Opens and closes drawer */}
                 <BrixDrawerToggleButton
-                    style={[{ marginLeft: 15 }]}
-                    size={iconSizes[iconSize].Size}
+                    size={32}
                 />
 
                 {/* Help button */}
                 <TouchableOpacity
-                    style={[{ marginRight: 15 }]}
                     accessibilityLabel="Help"
                     accessibilityHint="Display useful instructions on how to use the application"
                     accessibilityRole="button"
                 >
-                    <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Help}</Text>
+                    <Ionicons
+                        name="help-circle"
+                        size={32}
+                        color="white"
+                    />
                 </TouchableOpacity>
             </View>
 
-            <ScanCamera style={styles.camera} flashOn={flashOn} ref={ref => {camera.current = ref}}>
-                {preds && preds.length > 0 ? <Predictions/> : <></>}
+
+            <ScanCamera style={styles.camera} flashOn={flashOn}>
                 <View style={styles.control}>
 
                     {/* Shutter button */}
-                    <TouchableOpacity onPress={handleShutter}
+                    <TouchableOpacity onPress={() => {}}
                                       style={buttonStyles.circle}
                                       accessibilityLabel="Shutter button"
                                       accessibilityHint="Takes photo to scan brick"
@@ -133,51 +61,65 @@ const Page = () => {
                             accessibilityState={{ checked: flashOn }}
                         >
                             {flashOn ? (
-                                <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Flash}</Text>
+                                <Ionicons
+                                    name="flash"
+                                    size={32}
+                                    color={'white'}
+                                />
                             ) : (
-                                <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.FlashOff}</Text>
+                                <Ionicons
+                                    name="flash-off"
+                                    size={32}
+                                    color={'white'}
+                                />
                             )}
                         </TouchableOpacity>
 
                         {/* Open photos button */}
                         <TouchableOpacity
-                            onPress={handleImagePickPress}
+                            onPress={() => {}}
                             accessibilityLabel="Open photos"
                             accessibilityHint="Open photo album to choose picture to scan"
                             accessibilityRole="button"
                         >
-                            <Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Images}</Text>
+                            {/*<Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Images}</Text>*/}
+                            <Ionicons
+                                name="images"
+                                size={32}
+                                color={'white'}
+                            />
                         </TouchableOpacity>
                     </View>
                 </View>
             </ScanCamera>
 
+
             <StatusBar style="auto" />
         </View>
     )
+}
 
-};
-export default () => {
-  return <Page />;
-};
+export default function () {
+    return <Page />
+}
 const styles = StyleSheet.create({
-  camera: {
-    flex: 10,
-    alignItems: "center",
-    justifyContent: "center",
+    camera: {
+        flex: 10,
+        alignItems: "center",
+        justifyContent: "center",
 
-    fontWeight: "bold",
-    fontSize: 48,
-    width: "100%",
-  },
+        fontWeight: "bold",
+        fontSize: 48,
+        width: "100%",
+    },
 
-  control: {
-    flex: 3 / 8,
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 30,
-    backgroundColor: "rgba(0,0,0,0.375)",
-    marginTop: "auto",
-  },
+    control: {
+        flex: 3 / 8,
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 30,
+        backgroundColor: "rgba(0,0,0,0.375)",
+        marginTop: "auto",
+    },
 });
