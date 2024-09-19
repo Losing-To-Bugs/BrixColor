@@ -8,14 +8,29 @@ import ScanCamera from "@/components/ScanCamera";
 import pageStyles from "@/styles/page";
 import buttonStyles from "@/styles/button";
 import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
+import * as ImagePicker from "expo-image-picker";
 
 function Page() {
-    const [flashOn, setFlash] = useState(false)
+    const [flashOn, setFlash] = useState(false);
+    const [imageUri, setImageUri] = useState<string>(null);
 
     // const camera = useRef<Camera>(null)
     const handleFlashPress = () => {
         setFlash(!flashOn);
     };
+
+    const handleImagePickPress = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            quality: 1,
+        });
+
+        if (result.canceled) {
+            return
+        }
+
+        setImageUri(result.assets[0].uri);
+    }
 
     return (
         <View style={pageStyles.container}>
@@ -77,7 +92,7 @@ function Page() {
 
                         {/* Open photos button */}
                         <TouchableOpacity
-                            onPress={() => {}}
+                            onPress={handleImagePickPress}
                             accessibilityLabel="Open photos"
                             accessibilityHint="Open photo album to choose picture to scan"
                             accessibilityRole="button"
