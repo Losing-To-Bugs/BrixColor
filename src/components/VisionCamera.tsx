@@ -25,7 +25,12 @@ const VisionCamera = function (props: ScanCameraProps, ref) {
 
     if(device == null){
         return (
-            <Text>Camera was not found</Text>
+            <>
+                <View style={[props.style, {backgroundColor: 'black'}]}>
+                    <Text style={{color: 'white'}}>Camera not found on this device</Text>
+                    {props.children}
+                </View>
+            </>
         );
     }
 
@@ -58,16 +63,17 @@ const VisionCamera = function (props: ScanCameraProps, ref) {
 
     return (
         <>
-            <Camera
-                frameProcessor={frameProcessor}
-                // style={StyleSheet.absoluteFill}
-                style={{width: '100%', height: '100%'}}
-                device={device}
-                isActive={true}>
-                <View>
-                    <Text style={{color: 'Red'}}>Hey</Text>
-                </View>
-            </Camera>
+            <View style={[props.style, {backgroundColor: 'black'}]}>
+                <Camera
+                    frameProcessor={frameProcessor}
+                    style={StyleSheet.absoluteFill}
+                    device={device}
+                    torch={props.flashOn ? 'on' : 'off'}
+                    isActive={true}>
+
+                </Camera>
+                {props.children}
+            </View>
         </>
 
     );
