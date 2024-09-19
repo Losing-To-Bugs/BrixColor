@@ -72,7 +72,8 @@ function Page() {
                         </View>)
                         :
                         (<View style={{height: '100%', width: '100%'}}>
-                            <VisionCamera flashOn={flashOn} style={styles.camera} />
+                            {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
+                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} />*/}
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
