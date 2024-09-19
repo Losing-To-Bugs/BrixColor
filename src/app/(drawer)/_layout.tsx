@@ -18,7 +18,7 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
     } = useSettings();
 
     useEffect(() =>{
-    // console.log(props.isLoggedIn)
+        // console.log(props.isLoggedIn)
     }, [props.isLoggedIn])
 
     // Styles

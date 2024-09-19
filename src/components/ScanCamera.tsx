@@ -1,5 +1,5 @@
 import {Button, Text, View} from "react-native";
-import {Camera, CameraProps, CameraType, FlashMode} from "expo-camera";
+import {useCameraPermissions, CameraProps, CameraView} from "expo-camera";
 import {forwardRef} from "react";
 
 export type ScanCameraProps = CameraProps & {
@@ -7,7 +7,7 @@ export type ScanCameraProps = CameraProps & {
 }
 
 const ScanCamera = forwardRef(function (props: ScanCameraProps, ref) {
-    const [permission, requestPermission] = Camera.useCameraPermissions()
+    const [permission, requestPermission] = useCameraPermissions()
 
     if (!permission) {
         return (<View>
@@ -26,9 +26,9 @@ const ScanCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
     return (<>
         <View style={[props.style, {backgroundColor: 'black'}]}>
-            <Camera style={{width: '100%', height: '100%'}} type={CameraType.back} flashMode={props.flashOn ? FlashMode.torch : FlashMode.off} ref={ref}>
+            <CameraView style={{width: '100%', height: '100%'}} type={'back'} flashMode={props.flashOn ? 'torch' : 'off'} ref={ref}>
                 {props.children}
-            </Camera>
+            </CameraView>
         </View>
     </>)
 })

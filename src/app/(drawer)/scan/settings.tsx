@@ -135,7 +135,7 @@ const Settings = () => {
           paddingTop: 5
          },
       ]}>
-      
+
         <View accessible={true} accessibilityLabel="Language selection">
         <Text
           style={{
