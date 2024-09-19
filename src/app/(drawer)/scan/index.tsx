@@ -11,6 +11,7 @@ import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 import * as ImagePicker from "expo-image-picker";
 import VisionCamera from "@/components/VisionCamera";
 import Constants from 'expo-constants'
+import {useSettings} from "@/components/SettingsContext";
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
@@ -36,6 +37,13 @@ function Page() {
         setImageUri(result.assets[0].uri);
     }
 
+    const {
+        iconSize,
+        iconSizes,
+    } = useSettings();
+
+    const iconSetSize: number = iconSizes[iconSize].iconSize ?? 32
+
     return (
         <View style={pageStyles.container}>
             <Drawer.Screen options={{headerShown: false}} />
@@ -53,7 +61,7 @@ function Page() {
                 >
                     <Ionicons
                         name="help-circle"
-                        size={32}
+                        size={iconSetSize}
                         color="white"
                     />
                 </TouchableOpacity>
@@ -100,13 +108,13 @@ function Page() {
                             {flashOn ? (
                                 <Ionicons
                                     name="flash"
-                                    size={32}
+                                    size={iconSetSize}
                                     color={'white'}
                                 />
                             ) : (
                                 <Ionicons
                                     name="flash-off"
-                                    size={32}
+                                    size={iconSetSize}
                                     color={'white'}
                                 />
                             )}
@@ -121,7 +129,7 @@ function Page() {
                         >
                             <Ionicons
                                 name="images"
-                                size={32}
+                                size={iconSetSize}
                                 color={'white'}
                             />
                         </TouchableOpacity>
