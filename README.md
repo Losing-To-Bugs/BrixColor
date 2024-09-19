@@ -163,3 +163,23 @@ describe('<MyComponent />', () => {
 });
 ```
 
+## Project Structure
+The project uses Expo file system based routing and
+React Native navigation elements including expo-router/stack
+and expo-router/drawer.
+
+### Routes
+```
+/LoginPage
+
+/(drawer)/scan
+/(drawer)/scan/settings
+```
+
+The `/(drawer)/scan` route uses a stack element inside
+a drawer element. This way, the user can open the drawer
+and navigate to the settings page `/(drawer)/settings`
+by pushing it to the
+stack. In the settings page, the user simply presses
+a back button which pops the stack and returns to the
+scan page.
