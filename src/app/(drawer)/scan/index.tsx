@@ -1,4 +1,4 @@
-import {TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View} from "react-native";
 import {Drawer} from "expo-router/drawer";
 import React, {useState} from "react";
 import {StyleSheet} from "react-native";
@@ -9,6 +9,10 @@ import pageStyles from "@/styles/page";
 import buttonStyles from "@/styles/button";
 import BrixDrawerToggleButton from "@/components/BrixDrawerToggleButton";
 import * as ImagePicker from "expo-image-picker";
+import VisionCamera from "@/components/VisionCamera";
+import Constants from 'expo-constants'
+
+const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
 function Page() {
     const [flashOn, setFlash] = useState(false);
@@ -55,8 +59,25 @@ function Page() {
                 </TouchableOpacity>
             </View>
 
+            <View style={{
+                flex: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+            }}>
+                {
+                    isRunningInExpoGo ?
+                        (<View style={{height: '100%', width: '100%'}}>
+                            <ScanCamera flashOn={flashOn} style={styles.camera} />
+                            <Text style={{color: 'white'}}>Using Expo Camera</Text>
+                        </View>)
+                        :
+                        (<View style={{height: '100%', width: '100%'}}>
+                            <VisionCamera flashOn={flashOn} style={styles.camera} />
+                            <Text style={{color: 'white'}}>Using React Vision Camera</Text>
+                        </View>)
 
-            <ScanCamera style={styles.camera} flashOn={flashOn}>
+                }
+
                 <View style={styles.control}>
 
                     {/* Shutter button */}
@@ -97,7 +118,6 @@ function Page() {
                             accessibilityHint="Open photo album to choose picture to scan"
                             accessibilityRole="button"
                         >
-                            {/*<Text style={{ fontFamily: 'Ionicons', fontSize: iconSizes[iconSize].Size, color: 'white' }}>{IconCharacters.Images}</Text>*/}
                             <Ionicons
                                 name="images"
                                 size={32}
@@ -106,7 +126,8 @@ function Page() {
                         </TouchableOpacity>
                     </View>
                 </View>
-            </ScanCamera>
+
+            </View>
 
 
             <StatusBar style="auto" />
@@ -129,8 +150,15 @@ const styles = StyleSheet.create({
     },
 
     control: {
-        flex: 3 / 8,
-        flexDirection: "column",
+        position: 'absolute',
+        // alignSelf: 'flex-end',
+        bottom: 0,
+
+        width: '100%',
+        height: '37.5%',
+
+        // flex: 3 / 8,
+        // flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         gap: 30,
