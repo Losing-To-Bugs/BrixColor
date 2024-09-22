@@ -1,11 +1,10 @@
 import {render, fireEvent, waitFor } from "@testing-library/react-native";
 import LoginPage from "../LoginPage";
+import {signInWithEmailAndPassword} from "firebase/auth";
 
-
+jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
 
 describe("LoginPage Component Tests", ()=>{
-    
-
     // test proper init render
     test("Test01: Correct Initial render", () =>{
         const { getByPlaceholderText, queryByText} = render(
@@ -115,7 +114,7 @@ describe("LoginPage Component Tests", ()=>{
 
         // wait for the async call to complete (AuthN is async)
         await waitFor(() =>{
-            expect(queryByText("Incorrect Email or Password. Please double-check and try again or reset password.")).not.toBeNull();
+            expect(queryByText("Invalid Email. No Accounts Match this Email.")).not.toBeNull();
         });
     });
 

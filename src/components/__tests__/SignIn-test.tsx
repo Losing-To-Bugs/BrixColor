@@ -1,5 +1,5 @@
 import {fireEvent, render, waitFor} from '@testing-library/react-native';
-import SignIn from "@/components/SignIn";
+import SignIn from "@/components/SignUp";
 import {createUserWithEmailAndPassword} from "firebase/auth";
 
 jest.mock('firebase/auth', () => ({
