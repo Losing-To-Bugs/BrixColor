@@ -265,7 +265,7 @@ const Settings = () => {
           accessible={true}
           accessibilityLabel="App Audio Narration"
           accessibilityRole="switch"
-          accessibilityValue={{ text: toggleScans ? "true" : "false" }}
+          accessibilityValue={{ text: toggleAudio ? "true" : "false" }}
         />
       </View>
       <View
@@ -295,7 +295,7 @@ const Settings = () => {
           accessible={true}
           accessibilityLabel="Scan with volume buttons"
           accessibilityRole="switch"
-          accessibilityValue={{ text: toggleScans ? "true" : "false" }}
+          accessibilityValue={{ text: toggleCapture ? "true" : "false" }}
         />
       </View>
       <View
@@ -315,6 +315,7 @@ const Settings = () => {
           Select UI Theme:
         </Text>
         <RNPickerSelect
+          touchableWrapperProps={{testID: 'theme-picker'}}
           placeholder={{}}
           style={{
             iconContainer: {
@@ -371,7 +372,7 @@ const Settings = () => {
             fontSize: fontSizes[fontSize].fontSize,
           }}
         >
-          Select Text Font Size
+          Select Text Font Size:
         </Text>
         <RNPickerSelect
           placeholder={{}}
@@ -430,7 +431,7 @@ const Settings = () => {
             fontSize: fontSizes[fontSize].fontSize,
           }}
         >
-          Select Icon Size
+          Select Icon Size:
         </Text>
         <RNPickerSelect
           placeholder={{}}
