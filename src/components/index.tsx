@@ -1,4 +1,4 @@
-import SignIn  from "./SignIn"
+import SignIn  from "./SignUp"
 import ResetPage from "./ResetPage"
 
 export default {

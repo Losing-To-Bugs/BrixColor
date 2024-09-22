@@ -12,7 +12,7 @@ interface Props {
     setRenderSignUp: Function
 }
 
-const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRenderSignUp}) =>{
+const SignUp: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRenderSignUp}) =>{
 
     const router = useRouter()
 
@@ -359,4 +359,4 @@ const SignIn: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
     )
 
 }
-export default SignIn;
+export default SignUp;
