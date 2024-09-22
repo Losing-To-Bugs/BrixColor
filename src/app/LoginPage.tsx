@@ -38,7 +38,7 @@ const LoginPage = () =>{
 
         switch (code) {
           case 'auth/invalid-email':
-            renderSignUp ? setLoginError('Invalid email address.') : setLoginError('Invalid email address. No Accounts Match this Email.');
+            renderSignUp ? setLoginError('Invalid email address.') : setLoginError('Invalid Email. No Accounts Match this Email.');
             break;
           case 'auth/user-not-found':
             setLoginError('User not found. Please check your email or sign up.');
