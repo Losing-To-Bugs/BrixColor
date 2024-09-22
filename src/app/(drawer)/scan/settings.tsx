@@ -371,7 +371,7 @@ const Settings = () => {
             fontSize: fontSizes[fontSize].fontSize,
           }}
         >
-          Select Text Font Size
+          Select Text Font Size:
         </Text>
         <RNPickerSelect
           placeholder={{}}
@@ -430,7 +430,7 @@ const Settings = () => {
             fontSize: fontSizes[fontSize].fontSize,
           }}
         >
-          Select Icon Size
+          Select Icon Size:
         </Text>
         <RNPickerSelect
           placeholder={{}}
