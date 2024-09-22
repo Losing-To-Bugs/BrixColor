@@ -148,6 +148,7 @@ const Settings = () => {
           Select Language:
         </Text>
         <RNPickerSelect
+        touchableWrapperProps={{testID: 'Lan-picker'}}
           placeholder={{}}
           items={dropdownLanguage}
           style={{
@@ -375,6 +376,7 @@ const Settings = () => {
           Select Text Font Size:
         </Text>
         <RNPickerSelect
+        touchableWrapperProps={{testID: 'Font-picker'}}
           placeholder={{}}
           style={{
             iconContainer: {
@@ -434,6 +436,7 @@ const Settings = () => {
           Select Icon Size:
         </Text>
         <RNPickerSelect
+        touchableWrapperProps={{testID: 'Icon-picker'}}
           placeholder={{}}
           style={{
             iconContainer: {
