@@ -1,6 +1,5 @@
 import {render, fireEvent, waitFor } from "@testing-library/react-native";
 import LoginPage from "../LoginPage";
-import {signInWithEmailAndPassword} from "firebase/auth";
 
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
 
