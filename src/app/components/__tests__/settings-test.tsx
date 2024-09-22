@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import Settings from '@/app/(drawer)/scan/settings';
 import { useSettings } from '@/components/SettingsContext';
@@ -19,6 +18,8 @@ jest.mock('@/components/SettingsContext', () => ({
         const mockSetToggleAudio = jest.fn();
         const mockSetToggleCapture = jest.fn();
         const mockSetTheme = jest.fn();
+        const mockSetFont = jest.fn();
+        const mockSetIcon = jest.fn();
         test('renders', () => {
             const { getByText } = render(<Settings />);
             expect(getByText('Settings')).toBeTruthy();
@@ -42,6 +43,8 @@ jest.mock('@/components/SettingsContext', () => ({
             setToggleAudio: mockSetToggleAudio,
             setToggleCapture: mockSetToggleCapture,
             setTheme: mockSetTheme,
+            setFontSize: mockSetFont,
+            setIconSize: mockSetIcon,
             theme: 'Light',
             fontSize: 'Medium',
             iconSize: 'Medium',
@@ -72,7 +75,6 @@ jest.mock('@/components/SettingsContext', () => ({
       
         it('should toggle the Scans switch and save settings', async () => {
           const { getByLabelText } = render(<Settings />); 
-      
           const switchComponent = getByLabelText('Save Scans to Phone');
       
           expect(switchComponent.props.value).toBe(false);
@@ -115,7 +117,6 @@ jest.mock('@/components/SettingsContext', () => ({
           });
       
           const { getByLabelText } = render(<Settings />); 
-      
           const switchComponent = getByLabelText('Save Scans to Phone');
       
           expect(switchComponent.props.value).toBe(true);
@@ -125,9 +126,9 @@ jest.mock('@/components/SettingsContext', () => ({
           expect(mockSetToggleScans).toHaveBeenCalledWith(false);
           expect(AsyncStorage.setItem).toHaveBeenCalledWith("toggleScans", JSON.stringify(false));
         });
+
         it('should toggle the Audio switch and save settings', async () => {
           const { getByLabelText } = render(<Settings />); 
-      
           const switchComponent = getByLabelText('App Audio Narration');
       
           expect(switchComponent.props.value).toBe(false);
@@ -166,7 +167,6 @@ jest.mock('@/components/SettingsContext', () => ({
           });
       
           const { getByLabelText } = render(<Settings />); 
-      
           const switchComponent = getByLabelText('App Audio Narration');
       
           expect(switchComponent.props.value).toBe(true);
@@ -176,9 +176,9 @@ jest.mock('@/components/SettingsContext', () => ({
           expect(mockSetToggleAudio).toHaveBeenCalledWith(false);
           expect(AsyncStorage.setItem).toHaveBeenCalledWith("toggleAudio", JSON.stringify(false));
         });
+
         it('should toggle the Capture switch and save settings', async () => {
           const { getByLabelText } = render(<Settings />); 
-      
           const switchComponent = getByLabelText('Scan with volume buttons');
       
           expect(switchComponent.props.value).toBe(false);
@@ -217,7 +217,6 @@ jest.mock('@/components/SettingsContext', () => ({
           });
       
           const { getByLabelText } = render(<Settings />); 
-      
           const switchComponent = getByLabelText('Scan with volume buttons');
       
           expect(switchComponent.props.value).toBe(true);
@@ -226,5 +225,35 @@ jest.mock('@/components/SettingsContext', () => ({
           
           expect(mockSetToggleCapture).toHaveBeenCalledWith(false);
           expect(AsyncStorage.setItem).toHaveBeenCalledWith("toggleCapture", JSON.stringify(false));
+        });
+
+        test('changes theme and saves it', async () => {
+          const { getByTestId } = render(<Settings />);
+          const themePicker = getByTestId('theme-picker');
+
+          fireEvent(themePicker, 'valueChange', 'Dark');
+    
+          expect(mockSetTheme).toHaveBeenCalledWith('Dark');
+          expect(AsyncStorage.setItem).toHaveBeenCalledWith('theme', 'Dark');
+        });
+
+        test('changes theme and saves it', async () => {
+          const { getByTestId } = render(<Settings />);
+          const fontPicker = getByTestId('Font-picker');
+
+          fireEvent(fontPicker, 'valueChange', 'Small');
+    
+          expect(mockSetFont).toHaveBeenCalledWith('Small');
+          expect(AsyncStorage.setItem).toHaveBeenCalledWith('fontSize', 'Small');
+        });
+        
+        test('changes theme and saves it', async () => {
+          const { getByTestId } = render(<Settings />);
+          const iconPicker = getByTestId('Icon-picker');
+
+          fireEvent(iconPicker, 'valueChange', 'Small');
+
+          expect(mockSetIcon).toHaveBeenCalledWith('Small');
+          expect(AsyncStorage.setItem).toHaveBeenCalledWith('iconSize', 'Small');
         });
       });
