@@ -19,6 +19,8 @@ function Page() {
     const [flashOn, setFlash] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
 
+
+
     // const camera = useRef<Camera>(null)
     const handleFlashPress = () => {
         setFlash(!flashOn);
@@ -43,6 +45,23 @@ function Page() {
     } = useSettings();
 
     const iconSetSize: number = iconSizes[iconSize].iconSize ?? 32
+
+    const [red, getRed] = useState(0);
+    const [green, getGreen] = useState(0);
+    const [blue, getBlue] = useState(0);
+    const [LegoColorName, setColorName] = useState('');
+
+    const setRed = (RedVal) => {
+        getRed(RedVal);
+    }
+
+    const setGreen = (GreenVal) => {
+        getGreen(GreenVal);
+    }
+
+    const setBlue = (BlueVal) => {
+        getBlue(BlueVal);
+    }    
 
     return (
         <View style={pageStyles.container}>
@@ -81,13 +100,23 @@ function Page() {
                         :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} />*/}
-                            <Text style={{color: 'white'}}>Using React Vision Camera</Text>
+                            {<VisionCamera flashOn={flashOn} 
+                            style={styles.camera} 
+                            r={red} 
+                            g={green} 
+                            b={blue} 
+                            setR={setRed} 
+                            setG={setGreen} 
+                            setB={setBlue} 
+                            imagePicker={handleImagePickPress} 
+                            setLegoName={setColorName}/>}
+                            <Text style={{color: 'white'}}>{LegoColorName}</Text>
                         </View>)
 
                 }
-
-                <View style={styles.control}>
+                {
+                    isRunningInExpoGo ?
+                (<View style={styles.control}>
 
                     {/* Shutter button */}
                     <TouchableOpacity onPress={() => {}}
@@ -134,7 +163,7 @@ function Page() {
                             />
                         </TouchableOpacity>
                     </View>
-                </View>
+                </View>) : (<></>)}
 
             </View>
 
