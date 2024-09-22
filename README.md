@@ -96,6 +96,9 @@ as a testing framework and the
 [React Native Testing Library](https://testing-library.com/docs/react-native-testing-library/example-intro/) 
 that lets you test components in a user-centric way.
 
+To run tests, run:
+> npm run test
+
 ### Examples
 > Testing a simple component
 ```tsx

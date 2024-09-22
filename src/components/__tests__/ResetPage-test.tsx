@@ -42,4 +42,40 @@ describe('<ResetPage />', () => {
         fireEvent.press(getByText('Go Back'))
         expect(setRenderReset).toHaveBeenCalledWith(false)
     });
+
+    it('shows login error when bad email is typed', async () => {
+        const {queryByText, getByAccessibilityHint, getByPlaceholderText} = render(
+            <ResetPage
+                setRenderReset={setRenderReset}
+                handleReset={handleReset}
+                loginError={loginError}
+                renderLoginError={false}/>
+        )
+
+        const resetPasswordButton = getByAccessibilityHint('double tap to send reset')
+        const emailField = getByPlaceholderText('Email')
+
+        fireEvent.changeText(emailField, 'badEmail')
+        fireEvent.press(resetPasswordButton)
+
+        expect(queryByText('Please Enter a Valid Email Address')).toBeTruthy()
+    });
+
+    it('does not show login error when good email is typed', async () => {
+        const {queryByText, getByAccessibilityHint, getByPlaceholderText} = render(
+            <ResetPage
+                setRenderReset={setRenderReset}
+                handleReset={handleReset}
+                loginError={loginError}
+                renderLoginError={false}/>
+        )
+
+        const resetPasswordButton = getByAccessibilityHint('double tap to send reset')
+        const emailField = getByPlaceholderText('Email')
+
+        fireEvent.changeText(emailField, 'goodEmail@mail.com')
+        fireEvent.press(resetPasswordButton)
+
+        expect(queryByText('Please Enter a Valid Email Address')).toBeFalsy()
+    });
 });
