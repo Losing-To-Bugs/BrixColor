@@ -4,51 +4,46 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const themes = {
     Light: {
-        backgroundColor: "#ffffff",
+        backgroundColor: "#E0E0E0",
+        backgroundColor2: "#ffffff",
         textColor: "#000000",
-        dividerColor: "#000000",
-        switchOffColor: "#ffffff",
-        switchOnColor: "#00FF00",
+        textColor2: "#ffffff",
+        dividerColor: "#E0E0E0",
+        switchOffColor: "#E0E0E0",
         primaryColor: "#0055BF",
+        headerColor: "#FAFAFC"
+      },
+      Dark: {
+        backgroundColor: "#2B2B35",
+        backgroundColor2: "#343D46",
+        textColor: "#ffffff",
+        textColor2: "#000000",
+        dividerColor: "#ffffff",
+        switchOffColor: "#E0E0E0",
+        primaryColor: "#1F449C",
         secondaryColor: "#C91A09",
-    },
-    Dark: {
-        backgroundColor: "#3D3D3D",
+        headerColor: "#F0F5FF"
+      },
+      Royal: {
+        backgroundColor: "#E0E0E0",
+        backgroundColor2: "#ffffff",
+        textColor: "#000000",
+        textColor2: "#ffffff",
+        dividerColor: "#E0E0E0",
+        switchOffColor: "#E0E0E0",
+        primaryColor: "#8B6508",
+        headerColor: "#FAFAFC"
+      },
+      Coral: {
+        backgroundColor: "#2B2B35",
+        backgroundColor2: "#343D46",
         textColor: "#ffffff",
+        textColor2: "#000000",
         dividerColor: "#ffffff",
-        switchOffColor: "#FF0000",
-        switchOnColor: "#00FF00",
-        primaryColor: "#0055BF",
-        secondaryColor: "#C91A09",
-    },
-    Royal: {
-        backgroundColor: "#000000",
-        textColor: "#ffffff",
-        dividerColor: "#ffffff",
-        switchOffColor: "#FF0000",
-        switchOnColor: "#00FF00",
-        primaryColor: "#002263",
-        secondaryColor: "#8B6508",
-    },
-    Sunset: {
-        backgroundColor: "#000000",
-        textColor: "#ffffff",
-        dividerColor: "#ffffff",
-        switchOffColor: "#FF0000",
-        switchOnColor: "#00FF00",
-        primaryColor: "#01084F",
-        secondaryColor: "#FF7954",
-    },
-    Fall: {
-        backgroundColor: "#000000",
-        textColor: "#ffffff",
-        dividerColor: "#ffffff",
-        switchOffColor: "#FF0000",
-        switchOnColor: "#00FF00",
-        primaryColor: "#F55A00",
-        secondaryColor: "#FFE433",
-    },
-
+        switchOffColor: "#E0E0E0",
+        primaryColor: "#FF7954",
+        headerColor: "#F0F5FF"
+      },
     // Define more themes here...
 };
 const fontSizes = {
@@ -135,7 +130,7 @@ export const SettingsProvider = ({ children }) => {
     return (
         <SettingsContext.Provider
             value={{
-        theme,
+            theme,
             setTheme,
             themes,
             fontSize,
