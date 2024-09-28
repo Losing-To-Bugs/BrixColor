@@ -12,12 +12,18 @@ import * as ImagePicker from "expo-image-picker";
 import VisionCamera from "@/components/VisionCamera";
 import Constants from 'expo-constants'
 import {useSettings} from "@/components/SettingsContext";
+import {useRouter} from "expo-router";
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
 function Page() {
     const [flashOn, setFlash] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
+
+    const router = useRouter();
+    const openOnboarding = () => {
+        router.push('/onboard');
+      };
 
     // const camera = useRef<Camera>(null)
     const handleFlashPress = () => {
@@ -42,19 +48,19 @@ function Page() {
         iconSizes,
     } = useSettings();
 
-    const iconSetSize: number = iconSizes[iconSize].iconSize ?? 32
+    const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
         <View style={pageStyles.container}>
             <Drawer.Screen options={{headerShown: false}} />
 
-            <View style={pageStyles.header}>
+            <View style={pageStyles.header }>
                 <BrixDrawerToggleButton
-                    size={32}
                 />
 
                 {/* Help button */}
                 <TouchableOpacity
+                    onPress={openOnboarding}
                     accessibilityLabel="Help"
                     accessibilityHint="Display useful instructions on how to use the application"
                     accessibilityRole="button"
