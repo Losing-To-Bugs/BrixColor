@@ -1,33 +1,42 @@
-// OnboardingScreen.tsx
-import { StyleSheet, Text } from 'react-native';
-import Onboarding from 'react-native-onboarding-swiper';
-import { NavigationProp } from '@react-navigation/native';
-import {useRouter} from "expo-router";
+import { Button, StyleSheet, Text } from "react-native";
+import Onboarding from "react-native-onboarding-swiper";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const OnboardingScreen = () => {
-
   const router = useRouter();
 
-  const onDone = () => {
-    //set hasOnboarded to true. Save to async
-    router.dismiss(); 
+  const completeOnboarding = async () => {
+    await AsyncStorage.setItem("isOnboarded", "true");
   };
 
+  const onDone = () => {
+    completeOnboarding();
+    router.dismiss();
+  };
+
+  const backgroundColor = (isLight) => (isLight ? "blue" : "lightblue");
+  const color = (isLight) => backgroundColor(!isLight);
+
+  const Next = ({ isLight, ...props }) => <Button title={"Next"} {...props} />;
+  const Done = ({ isLight, ...props }) => <Button title={"Done"} {...props} />;
   return (
     <Onboarding
       onDone={onDone}
+      NextButtonComponent={Next}
+      DoneButtonComponent={Done}
       pages={[
         {
-          backgroundColor: '#fff',
+          backgroundColor: "#fff",
           image: <Text style={styles.image}>👋</Text>,
-          title: 'Welcome!',
-          subtitle: 'This is the first page of the onboarding.',
+          title: "Welcome TEST!",
+          subtitle: "Page 1",
         },
         {
-          backgroundColor: '#999',
+          backgroundColor: "#999",
           image: <Text style={styles.image}>🎉</Text>,
-          title: 'Enjoy!',
-          subtitle: 'Let’s get started with your journey!',
+          title: "TEST!",
+          subtitle: "Final page",
         },
       ]}
     />
@@ -37,7 +46,7 @@ const OnboardingScreen = () => {
 const styles = StyleSheet.create({
   image: {
     fontSize: 50,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

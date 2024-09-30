@@ -1,6 +1,6 @@
 import {Text, TouchableOpacity, View} from "react-native";
 import {Drawer} from "expo-router/drawer";
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {StyleSheet} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -13,17 +13,35 @@ import VisionCamera from "@/components/VisionCamera";
 import Constants from 'expo-constants'
 import {useSettings} from "@/components/SettingsContext";
 import {useRouter} from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
 function Page() {
     const [flashOn, setFlash] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
-
+    const [isOnboarded, setIsOnboarded] = useState(null);
+    
     const router = useRouter();
     const openOnboarding = () => {
         router.push('/onboard');
       };
+
+      //Check if user has been onBoarded
+      const checkOnboarding = async () => {
+        const onboardingStatus = await AsyncStorage.getItem('isOnboarded');
+        const onboarded = onboardingStatus === 'true';
+        setIsOnboarded(onboarded);
+
+        // Navigates to onboarding page if not yet onboarded
+        if (!onboarded) {
+            openOnboarding();
+        }
+    };
+
+      useEffect(() => {
+        checkOnboarding(); 
+    }, []);
 
     // const camera = useRef<Camera>(null)
     const handleFlashPress = () => {
@@ -51,13 +69,14 @@ function Page() {
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
+
         <View style={pageStyles.container}>
             <Drawer.Screen options={{headerShown: false}} />
 
             <View style={pageStyles.header }>
                 <BrixDrawerToggleButton
                 />
-
+      {/* Render your main component content here */}
                 {/* Help button */}
                 <TouchableOpacity
                     onPress={openOnboarding}
