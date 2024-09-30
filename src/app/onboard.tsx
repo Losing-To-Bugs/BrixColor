@@ -15,11 +15,9 @@ const OnboardingScreen = () => {
     router.dismiss();
   };
 
-  const backgroundColor = (isLight) => (isLight ? "blue" : "lightblue");
-  const color = (isLight) => backgroundColor(!isLight);
 
-  const Next = ({ isLight, ...props }) => <Button title={"Next"} {...props} />;
-  const Done = ({ isLight, ...props }) => <Button title={"Done"} {...props} />;
+  const Next = ({ ...props }) => <Button title={"Next"} {...props} />;
+  const Done = ({ ...props }) => <Button title={"Done"} {...props} />;
   return (
     <Onboarding
       onDone={onDone}
