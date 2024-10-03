@@ -1,6 +1,6 @@
-import {Text, TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View, Platform} from "react-native";
 import {Drawer} from "expo-router/drawer";
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {StyleSheet} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -12,14 +12,40 @@ import * as ImagePicker from "expo-image-picker";
 import VisionCamera from "@/components/VisionCamera";
 import Constants from 'expo-constants'
 import {useSettings} from "@/components/SettingsContext";
+import {Camera} from "react-native-vision-camera";
+import {Camera as ExpoCamera} from "expo-camera";
+import {usePermissions} from "expo-media-library";
+
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
 function Page() {
+    const runExpoCamera = isRunningInExpoGo || Platform.OS === 'web';
+
     const [flashOn, setFlash] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
+    const [permissionResponse, requestPermission] = usePermissions()
 
-    // const camera = useRef<Camera>(null)
+
+    const camera = useRef<ExpoCamera>(null)
+    const nativeCamera = useRef<Camera>(null)
+
+    useEffect(() => {
+        console.log(`Running in Expo Go: ${isRunningInExpoGo}`)
+        }, [isRunningInExpoGo]);
+
+    useEffect(() => {
+        console.log(`Platform: ${Platform.OS}`)
+    }, [Platform.OS]);
+
+    const handleShutterPress = async () => {
+        if (!runExpoCamera && nativeCamera.current) {
+            if (permissionResponse.status !== 'granted') {
+                await requestPermission();
+            }
+        }
+    }
+
     const handleFlashPress = () => {
         setFlash(!flashOn);
     };
@@ -73,15 +99,15 @@ function Page() {
                 alignItems: 'center',
             }}>
                 {
-                    isRunningInExpoGo ?
+                    runExpoCamera ?
                         (<View style={{height: '100%', width: '100%'}}>
-                            <ScanCamera flashOn={flashOn} style={styles.camera} />
+                            <ScanCamera flashOn={flashOn} style={styles.camera} ref={camera} />
                             <Text style={{color: 'white'}}>Using Expo Camera</Text>
                         </View>)
                         :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} />*/}
+                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} ref={nativeCamera} />*/}
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
@@ -90,7 +116,7 @@ function Page() {
                 <View style={styles.control}>
 
                     {/* Shutter button */}
-                    <TouchableOpacity onPress={() => {}}
+                    <TouchableOpacity onPress={handleShutterPress}
                                       style={buttonStyles.circle}
                                       accessibilityLabel="Shutter button"
                                       accessibilityHint="Takes photo to scan brick"
