@@ -38,6 +38,13 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
                         <Text style={drawerItemStyle}>Settings</Text>
                     </BrixDrawerItem>
 
+                    <BrixDrawerItem href="/scan/meh"
+                                    accessibilityLabel="To settings"
+                                    accessibilityHint="Navigates to application settings"
+                                    accessibilityRole="button">
+                        <Text style={drawerItemStyle}>Meh</Text>
+                    </BrixDrawerItem>
+
                     <TouchableOpacity
                         onPress={() => {
                             // if logged in you will logout

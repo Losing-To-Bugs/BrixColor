@@ -8,5 +8,11 @@ export default function ScanLayout() {
                 headerShown: false,
             }}
         />
+        <Stack.Screen
+        name="meh"
+        options={{
+            headerShown: false,
+        }}
+        />
     </Stack>;
 }
