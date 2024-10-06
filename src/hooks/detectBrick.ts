@@ -8,7 +8,6 @@ export function detectBrick(frame: Frame) {
         throw new Error("Failed to load Frame Processor Plugin!")
     }
     const result = plugin.call(frame);
-    console.log(plugin, result)
 
     return result
 }
