@@ -8,6 +8,7 @@ import SignUp from "@/components/SignUp"
 import ResetPage from '@/components/ResetPage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
 // need to implement persistence of user
 
 const LoginPage = () =>{
@@ -16,6 +17,7 @@ const LoginPage = () =>{
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [UID, setUID] = useState("")
+    const [isShown, setIsShown] = useState(true);
 
     const [showPass, setShowPass] = useState(true)
     const [isLoading, setIsLoading] = useState(false)
@@ -133,6 +135,17 @@ const LoginPage = () =>{
         // FFE294
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#4d5ab0'}}>
 
+        {/* Close Button */}
+        <TouchableOpacity 
+            onPress={() => router.replace("/(drawer)/scan")} 
+            style={{ position: "absolute", top: 10, right: 10, padding: 5, zIndex: 1, backgroundColor: "white", borderRadius: 5 }}
+            accessibilityRole="button"
+            accessibilityLabel='Leave Log in and go Back to scan page'
+        >
+
+            <Text style={{ fontWeight: "bold" }}>X</Text>
+            
+        </TouchableOpacity>
         
         <View style={{height: '70%', width: '80%', backgroundColor: 'white', borderRadius: 20, justifyContent: 'space-between'}}> 
         

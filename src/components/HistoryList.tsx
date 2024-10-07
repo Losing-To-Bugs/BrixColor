@@ -174,17 +174,26 @@ const HistoryList = () => {
 
     return (
         <View style={{...styles.container, paddingTop: 15}}>
+
+            {/* History List */}
             <FlatList
+                accessibilityRole="list"
+                accessibilityLabel="Scanned Brick History"
                 showsVerticalScrollIndicator={true}
                 data={dataArr}
                 keyExtractor={(item, index) => index.toString()} // unique key for each item
                 renderItem={({ index, item }) =>
+
+                    // History Item
                     <View style={styles.itemContainer}>
-                        <View style={styles.confidenceContainer}>
+
+                        {/* Confidence Text */}
+                        <View style={styles.confidenceContainer} accessibilityLabel="Match Confidence">
                             <Text style={styles.confidenceText}>Confidence {item.confidence}%</Text>
                         </View>
 
-                        <View style={styles.imageContainer}>
+                        {/* Lego Image */}
+                        <View style={styles.imageContainer} accessibilityLabel="Lego Image">
                             <Image
                                 source={IMAGES[item.brick]}
                                 style={styles.image}
@@ -192,13 +201,15 @@ const HistoryList = () => {
                             />
                         </View>
 
-                        <View style={styles.textContainer}>
+                        {/* Description */}
+                        <View style={styles.textContainer} accessibilityLabel="LEGO Description">
                             <Text style={styles.itemText}>
                                 {legoColors[item.color]}{"\n"}{handleIdentity(item.brick)}
                             </Text>
                         </View>
 
-                        <View style={styles.timestampContainer}>
+                        {/* Time Stamp */}
+                        <View style={styles.timestampContainer} accessibilityLabel="Date When Scanned">
                             <Text style={styles.timestampText}>{formatTimestamp(item.timestamp)}</Text>
                         </View>
                     </View>

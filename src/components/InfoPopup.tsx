@@ -31,7 +31,7 @@ const InfoPopup = ({ data }) => {
         <Button title="Show Modal" onPress={() => setIsShown(true)} />
 
         {/* beginning of Info Modal */}
-        <Modal visible={isShown} transparent={true} animationType="fade">
+        <Modal visible={isShown} transparent={true} animationType="fade" accessibilityLabel="Scanned Data Popup">
 
             {/* use touchable feedback to enable closing on press out */}
             <TouchableWithoutFeedback onPress={() => setIsShown(false)}>
@@ -43,6 +43,8 @@ const InfoPopup = ({ data }) => {
 
                         {/* Close Button */}
                         <TouchableOpacity 
+                            accessibilityLabel="Close Button"
+                            accessibilityRole="button"
                             onPress={() => setIsShown(false)} 
                             style={{ position: "absolute", top: 10, right: 10, padding: 5, zIndex: 1, backgroundColor: "lightgray", borderRadius: 5 }}
                             >
@@ -52,13 +54,13 @@ const InfoPopup = ({ data }) => {
 
                         <View style={{flex: 1}} >
                             <View style={{flex: 1, alignItems: "center", paddingTop: 10}} >
-                                <Text>Confidence {data.confidence}%</Text>
+                                <Text accessibilityLabel="Lego Match Confidence">Confidence {data.confidence}%</Text>
                             </View>
                             <View style={{flex: 3, justifyContent: "center", alignItems: "center"}} >
-                                <Image source={IMAGES[data.brick]} style={{width: "60%", height: "70%", borderColor: "black", borderWidth: 1, borderRadius: 10}}/>
+                                <Image accessibilityLabel="Lego Match Confidence" source={IMAGES[data.brick]} style={{width: "60%", height: "70%", borderColor: "black", borderWidth: 1, borderRadius: 10}}/>
                             </View>
                             <View style={{flex: 1, justifyContent: "center", alignItems: "center"}} >
-                                <Text style={{textAlign: "center"}} >{legoColors[data.color]}{"\n"}{handleIdentity()}</Text>
+                                <Text accessibilityLabel="" style={{textAlign: "center"}} >{legoColors[data.color]}{"\n"}{handleIdentity()}</Text>
                             </View>
                         </View>
                     </View>

@@ -15,9 +15,12 @@ function App() {
                 const value = await AsyncStorage.getItem("uid");
                 if (value !== null) {
                     setUID(value);
-                    setRedirectUrl("/(drawer)/scan");
+
+                    // doesn't allow users to use the app without logging in
+                    // setRedirectUrl("/(drawer)/scan");
                 } else {
-                    setRedirectUrl("/LoginPage");
+                    // no need if you can use the app without logging in
+                    // setRedirectUrl("/LoginPage");
                 }
             } catch (e) {
                 console.error(e);
@@ -38,9 +41,11 @@ function App() {
         // meh();
     }, []);
 
-    if (redirectUrl) {
-        return <Redirect href={redirectUrl} />;
-    }
+    // if (redirectUrl) {
+    //     return <Redirect href={redirectUrl} />;
+    // }
+
+    return <Redirect href={"/(drawer)/scan"}/>
 
     // Return null while redirect URL is being determined
     return null;
