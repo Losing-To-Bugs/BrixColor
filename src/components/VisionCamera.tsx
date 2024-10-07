@@ -10,6 +10,7 @@ import {
 } from "react-native-vision-camera";
 import {foo} from "@/hooks/foo";
 import {Skia} from "@shopify/react-native-skia";
+import {detectBrick} from "@/hooks/detectBrick";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
@@ -21,7 +22,8 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const [currentFrame, setCurrentFrame] = useState(null)
 
     const format = useCameraFormat(device, [
-        { videoResolution: { width: 1152, height: 640 } },
+        // { videoResolution: { width: 1152, height: 640 } },
+        { videoResolution: {width: 1920, height: 1080} }
     ])
     const fps = 24 // <-- 240 FPS, or lower if 240 FPS is not available
 
@@ -44,13 +46,15 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
 
-        const result = foo(frame)
-        if (result['conf'] < 0.7) {
-            return
-        }
+        const result = detectBrick(frame)
 
-        result['label'] = labelMap[result['cls']]
         console.log(result)
+        // if (result['error'] || result['conf'] < 0.7) {
+        //     return
+        // }
+
+        // result['label'] = labelMap[result['cls']]
+        // console.log(result)
 
         // const buffer = frame.toArrayBuffer();
         // const data = new Uint8Array(buffer);
@@ -80,10 +84,16 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const frameProcessor = useSkiaFrameProcessor((frame) => {
         'worklet'
 
-        const result = foo(frame)
+        const result = detectBrick(frame)
 
         const wScale = frame.height / frame.width
-        frame.scale(wScale, 1)
+        // frame.scale(wScale, 1)
+
+        if (result['error'] || result['conf'] < 0.7) {
+            frame.render()
+            return
+        }
+
         if (result['conf'] < 0.7) {
             frame.render()
             return
@@ -92,19 +102,20 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         result['label'] = labelMap[result['cls']]
         console.log('skia', result)
 
-        const centerX = result['x']
-        const centerY = result['y']
-        const width = result['w']
-        const height = result['h']
+        const centerX = result['x'] * frame.width
+        const centerY = result['y'] * frame.height
+        const width = result['w'] * frame.width
+        const height = result['h'] * frame.height
 
-        console.log(frame.width, frame.height, frame.orientation)
+        console.log({centerX, centerY, width, height}, frame.width, frame.height, frame.orientation)
 
 
         // const rect = Skia.XYWHRect(1024, 364, (frame.width / frame.height)*100, 100)
         const rect = Skia.XYWHRect(centerX - 1.2*(width/2), centerY + 1.2*(height/2), width, height)
+        // const rect = Skia.XYWHRect(frame.width/2, frame.height/2, 100, 100)
+        // const rect = Skia.XYWHRect(centerX, centerY, width, height)
 
         const paint = Skia.Paint()
-        paint.setStrokeWidth(1)
         paint.setColor(Skia.Color('rgba(255,0,0,0.18)'))
 
         frame.render()
@@ -127,15 +138,19 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         <>
             <View style={[props.style, {backgroundColor: 'black'}]}>
                 <Camera
+
                     ref={ref}
-                    frameProcessor={frameProcessor}
+                    frameProcessor={frameProcess}
                     style={StyleSheet.absoluteFill}
                     device={device}
                     torch={props.flashOn ? 'on' : 'off'}
                     photo={true}
                     isActive={true}
+                    enableZoomGesture={true}
                     format={format}
                     pixelFormat={"rgb"}
+                    resizeMode={"contain"}
+                    preview={true}
                     fps={fps}
                 >
 
