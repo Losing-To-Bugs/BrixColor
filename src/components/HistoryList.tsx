@@ -1,6 +1,7 @@
 import { View, FlatList, Text, Image, StyleSheet } from "react-native";
 import { IMAGES } from "../constants/images";
 import { legoColors } from "../constants/colors";
+import { SettingsProvider } from "@/components/SettingsContext";
 
 // TODO [] change the background color, maybe change all of the bricks to actually black
 // TODO [] integrate with actual stored data
@@ -173,49 +174,51 @@ const HistoryList = () => {
 
 
     return (
-        <View style={{...styles.container, paddingTop: 15}}>
+        <SettingsProvider>
+            <View style={{...styles.container, paddingTop: 15}}>
 
-            {/* History List */}
-            <FlatList
-                accessibilityRole="list"
-                accessibilityLabel="Scanned Brick History"
-                showsVerticalScrollIndicator={true}
-                data={dataArr}
-                keyExtractor={(item, index) => index.toString()} // unique key for each item
-                renderItem={({ index, item }) =>
+                {/* History List */}
+                <FlatList
+                    accessibilityRole="list"
+                    accessibilityLabel="Scanned Brick History"
+                    showsVerticalScrollIndicator={true}
+                    data={dataArr}
+                    keyExtractor={(item, index) => index.toString()} // unique key for each item
+                    renderItem={({ index, item }) =>
 
-                    // History Item
-                    <View style={styles.itemContainer}>
+                        // History Item
+                        <View style={styles.itemContainer}>
 
-                        {/* Confidence Text */}
-                        <View style={styles.confidenceContainer} accessibilityLabel="Match Confidence">
-                            <Text style={styles.confidenceText}>Confidence {item.confidence}%</Text>
+                            {/* Confidence Text */}
+                            <View style={styles.confidenceContainer} accessibilityLabel="Match Confidence">
+                                <Text style={styles.confidenceText}>Confidence {item.confidence}%</Text>
+                            </View>
+
+                            {/* Lego Image */}
+                            <View style={styles.imageContainer} accessibilityLabel="Lego Image">
+                                <Image
+                                    source={IMAGES[item.brick]}
+                                    style={styles.image}
+                                    resizeMode="contain"
+                                />
+                            </View>
+
+                            {/* Description */}
+                            <View style={styles.textContainer} accessibilityLabel="LEGO Description">
+                                <Text style={styles.itemText}>
+                                    {legoColors[item.color]}{"\n"}{handleIdentity(item.brick)}
+                                </Text>
+                            </View>
+
+                            {/* Time Stamp */}
+                            <View style={styles.timestampContainer} accessibilityLabel="Date When Scanned">
+                                <Text style={styles.timestampText}>{formatTimestamp(item.timestamp)}</Text>
+                            </View>
                         </View>
-
-                        {/* Lego Image */}
-                        <View style={styles.imageContainer} accessibilityLabel="Lego Image">
-                            <Image
-                                source={IMAGES[item.brick]}
-                                style={styles.image}
-                                resizeMode="contain"
-                            />
-                        </View>
-
-                        {/* Description */}
-                        <View style={styles.textContainer} accessibilityLabel="LEGO Description">
-                            <Text style={styles.itemText}>
-                                {legoColors[item.color]}{"\n"}{handleIdentity(item.brick)}
-                            </Text>
-                        </View>
-
-                        {/* Time Stamp */}
-                        <View style={styles.timestampContainer} accessibilityLabel="Date When Scanned">
-                            <Text style={styles.timestampText}>{formatTimestamp(item.timestamp)}</Text>
-                        </View>
-                    </View>
-                }
-            />
-        </View>
+                    }
+                />
+            </View>
+        </SettingsProvider>
     );
 };
 
