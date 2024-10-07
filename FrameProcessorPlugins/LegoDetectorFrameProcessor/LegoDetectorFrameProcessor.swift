@@ -36,11 +36,11 @@ func imageFromBuffer(_ pixelBuffer: CVPixelBuffer) -> UIImage? {
     let height = CVPixelBufferGetHeight(pixelBuffer)
     
     // Create a CGImage from the CIImage
-    if let cgImage = context.createCGImage(ciImage, from: CGRect(x: 0, y: 0, width: 640, height: 640)) {
+    if let cgImage = context.createCGImage(ciImage, from: CGRect(x: 0, y: 0, width: width, height: height)) {
         // Convert the CGImage to UIImage
         return UIImage(cgImage: cgImage)
     }
-    
+
     return nil
 }
 
@@ -48,58 +48,58 @@ func resizeCIImage(image: CIImage, targetSize: CGSize) -> CIImage? {
     // Calculate the scaling factors for width and height
     let scaleX = targetSize.width / image.extent.width
     let scaleY = targetSize.height / image.extent.height
-    
+
     // Apply the scaling transformation to resize the image
     let scaleTransform = CGAffineTransform(scaleX: scaleX, y: scaleY)
     let scaledImage = image.transformed(by: scaleTransform)
-    
+
     return scaledImage
 }
 
 func resizeAndPad(image: CIImage, targetSize: CGSize = CGSize(width: 640, height: 640)) -> UIImage? {
     // Create a CIContext
     let context = CIContext(options: nil)
-    
+
     // Get the current image size
     let imageRect = image.extent
-    
+
     // Calculate the scale factor to fit the image within the target size
     let widthScale = targetSize.width / imageRect.width
     let heightScale = targetSize.height / imageRect.height
     let scaleFactor = min(widthScale, heightScale)
-    
+
     // Calculate the new size with aspect ratio maintained
     let scaledWidth = imageRect.width * scaleFactor
     let scaledHeight = imageRect.height * scaleFactor
-    
+
     // Create a new rect centered within the target size
     let xOffset = (targetSize.width - scaledWidth) / 2
     let yOffset = (targetSize.height - scaledHeight) / 2
     let drawRect = CGRect(x: xOffset, y: yOffset, width: scaledWidth, height: scaledHeight)
-    
+
     // Create a white background image
     UIGraphicsBeginImageContextWithOptions(targetSize, true, 0)
     UIColor.white.setFill()
     UIRectFill(CGRect(origin: .zero, size: targetSize))
-    
+
     // Render the CIImage into the context
     if let cgImage = context.createCGImage(image, from: image.extent) {
         UIImage(cgImage: cgImage).draw(in: drawRect)
     }
-    
+
     // Capture the result
     let paddedImage = UIGraphicsGetImageFromCurrentImageContext()
     UIGraphicsEndImageContext()
-    
+
     return paddedImage
 }
 
 @available(iOS 15.0, *)
-func extractOutput(output: BrixModelOuput) -> Any? {
+func extractOutput(output: BrixModelOuput) -> Dictionary<String, NSNumber> {
     var maxConf = 0.0
     var maxConfCol = 0
-    
-    
+
+
     for col in 0...output.confidence.count-1 {
         let conf = output.confidence[col]
         if conf.doubleValue > maxConf {
@@ -107,11 +107,11 @@ func extractOutput(output: BrixModelOuput) -> Any? {
             maxConfCol = col
         }
     }
-    
-    
+
+
     return [
-        "cls": maxConfCol,
-        "conf": maxConf,
+        "cls": NSNumber(value: maxConfCol),
+        "conf": NSNumber(value: maxConf),
         "w":output.coordinates[2],
         "h":output.coordinates[3],
         "x":output.coordinates[0],
@@ -144,44 +144,56 @@ func bufferFromImage(from image: UIImage) -> CVPixelBuffer? {
   return pixelBuffer
 }
 
-func saveImageToDocumentsDirectory(image: UIImage, fileName: String) -> URL? {
-    // Convert the image to PNG or JPEG data
-  guard let data = image.jpegData(compressionQuality: 1.0 ) else { return nil }
-    
-    // Get the document directory path
-    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-    
-    // Create the file URL
-    let fileURL = documentsDirectory.appendingPathComponent(fileName)
-    
-    do {
-        // Write the data to the file
-        try data.write(to: fileURL)
-        print("Image saved to: \(fileURL)")
-        return fileURL
-    } catch {
-        print("Error saving image to file: \(error.localizedDescription)")
-        return nil
-    }
+
+func getPixelValue(cgImage: CGImage, coords: [Int]) -> [NSNumber] {
+   if let pixelData = cgImage.dataProvider?.data {
+       let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
+
+       // Check that data is not nil and has valid length
+       let bytesPerPixel = cgImage.bitsPerPixel / 8
+       let width = cgImage.width
+       let height = cgImage.height
+
+       if width > 0 && height > 0 {
+           let pixelInfo: Int = coords[0] * cgImage.bytesPerRow + coords[1] * bytesPerPixel // Pixel at (0, 0)
+
+           // Ensure pixelInfo is within valid bounds
+           if pixelInfo >= 0 && pixelInfo + 3 < CFDataGetLength(pixelData) {
+               let red = data[pixelInfo]
+               let green = data[pixelInfo + 1]
+               let blue = data[pixelInfo + 2]
+               let alpha = data[pixelInfo + 3]
+
+               print("CG RGBA at (0, 0): (\(red), \(green), \(blue), \(alpha))")
+             return [NSNumber(value: red), NSNumber(value: green) , NSNumber(value: blue) , NSNumber(value: alpha) ]
+           } else {
+               print("Error: pixelInfo is out of bounds.")
+             return [NSNumber(value: bytesPerPixel)]
+           }
+       } else {
+           print("Error: Invalid image dimensions.")
+         return [-2]
+       }
+   } else {
+       print("Error: Could not retrieve pixel data.")
+     return [-1]
+   }
 }
-
-
 
 @available(iOS 15.0, *)
 @objc(LegoDetectorFrameProcessorPlugin)
 public class LegoDetectorFrameProcessorPlugin: FrameProcessorPlugin {
   var brixModel: BrixModel?
-  
+
   public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
     // Tell Core ML to use the Neural Engine if available.
-//    let config = MLModelConfiguration()
-//    config.computeUnits = .all
-//    self.brixModel = try? BrixModel(configuration: config)
+    let config = MLModelConfiguration()
+    config.computeUnits = .all
     self.brixModel = try? BrixModel(configuration: .init())
-    
+
     super.init(proxy: proxy, options: options)
   }
-  
+
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) -> Any? {
     guard let brixModel = self.brixModel else {
       return ["error": "Model could not be initialized"]
@@ -192,56 +204,36 @@ public class LegoDetectorFrameProcessorPlugin: FrameProcessorPlugin {
           let img = imageFromBuffer(imgBuffer) else {
       return ["error": "Invalid frame"]
     }
-    
+
     // CVPixelBuffer -> CIImage (maintain orientation)
-    let ciimg = CIImage(cvPixelBuffer: imgBuffer
-                        ,
-                        options: [.applyOrientationProperty: true,
-                                  .properties: [
-                                    kCGImagePropertyOrientation: CGImagePropertyOrientation(frame.orientation).rawValue
-                                  ]]
-    )
-    
-    
-    
+    let ciimg = CIImage(cvPixelBuffer: imgBuffer)
+
     // Rescale CIImage and convert to UIImage
     guard let resizedUIImage = resizeAndPad(image: ciimg) else {
       return ["error": "Could not resize image"]
     }
-    
+
     // UIImage -> CVPixelBuffer
     guard let resizedPixelBuffer = bufferFromImage(from: resizedUIImage) else {
       return ["error": "Could not convert CIImage to CVPixelBuffer"]
     }
-    
-//    // Predict
-//    guard let result = try? brixModel.prediction(image: resizedPixelBuffer, iouThreshold: 0.1, confidenceThreshold: 0.1) else {
-//      return ["error": "Could not predict"]
-//    }
-//    
-//    // Check if there is a score
-//    guard result.confidence.count > 0 else {
-//      return ["error": "No score"]
-//    }
-//    
-//    guard result.coordinates.count > 0 else {
-//      return ["error": "No coords"]
-//    }
-    
-//    guard let output = extractOutput(output: result) else {
-//      return ["error": "No output"]
-//    }
-    
-    do {
-      let url = try saveImageToDocumentsDirectory(image: resizedUIImage, fileName: "foo.jpg")
-      return ["url": url?.absoluteString]
-    } catch {
-      print(error)
-      return ["error", "Save image failed"]
-    }
-    
-//    return output
-    
 
+    // Predict
+    guard let result = try? brixModel.prediction(image: resizedPixelBuffer, iouThreshold: 0.7, confidenceThreshold: 0.7) else {
+      return ["error": "Could not predict"]
+    }
+
+    // Check if there is a score
+    guard result.confidence.count > 0 else {
+      return ["error": "No score"]
+    }
+
+    guard result.coordinates.count > 0 else {
+      return ["error": "No coords"]
+    }
+
+    let output = extractOutput(output: result)
+
+    return output
   }
 }
