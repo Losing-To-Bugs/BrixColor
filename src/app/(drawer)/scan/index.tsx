@@ -1,6 +1,6 @@
-import {Text, TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View, Platform} from "react-native";
 import {Drawer} from "expo-router/drawer";
-import React, {useState, useEffect} from "react";
+import React, {useRef, useState, useEffect} from "react";
 import {StyleSheet} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -14,14 +14,23 @@ import Constants from 'expo-constants'
 import {useSettings} from "@/components/SettingsContext";
 import {useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {Camera} from "react-native-vision-camera";
+import {Camera as ExpoCamera} from "expo-camera";
+import {usePermissions} from "expo-media-library";
+import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
+
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
 function Page() {
+    const runExpoCamera = isRunningInExpoGo || Platform.OS === 'web';
+
     const [flashOn, setFlash] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
     const [isOnboarded, setIsOnboarded] = useState(null);
-    
+    const [permissionResponse, requestPermission] = usePermissions()
+    const [trackedLabel, setTrackedLabel] = useState('')
+
     const router = useRouter();
     const openOnboarding = () => {
         router.push('/onboard');
@@ -40,10 +49,43 @@ function Page() {
     };
 
       useEffect(() => {
-        checkOnboarding(); 
+        checkOnboarding();
     }, []);
 
-    // const camera = useRef<Camera>(null)
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const trackingObject = inputRef?.current?.trackingRef?.current
+
+            if (trackingObject == null || trackingObject.score < 0.3) {
+               setTrackedLabel('')
+            } else if (trackingObject) {
+                const labelName = LABEL_MAP[trackingObject.label]
+                setTrackedLabel(`Possible detection: ${labelName}`)
+            }
+
+        }, 1000 / CAMERA_FPS)
+
+        return () => clearInterval(interval)
+    }, [])
+
+
+    const camera = useRef<ExpoCamera>(null)
+    const nativeCamera = useRef<Camera>(null)
+    const inputRef = useRef(null)
+
+    useEffect(() => {
+        console.log(`Running in Expo Go: ${isRunningInExpoGo}`)
+        console.log(`Platform: ${Platform.OS}`)
+        }, [isRunningInExpoGo, Platform.OS]);
+
+    const handleShutterPress = async () => {
+        if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
+            if (permissionResponse.status !== 'granted') {
+                await requestPermission();
+            }
+        }
+    }
+
     const handleFlashPress = () => {
         setFlash(!flashOn);
     };
@@ -76,7 +118,12 @@ function Page() {
             <View style={pageStyles.header }>
                 <BrixDrawerToggleButton
                 />
-      {/* Render your main component content here */}
+
+                {/*Real time lego detection info*/}
+                <Text style={{color: 'white'}}>
+                    {trackedLabel}
+                </Text>
+
                 {/* Help button */}
                 <TouchableOpacity
                     onPress={openOnboarding}
@@ -98,15 +145,15 @@ function Page() {
                 alignItems: 'center',
             }}>
                 {
-                    isRunningInExpoGo ?
+                    runExpoCamera ?
                         (<View style={{height: '100%', width: '100%'}}>
-                            <ScanCamera flashOn={flashOn} style={styles.camera} />
+                            <ScanCamera flashOn={flashOn} style={styles.camera} ref={camera} />
                             <Text style={{color: 'white'}}>Using Expo Camera</Text>
                         </View>)
                         :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} />*/}
+                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} />*/}
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
@@ -115,7 +162,7 @@ function Page() {
                 <View style={styles.control}>
 
                     {/* Shutter button */}
-                    <TouchableOpacity onPress={() => {}}
+                    <TouchableOpacity onPress={handleShutterPress}
                                       style={buttonStyles.circle}
                                       accessibilityLabel="Shutter button"
                                       accessibilityHint="Takes photo to scan brick"

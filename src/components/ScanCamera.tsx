@@ -26,7 +26,7 @@ const ScanCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
     return (<>
         <View style={[props.style, {backgroundColor: 'black'}]}>
-            <CameraView style={{width: '100%', height: '100%'}} type={'back'} flashMode={props.flashOn ? 'torch' : 'off'} ref={ref}>
+            <CameraView style={{width: '100%', height: '100%'}} type={'back'} flashMode={props.flashOn ? 'on' : 'off'} ref={ref}>
                 {props.children}
             </CameraView>
         </View>

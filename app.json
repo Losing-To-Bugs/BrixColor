@@ -65,8 +65,22 @@
         "expo-build-properties",
         {
           "ios" :{
-            "useFrameworks" : "static"
+            "useFrameworks" : "static",
+            "deploymentTarget": "17.0",
+            "infoPlist": {
+              "UISupportsDocumentBrowser": true,
+              "UIFileSharingEnabled": true,
+              "LSSupportsOpeningDocumentsInPlace": true
+            }
           }
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
         }
       ],
       [
