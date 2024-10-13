@@ -1,6 +1,6 @@
 import {Button, Text, View, StyleSheet} from "react-native";
 import {CameraProps} from "expo-camera";
-import {forwardRef, useEffect, useState} from "react";
+import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
 import {
     Camera,
     useCameraPermission,
@@ -11,6 +11,7 @@ import {
 import {Skia} from "@shopify/react-native-skia";
 import {detectBrick} from "@/hooks/detectBrick";
 import {useSharedValue} from "react-native-worklets-core";
+import {CAMERA_FPS} from "@/constants/vision-constants";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
@@ -76,6 +77,13 @@ function getMaxPrediction(predictions: [number, number, number[]][]): [number, n
 }
 
 const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
+    const cameraRef = useRef(null)
+    const trackingRef = useRef(null)
+    useImperativeHandle(ref, () => ({
+        cameraRef: cameraRef,
+        trackingRef: trackingRef
+    }))
+
     const device = useCameraDevice('back')
     const { hasPermission, requestPermission } = useCameraPermission()
     const [currentFrame, setCurrentFrame] = useState(null)
@@ -85,8 +93,16 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         // { videoResolution: { width: 1152, height: 640 } },
         { videoResolution: {width: 1920, height: 1080} }
     ])
-    const fps = 24 // <-- 240 FPS, or lower if 240 FPS is not available
+    const fps = CAMERA_FPS // <-- 240 FPS, or lower if 240 FPS is not available
 
+    // Update tracking ref
+    useEffect(() => {
+        const interval = setInterval(() => {
+            trackingRef.current = tracking.value
+        }, 1000 / fps)
+
+        return () => clearInterval(interval)
+    }, [])
 
     useEffect(() => {
         if(!hasPermission){
@@ -100,7 +116,6 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         );
     }
 
-    const labelMap = {0: '1x3', 1: '1x4', 2: '2x1', 3: '2x2', 4: '2x2_thin', 5: '2x3_thin', 6: '2x4', 7: '2x4_thin', 8: '2x6', 9: '2x6_thin', 10: '2x8', 11: '2x8_thin'}
 
 
     const frameProcess = useFrameProcessor((frame) => {
@@ -108,7 +123,76 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
         const result = detectBrick(frame)
 
-        console.log(result)
+        if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
+            if (tracking.value !== null) {
+                let newScore = 0.8 * tracking.value.score
+                tracking.value = {
+                    x: tracking.value.x,
+                    y: tracking.value.y,
+                    width: tracking.value.width,
+                    height: tracking.value.height,
+                    score: newScore,
+                    label: tracking.value.label
+                }
+            }
+        } else {
+            const [maxClass, maxScore, rect] = getMaxPrediction(result)
+
+            if (maxScore < 0.7) {
+                if (tracking.value !== null) {
+                    let newScore = 0.8 * tracking.value.score
+                    tracking.value = {
+                        x: tracking.value.x,
+                        y: tracking.value.y,
+                        width: tracking.value.width,
+                        height: tracking.value.height,
+                        score: newScore,
+                        label: tracking.value.label
+                    }
+                }
+            } else {
+                const [x, y, width, height] = rect
+
+                if (tracking.value === null) {
+                    tracking.value = {
+                        x,
+                        y,
+                        width,
+                        height,
+                        score: 1,
+                        label: maxClass
+                    }
+                } else {
+                    const trackingRect = [tracking.value.x, tracking.value.y, tracking.value.width, tracking.value.height ]
+                    const iou = IoU(trackingRect, rect)
+
+                    let newScore = Math.min(1, 1 * tracking.value.score * (Math.min(iou, 0.75) + 0.5))
+
+                    if (iou < 0.1) {
+                        newScore = maxScore
+                    }
+
+                    tracking.value = {
+                        x,
+                        y,
+                        width,
+                        height,
+                        score: newScore,
+                        label: maxClass
+                    }
+                }
+            }
+        }
+
+        if (tracking.value === null) {
+            return
+        }
+
+        if (tracking.value.score < 0.1) {
+            return
+        }
+        //
+        // console.log(tracking.value)
         // if (result['error'] || result['conf'] < 0.7) {
         //     return
         // }
@@ -138,7 +222,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         // console.log(`YUV: ${y+16}, ${u+128}, ${v+128}`);
         // console.log(`RGB: ${r}, ${g}, ${b}`);
         // console.log(`${frame.height} ${frame.width}`);
-    }, [])
+    }, [tracking])
 
 
     const frameProcessor = useSkiaFrameProcessor((frame) => {
@@ -248,8 +332,8 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
             <View style={[props.style, {backgroundColor: 'black'}]}>
                 <Camera
 
-                    ref={ref}
-                    frameProcessor={frameProcessor}
+                    ref={cameraRef}
+                    frameProcessor={frameProcess}
                     style={StyleSheet.absoluteFill}
                     device={device}
                     torch={props.flashOn ? 'on' : 'off'}
