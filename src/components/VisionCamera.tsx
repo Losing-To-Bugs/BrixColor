@@ -16,6 +16,23 @@ export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
 }
 
+function getMaxPrediction(predictions: [number, number, number[]][]): [number, number, number[]] {
+    'worklet'
+    let maxScore = 0
+    let maxIdx = 0
+
+    for (let i = 0; i < predictions.length; i++) {
+        const [label, score, rect] = predictions[i]
+
+        if (score > maxScore) {
+            maxScore = score
+            maxIdx = i
+        }
+    }
+
+    return predictions[maxIdx]
+}
+
 const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const device = useCameraDevice('back')
     const { hasPermission, requestPermission } = useCameraPermission()
@@ -86,40 +103,36 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
         const result = detectBrick(frame)
 
-        const wScale = frame.height / frame.width
-        // frame.scale(wScale, 1)
+        const hScale = frame.height / 640
+        const wScale = frame.width / 640
 
-        if (result['error'] || result['conf'] < 0.7) {
+        if (typeof result === 'object' && !Array.isArray(result)) {
             frame.render()
             return
         }
 
-        if (result['conf'] < 0.7) {
+        if (result.length === 0) {
             frame.render()
             return
         }
 
-        result['label'] = labelMap[result['cls']]
-        console.log('skia', result)
+        const [maxClass, maxScore, rect] = getMaxPrediction(result)
 
-        const centerX = result['x'] * frame.width
-        const centerY = result['y'] * frame.height
-        const width = result['w'] * frame.width
-        const height = result['h'] * frame.height
+        if (maxScore < 0.7) {
+            frame.render()
+            return
+        }
 
-        console.log({centerX, centerY, width, height}, frame.width, frame.height, frame.orientation)
+        console.log({ maxClass, maxLabel: labelMap[maxClass], maxScore, rect })
 
+        const [x, y, width, height] = rect
 
-        // const rect = Skia.XYWHRect(1024, 364, (frame.width / frame.height)*100, 100)
-        const rect = Skia.XYWHRect(centerX - 1.2*(width/2), centerY + 1.2*(height/2), width, height)
-        // const rect = Skia.XYWHRect(frame.width/2, frame.height/2, 100, 100)
-        // const rect = Skia.XYWHRect(centerX, centerY, width, height)
-
+        const newRect = Skia.XYWHRect((x + width/2) * wScale, (y - height/2) * hScale, -width * wScale, height * hScale)
         const paint = Skia.Paint()
         paint.setColor(Skia.Color('rgba(255,0,0,0.18)'))
 
         frame.render()
-        frame.drawRect(rect, paint)
+        frame.drawRect(newRect, paint)
 
     }, [])
 
@@ -140,7 +153,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                 <Camera
 
                     ref={ref}
-                    frameProcessor={frameProcess}
+                    frameProcessor={frameProcessor}
                     style={StyleSheet.absoluteFill}
                     device={device}
                     torch={props.flashOn ? 'on' : 'off'}
