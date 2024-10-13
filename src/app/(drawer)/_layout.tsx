@@ -6,6 +6,7 @@ import {DrawerContentComponentProps, DrawerContentScrollView,} from "@react-navi
 import {useRouter} from "expo-router";
 import {SettingsProvider, useSettings} from "@/components/SettingsContext";
 import {BrixDrawerItem} from "@/app/components/BrixDrawerItem";
+import * as Sentry from '@sentry/react-native';
 
 function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () => void; isLoggedIn: boolean }) {
     const router = useRouter();
@@ -18,6 +19,7 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
     } = useSettings();
 
     useEffect(() =>{
+        Sentry.captureMessage(`Login status changed: ${props.isLoggedIn}`);
         // console.log(props.isLoggedIn)
     }, [props.isLoggedIn])
 
@@ -78,6 +80,7 @@ export default function DrawerLayout() {
             setIsLoggedIn(loggedIn);
         } catch (error) {
             console.error("Error checking login status:", error);
+            Sentry.captureException(error); 
         }
     };
 
@@ -91,6 +94,7 @@ export default function DrawerLayout() {
 
         } catch (error) {
             console.error("Error logging out:", error);
+            Sentry.captureException(error); 
         }
     };
 

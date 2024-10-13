@@ -22,6 +22,7 @@ function Page() {
     const [imageUri, setImageUri] = useState<string>(null);
     const [isOnboarded, setIsOnboarded] = useState(null);
     
+    
     const router = useRouter();
     const openOnboarding = () => {
         router.push('/onboard');

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { View, Text, TouchableOpacity, Button, TextInput, ActivityIndicator, Image } from 'react-native'
 import { auth } from "@/services/firebaseConfig"
 import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth'
@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import SignUp from "@/components/SignUp"
 import ResetPage from '@/components/ResetPage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import * as Sentry from '@sentry/react-native';
 // need to implement persistence of user
 
 const LoginPage = () =>{
@@ -28,7 +28,13 @@ const LoginPage = () =>{
     const [renderResetScreen, setRenderResetScreen] = useState(false);
     const [renderResetScreenError, setRenderResetScreenError] = useState(false)
 
-
+    useEffect(() => {
+        const transaction = Sentry.startTransaction({ name: "Login Page" });
+    
+        return () => {
+          transaction.finish();
+        };
+      }, []);
 
     const handleFirebaseAuthError = (errorCode: string) => {
         const regex = /\((.*?)\)/;
@@ -75,7 +81,7 @@ const LoginPage = () =>{
 
     // handle login 
     const login = () =>{
-
+        const subTransaction = Sentry.startTransaction({ name: "Authentiation" });
         if ((password.length < 1) || (email.length < 1)){
             return
         }
@@ -89,6 +95,7 @@ const LoginPage = () =>{
                 setUID(userCredential.user['uid'])
 
                 storeData("uid", userCredential.user['uid']);
+                subTransaction.finish();
                 router.replace("/(drawer)/scan")
                 
             })

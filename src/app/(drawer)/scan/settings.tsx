@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Switch, StyleSheet, ScrollView } from "react-native";
 import { useSettings } from "@/components/SettingsContext";
 import RNPickerSelect from "react-native-picker-select";
 import { useRouter } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Sentry from '@sentry/react-native';
 
 const Settings = () => {
   const saveSettingsToStorage = async (key, value) => {
@@ -36,6 +37,14 @@ const Settings = () => {
   //might not use the select language here. For now temporpary.
   const [selectedLanguage, setSelectedLanguage] = useState("1");
   const dropdownLanguage = [{ label: "English", value: "1" }];
+
+  useEffect(() => {
+    const transaction = Sentry.startTransaction({ name: "Settigs page" });
+
+    return () => {
+      transaction.finish();
+    };
+  }, []);
 
   const router = useRouter();
 
