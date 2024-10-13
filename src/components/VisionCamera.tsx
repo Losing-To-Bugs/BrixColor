@@ -8,7 +8,6 @@ import {
     useFrameProcessor,
     useCameraFormat, useSkiaFrameProcessor
 } from "react-native-vision-camera";
-import {foo} from "@/hooks/foo";
 import {Skia} from "@shopify/react-native-skia";
 import {detectBrick} from "@/hooks/detectBrick";
 
