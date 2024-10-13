@@ -1,6 +1,6 @@
 import {Text, TouchableOpacity, View, Platform} from "react-native";
 import {Drawer} from "expo-router/drawer";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, useEffect} from "react";
 import {StyleSheet} from "react-native";
 import {StatusBar} from "expo-status-bar";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -12,6 +12,8 @@ import * as ImagePicker from "expo-image-picker";
 import VisionCamera from "@/components/VisionCamera";
 import Constants from 'expo-constants'
 import {useSettings} from "@/components/SettingsContext";
+import {useRouter} from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
@@ -24,7 +26,29 @@ function Page() {
 
     const [flashOn, setFlash] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
+    const [isOnboarded, setIsOnboarded] = useState(null);
     const [permissionResponse, requestPermission] = usePermissions()
+
+    const router = useRouter();
+    const openOnboarding = () => {
+        router.push('/onboard');
+      };
+
+      //Check if user has been onBoarded
+      const checkOnboarding = async () => {
+        const onboardingStatus = await AsyncStorage.getItem('isOnboarded');
+        const onboarded = onboardingStatus === 'true';
+        setIsOnboarded(onboarded);
+
+        // Navigates to onboarding page if not yet onboarded
+        if (!onboarded) {
+            openOnboarding();
+        }
+    };
+
+      useEffect(() => {
+        checkOnboarding();
+    }, []);
 
 
     const camera = useRef<ExpoCamera>(null)
@@ -68,19 +92,20 @@ function Page() {
         iconSizes,
     } = useSettings();
 
-    const iconSetSize: number = iconSizes[iconSize].iconSize ?? 32
+    const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
+
         <View style={pageStyles.container}>
             <Drawer.Screen options={{headerShown: false}} />
 
-            <View style={pageStyles.header}>
+            <View style={pageStyles.header }>
                 <BrixDrawerToggleButton
-                    size={32}
                 />
-
+      {/* Render your main component content here */}
                 {/* Help button */}
                 <TouchableOpacity
+                    onPress={openOnboarding}
                     accessibilityLabel="Help"
                     accessibilityHint="Display useful instructions on how to use the application"
                     accessibilityRole="button"
@@ -107,7 +132,7 @@ function Page() {
                         :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={nativeCamera} />
+                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} />*/}
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
