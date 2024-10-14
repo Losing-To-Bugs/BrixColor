@@ -39,7 +39,7 @@ const Settings = () => {
   const dropdownLanguage = [{ label: "English", value: "1" }];
 
   useEffect(() => {
-    const transaction = Sentry.startTransaction({ name: "Settigs page" });
+    const transaction = Sentry.startTransaction({ name: "Settings page" });
 
     return () => {
       transaction.finish();
@@ -49,33 +49,46 @@ const Settings = () => {
   const router = useRouter();
 
   const handleToggleScans = (value: boolean) => {
+    const subTransaction = Sentry.startTransaction({ name: "Settings Toggle Scans" });
     setTogglescans(value);
     saveSettingsToStorage("toggleScans", JSON.stringify(value));
+    subTransaction.finish();
+
   };
 
   const handleToggleAudio = (value: boolean) => {
+    const subTransaction = Sentry.startTransaction({ name: "Settings Toggle Audio" });
     setToggleAudio(value);
     saveSettingsToStorage("toggleAudio", JSON.stringify(value));
+    subTransaction.finish();
   };
 
   const handleToggleCapture = (value: boolean) => {
+    const subTransaction = Sentry.startTransaction({ name: "Settings Toggle Capture" });
     setToggleCapture(value);
     saveSettingsToStorage("toggleCapture", JSON.stringify(value));
+    subTransaction.finish();
   };
 
   const handleChangeTheme = (selectedTheme) => {
+    const subTransaction = Sentry.startTransaction({ name: "Settings Theme" });
     setTheme(selectedTheme);
     saveSettingsToStorage("theme", selectedTheme);
+    subTransaction.finish();
   };
 
   const handleChangeFontSize = (selectedFontSize) => {
+    const subTransaction = Sentry.startTransaction({ name: "Settings Font Size" });
     setFontSize(selectedFontSize);
     saveSettingsToStorage("fontSize", selectedFontSize);
+    subTransaction.finish();
   };
 
   const handleChangeIconSize = (selectedIconSize) => {
+    const subTransaction = Sentry.startTransaction({ name: "Settings Icon Size" });
     setIconSize(selectedIconSize);
     saveSettingsToStorage("iconSize", selectedIconSize);
+    subTransaction.finish();
   };
   //These handle selection of the theme and font size.
 

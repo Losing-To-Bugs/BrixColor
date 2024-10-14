@@ -27,13 +27,16 @@ function App() {
 
     // if saved data exists, the user is logged in
     useEffect(() => {
+        const transaction = Sentry.startTransaction({ name: "App launch" });
         const updateLoginStatus = async () => {
             try {
                 const value = await AsyncStorage.getItem("uid");
                 if (value !== null) {
                     setUID(value);
+                    transaction.finish();
                     setRedirectUrl("/(drawer)/scan");
                 } else {
+                    transaction.finish();
                     setRedirectUrl("/LoginPage");
                 }
             } catch (e) {
