@@ -7,16 +7,7 @@ const data = {
 }
 
 
-const Meh = () =>{
-    return (<HistoryList/>)
-}
 export default () => {
-    return (<Meh/>)
+    // return (<HistoryList/>)
+    return (<InfoPopup data={data}/>)
 }
-
-// const Meh = () =>{
-//     return (<InfoPopup data={data}/>)
-// }
-// export default () => {
-//     return (<Meh/>)
-// }

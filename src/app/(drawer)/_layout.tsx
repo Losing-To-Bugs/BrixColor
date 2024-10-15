@@ -39,12 +39,12 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
                     </BrixDrawerItem>
 
                     {/* uncomment to test history list and popup modal */}
-                    {/* <BrixDrawerItem href="/scan/meh"
+                    <BrixDrawerItem href="/scan/history"
                                     accessibilityLabel="To settings"
-                                    accessibilityHint="Navigates to application settings"
+                                    accessibilityHint="Navigates to scan history"
                                     accessibilityRole="button">
-                        <Text style={drawerItemStyle}>Meh</Text>
-                    </BrixDrawerItem> */}
+                        <Text style={drawerItemStyle}>History</Text>
+                    </BrixDrawerItem>
 
                     <TouchableOpacity
                         onPress={() => {

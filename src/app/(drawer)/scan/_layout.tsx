@@ -9,7 +9,7 @@ export default function ScanLayout() {
             }}
         />
         <Stack.Screen
-        name="meh"
+        name="history"
         options={{
             headerShown: false,
         }}

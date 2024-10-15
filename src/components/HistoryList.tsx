@@ -1,9 +1,10 @@
-import { View, FlatList, Text, Image, StyleSheet } from "react-native";
+import { View, FlatList, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { IMAGES } from "../constants/images";
 import { legoColors } from "../constants/colors";
-import { SettingsProvider } from "@/components/SettingsContext";
+import { SettingsProvider, useSettings } from "@/components/SettingsContext";
+import { useRouter } from "expo-router";
+import { HeaderBackButton } from "@react-navigation/elements";
 
-// TODO [] change the background color, maybe change all of the bricks to actually black
 // TODO [] integrate with actual stored data
 // TODO [] add option to remove from history
 // TODO [] add option to clear history
@@ -159,78 +160,102 @@ const dataArr = [
 
 const HistoryList = () => {
 
+    const router = useRouter();
+
+
     // Utility function to handle formatting brick names
-    const handleIdentity = (identity) => {
+    const handleIdentity = (identity: string) => {
         let name = identity.split("_");
         let type = name.length > 1 ? "Plate" : "Brick";
         return `${name[0]} ${type}`;
     };
 
     // Utility function to format timestamps
-    const formatTimestamp = (timestamp) => {
+    const formatTimestamp = (timestamp: any) => {
         const date = new Date(timestamp);
         return date.toLocaleDateString() + " " + date.toLocaleTimeString();
     };
 
 
+    const {theme, themes, fontSize, fontSizes } = useSettings();
+
+    
+
     return (
-        <SettingsProvider>
-            <View style={{...styles.container, paddingTop: 15}}>
+            <View style={{...styles.container, backgroundColor: themes[theme].primaryColor }}>
 
+
+                
+
+                {/* header */}
+                <View style={{height: "8%", width: "100%",alignItems: "center", backgroundColor: themes[theme].secondaryColor, justifyContent: "center"}} >
+                    
+                    {/* Close Button */}
+                    <HeaderBackButton
+                        accessibilityLabel="Back button"
+                        labelStyle={{ fontSize: fontSizes[fontSize].fontSize, color: themes[theme].textColor }}
+                        tintColor={themes[theme].headerColor}
+                        style={{position: "absolute", left: "0%"}}
+                        onPress={() => router.dismiss()}
+                    />
+
+
+                    <Text style={{color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 10}}>Scan History</Text>
+                </View>
                 {/* History List */}
-                <FlatList
-                    accessibilityRole="list"
-                    accessibilityLabel="Scanned Brick History"
-                    showsVerticalScrollIndicator={true}
-                    data={dataArr}
-                    keyExtractor={(item, index) => index.toString()} // unique key for each item
-                    renderItem={({ index, item }) =>
+                <View style={{flex: 1}}>
+                    <FlatList
+                        accessibilityRole="list"
+                        accessibilityLabel="Scanned Brick History"
+                        showsVerticalScrollIndicator={true}
+                        data={dataArr}
+                        keyExtractor={(item, index) => index.toString()} // unique key for each item
+                        renderItem={({ index, item }) =>
 
-                        // History Item
-                        <View style={styles.itemContainer}>
+                            // History Item
+                            <View style={{...styles.itemContainer, backgroundColor: themes[theme].secondaryColor}}>
 
-                            {/* Confidence Text */}
-                            <View style={styles.confidenceContainer} accessibilityLabel="Match Confidence">
-                                <Text style={styles.confidenceText}>Confidence {item.confidence}%</Text>
+                                {/* Confidence Text */}
+                                <View style={styles.confidenceContainer} accessibilityLabel="Match Confidence">
+                                    <Text style={{color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize}}>Confidence {item.confidence}%</Text>
+                                </View>
+
+                                {/* Lego Image */}
+                                <View style={styles.imageContainer} accessibilityLabel="Lego Image">
+                                    <Image
+                                        source={IMAGES[item.brick]}
+                                        style={styles.image}
+                                        resizeMode="contain"
+                                    />
+                                </View>
+
+                                {/* Description */}
+                                <View style={styles.textContainer} accessibilityLabel="LEGO Description">
+                                    <Text style={{...styles.itemText, color: themes[theme].textColor, fontSize: Math.max(fontSizes[fontSize].fontSize - 2, 14)}}>
+                                        {legoColors[item.color]}{"\n"}{handleIdentity(item.brick)}
+                                    </Text>
+                                </View>
+
+                                {/* Time Stamp */}
+                                <View style={styles.timestampContainer} accessibilityLabel="Date When Scanned">
+                                    <Text style={{...styles.timestampText, color: themes[theme].textColor, fontSize: Math.max(fontSizes[fontSize].fontSize - 5, 12)}}>{formatTimestamp(item.timestamp)}</Text>
+                                </View>
                             </View>
-
-                            {/* Lego Image */}
-                            <View style={styles.imageContainer} accessibilityLabel="Lego Image">
-                                <Image
-                                    source={IMAGES[item.brick]}
-                                    style={styles.image}
-                                    resizeMode="contain"
-                                />
-                            </View>
-
-                            {/* Description */}
-                            <View style={styles.textContainer} accessibilityLabel="LEGO Description">
-                                <Text style={styles.itemText}>
-                                    {legoColors[item.color]}{"\n"}{handleIdentity(item.brick)}
-                                </Text>
-                            </View>
-
-                            {/* Time Stamp */}
-                            <View style={styles.timestampContainer} accessibilityLabel="Date When Scanned">
-                                <Text style={styles.timestampText}>{formatTimestamp(item.timestamp)}</Text>
-                            </View>
-                        </View>
-                    }
-                />
+                        }
+                    />
+                </View>
             </View>
-        </SettingsProvider>
+
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "blue",
         justifyContent: "center",
         alignItems: "center",
     },
     itemContainer: {
-        backgroundColor: "white",
         borderRadius: 10,
         marginVertical: 10,
         padding: 10,
@@ -239,10 +264,6 @@ const styles = StyleSheet.create({
     },
     confidenceContainer: {
         marginBottom: 10,
-    },
-    confidenceText: {
-        fontSize: 16,
-        fontWeight: "bold",
     },
     imageContainer: {
         marginVertical: 10,
@@ -263,6 +284,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 14,
         color: "#333",
+        fontWeight: "bold"
     },
     timestampContainer: {
         marginTop: 5,
@@ -274,3 +296,5 @@ const styles = StyleSheet.create({
 });
 
 export default HistoryList;
+
+
