@@ -38,6 +38,14 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
                         <Text style={drawerItemStyle}>Settings</Text>
                     </BrixDrawerItem>
 
+                    {/* uncomment to test history list and popup modal */}
+                    <BrixDrawerItem href="/scan/history"
+                                    accessibilityLabel="To settings"
+                                    accessibilityHint="Navigates to scan history"
+                                    accessibilityRole="button">
+                        <Text style={drawerItemStyle}>History</Text>
+                    </BrixDrawerItem>
+
                     <TouchableOpacity
                         onPress={() => {
                             // if logged in you will logout

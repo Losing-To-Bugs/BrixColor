@@ -26,6 +26,7 @@ function Page() {
     const runExpoCamera = isRunningInExpoGo || Platform.OS === 'web';
 
     const [flashOn, setFlash] = useState(false);
+    const [isShown, setIsShown] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
     const [isOnboarded, setIsOnboarded] = useState(null);
     const [permissionResponse, requestPermission] = usePermissions()
