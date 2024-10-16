@@ -17,6 +17,7 @@ const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
 function Page() {
     const [flashOn, setFlash] = useState(false);
+    const [isShown, setIsShown] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
 
     // const camera = useRef<Camera>(null)
