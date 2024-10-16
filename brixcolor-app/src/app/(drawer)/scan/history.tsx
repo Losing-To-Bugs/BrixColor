@@ -8,6 +8,6 @@ const data = {
 
 
 export default () => {
-    // return (<HistoryList/>)
-    return (<InfoPopup data={data}/>)
+    return (<HistoryList/>)
+    // return (<InfoPopup data={data}/>)
 }
