@@ -1,47 +1,119 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Modal, Text, Button, TouchableWithoutFeedback, Image, TouchableOpacity } from "react-native";
 import { IMAGES } from "../constants/images";
 import { legoColors } from "../constants/colors";
 import { useSettings } from "./SettingsContext";
-import { SettingsProvider } from "./SettingsContext";
-
-// TODO [] integrate with the scan page
-// TODO [] save the scans to local storage
-// TODO [] save the scans (and settings) to the database
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const InfoPopup = ({ data }) => {
+// TODO [x] integrate with the scan page
+// TODO [x] save the scans to local storage
+// TODO [x] save the scans (and settings) to the database
 
-    // Use state to handle toggling view
-    const [isShown, setIsShown] = useState(false);
+export interface InfoPopupProps {
+    confidence: number,
+    brick: string,
+    color: string,
+    isShown: boolean,
+    uid: string,
+    handlePress: () => void
+}
 
+const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown, uid, handlePress }) => {
+
+    const SERVERURL = "http://174.138.44.47:6969/userHistory"
     const {themes, theme, fontSizes, fontSize} = useSettings();
     
     // Function to handle presenting the name and the type of brick
     const handleIdentity = () =>{
-        let name = data.brick.split("_");
+        let name = brick.split("_");
         let type  = (name.length > 1) ? "Plate" : "Brick"
 
         return `${name[0]} ${type}`
     }
 
-    const getCurrentTime = () =>{
-       console.log(new Date().getTime())
-    }
+
+    useEffect(()=>{
+        /** Function to update and store history */
+        const saveData = async () =>{
+            let dataObj = []
+            const timestamp = new Date().getTime();
+            const data = {
+                uid: uid,
+                color: color,
+                label: brick,
+                confidence: confidence,
+                timestamp: timestamp
+            }
+
+            // get current history
+            try{
+                const rawData = await AsyncStorage.getItem("history");
+                dataObj = (rawData !== null) ? JSON.parse(rawData) : []
+            }
+            catch(err){
+                // possibly return error code
+                console.error(err);
+                // return -1;
+            }
+
+            // add new data to the array
+            dataObj.push(data);
+
+            // convert to string
+            const dataStr = JSON.stringify(dataObj);
+
+
+            // load the data
+            try{
+                await AsyncStorage.setItem("history", dataStr);
+            }
+            catch(err){
+                // possibly return error code
+                console.error(err);
+                // return -1;
+            }
+
+            const payload = {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+
+            // load into server db
+            try{
+                await fetch(SERVERURL, payload);
+            }
+            catch(err){
+                // possibly return error code
+                console.error(err);
+                // return -1;
+            }
+
+            // possibly return good status code
+            // return 0;
+        }
+
+        saveData();
+    }, []);
+
+
 
 
 
   return (
 
     // outer container can be removed
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Button title="Show Modal" onPress={() => setIsShown(true)} />
+    // <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        // {/* <Button title="Show Modal" onPress={() => setIsShown(true)} /> */}
 
-        {/* beginning of Info Modal */}
+        // {/* beginning of Info Modal */}
         <Modal visible={isShown} transparent={true} animationType="fade" accessibilityLabel="Scanned Data Popup">
 
             {/* use touchable feedback to enable closing on press out */}
-            <TouchableWithoutFeedback onPress={() => setIsShown(false)}>
+            <TouchableWithoutFeedback onPress={handlePress}>
             <View style={{ backgroundColor: "#00000016", flex: 1, justifyContent: "center", alignItems: "center" }}>
                 
                 {/* second touchable opacity voids presses within the active area by routing to empty callback */}
@@ -52,7 +124,7 @@ const InfoPopup = ({ data }) => {
                         <TouchableOpacity 
                             accessibilityLabel="Close Button"
                             accessibilityRole="button"
-                            onPress={() => setIsShown(false)} 
+                            onPress={handlePress} 
                             style={{ position: "absolute", top: 10, right: 10, padding: 5, zIndex: 1, backgroundColor: themes[theme].secondaryColor, borderRadius: 5 }}
                             >
                             <Text style={{ fontWeight: "bold", color: themes[theme].textColor }}>X</Text>
@@ -61,13 +133,13 @@ const InfoPopup = ({ data }) => {
 
                         <View style={{flex: 1}} >
                             <View style={{flex: 1, alignItems: "center", paddingTop: 10}} >
-                                <Text style={{color: themes[theme].textColor, fontSize: Math.max(fontSizes[fontSize].fontSize - 4 , 12)}} accessibilityLabel="Lego Match Confidence">Confidence {data.confidence}%</Text>
+                                <Text accessibilityLabel="Lego Match Confidence" style={{color: themes[theme].textColor, fontSize: Math.max(fontSizes[fontSize].fontSize - 4 , 12)}}>Confidence {confidence * 100}%</Text>
                             </View>
                             <View style={{flex: 3, justifyContent: "center", alignItems: "center"}} >
-                                <Image accessibilityLabel="Lego Match Confidence" source={IMAGES[data.brick]} style={{width: "60%", height: "70%", borderColor: "black", borderWidth: 1, borderRadius: 10}}/>
+                                <Image source={IMAGES[brick]} style={{width: "60%", height: "70%", borderColor: "black", borderWidth: 1, borderRadius: 10}}/>
                             </View>
                             <View style={{flex: 1, justifyContent: "center", alignItems: "center"}} >
-                                <Text accessibilityLabel="" style={{textAlign: "center", color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 2}} >{legoColors[data.color]}{"\n"}{handleIdentity()}</Text>
+                                <Text accessibilityLabel="Lego Description" style={{textAlign: "center", color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 2}} >{legoColors[color]}{"\n"}{handleIdentity()}</Text>
                             </View>
                         </View>
                     </View>
@@ -75,7 +147,7 @@ const InfoPopup = ({ data }) => {
                 </View>
             </TouchableWithoutFeedback>
         </Modal>
-    </View>
+    // </View>
   );
 };
 

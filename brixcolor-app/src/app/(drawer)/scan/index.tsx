@@ -18,6 +18,7 @@ import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
+import InfoPopup from "@/components/InfoPopup";
 
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
@@ -26,19 +27,25 @@ function Page() {
     const runExpoCamera = isRunningInExpoGo || Platform.OS === 'web';
 
     const [flashOn, setFlash] = useState(false);
-    const [isShown, setIsShown] = useState(false);
     const [imageUri, setImageUri] = useState<string>(null);
     const [isOnboarded, setIsOnboarded] = useState(null);
-    const [permissionResponse, requestPermission] = usePermissions()
-    const [trackedLabel, setTrackedLabel] = useState('')
+    const [permissionResponse, requestPermission] = usePermissions();
+    const [trackedLabel, setTrackedLabel] = useState('');
+
+    // for modal
+    const [isModalShown, setIsModalShown] = useState(false);
+    const [confidence, setConfidence] = useState(0.0);
+    const [brickLabel, setBrickLabel] = useState("");
+    const [brickColor, setBrickColor] = useState("");
+    const [uid, setUID] = useState("");
 
     const router = useRouter();
     const openOnboarding = () => {
         router.push('/onboard');
-      };
+    };
 
       //Check if user has been onBoarded
-      const checkOnboarding = async () => {
+    const checkOnboarding = async () => {
         const onboardingStatus = await AsyncStorage.getItem('isOnboarded');
         const onboarded = onboardingStatus === 'true';
         setIsOnboarded(onboarded);
@@ -49,25 +56,45 @@ function Page() {
         }
     };
 
-      useEffect(() => {
+    const checkLogin = async () =>{
+        // check if UID exists
+        const uid = await AsyncStorage.getItem("uid");
+
+        // if exists store the uid in cache logged in, otherwise not logged in
+        if (uid !== null){
+            setUID(uid)
+        }
+    }
+
+    useEffect(() => {
         checkOnboarding();
+        checkLogin();
     }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
             const trackingObject = inputRef?.current?.trackingRef?.current
 
-            if (trackingObject == null || trackingObject.score < 0.3) {
-               setTrackedLabel('')
-            } else if (trackingObject) {
-                const labelName = LABEL_MAP[trackingObject.label]
-                setTrackedLabel(`Possible detection: ${labelName}`)
+            if (!isModalShown){
+                if (trackingObject == null || trackingObject.score < 0.3) {
+                    setTrackedLabel('')
+                 } else if (trackingObject) {
+                        const labelName = LABEL_MAP[trackingObject.label]
+                        setTrackedLabel(`Possible detection: ${labelName}`)
+
+                        // show modal
+                        setBrickColor("0x9B9A5A");
+                        setBrickLabel(labelName);
+                        setConfidence(trackingObject.score);
+                        setIsModalShown(true);
+                 }
             }
+            
 
         }, 1000 / CAMERA_FPS)
 
         return () => clearInterval(interval)
-    }, [])
+    }, [isModalShown])
 
 
     const camera = useRef<ExpoCamera>(null)
@@ -102,6 +129,10 @@ function Page() {
         }
 
         setImageUri(result.assets[0].uri);
+    }
+
+    const handleCloseModal = () =>{
+        setIsModalShown(false);
     }
 
     const {
@@ -145,6 +176,7 @@ function Page() {
                 flexDirection: 'row',
                 alignItems: 'center',
             }}>
+                
                 {
                     runExpoCamera ?
                         (<View style={{height: '100%', width: '100%'}}>
@@ -154,11 +186,13 @@ function Page() {
                         :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} />*/}
+                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} doDetect={isModalShown}/>
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
                 }
+
+                {isModalShown && <InfoPopup isShown={isModalShown} confidence={confidence} brick={brickLabel} color={brickColor} uid={uid} handlePress={handleCloseModal}/>}
 
                 <View style={styles.control}>
 

@@ -15,6 +15,10 @@ import {CAMERA_FPS} from "@/constants/vision-constants";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
+    
+    // flag passed will determine whether to process the frame or pause;
+    // stop handling frames when the InfoPopup is rendered.
+    doDetect: boolean
 }
 
 type Rect = [number, number, number, number]
@@ -120,6 +124,11 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
+        
+        // do nothing if doDetect flag is false 
+        if(!props.doDetect){
+            return
+        }
 
         const result = detectBrick(frame)
 
