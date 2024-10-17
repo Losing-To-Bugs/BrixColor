@@ -21,7 +21,7 @@ export interface InfoPopupProps {
 
 const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown, uid, handlePress }) => {
 
-    const SERVERURL = "http://174.138.44.47:6969/userHistory"
+    const SERVERURL = "http://174.138.44.47/brixColor/userHistory"
     const {themes, theme, fontSizes, fontSize} = useSettings();
     
     // Function to handle presenting the name and the type of brick
