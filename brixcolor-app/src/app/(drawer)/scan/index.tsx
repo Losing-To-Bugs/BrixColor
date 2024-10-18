@@ -61,7 +61,7 @@ function Page() {
                setTrackedLabel('')
             } else if (trackingObject) {
                 const labelName = LABEL_MAP[trackingObject.label]
-                setTrackedLabel(`Possible detection: ${labelName}`)
+                setTrackedLabel(labelName)
             }
 
         }, 1000 / CAMERA_FPS)
@@ -80,9 +80,26 @@ function Page() {
         }, [isRunningInExpoGo, Platform.OS]);
 
     const handleShutterPress = async () => {
-        if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
+        const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
+        if (!runExpoCamera && visionCameraRef) {
             if (permissionResponse.status !== 'granted') {
                 await requestPermission();
+            } else {
+                const trackingObject = inputRef?.current?.trackingRef?.current
+
+                console.log(trackingObject, trackedLabel)
+
+                // Code to take picture (if needed)
+
+                // const result = await visionCameraRef.takePhoto({
+                //     flash: flashOn ? 'on' : 'off',
+                //     enableShutterSound: true
+                // })
+                //
+                // const file = await fetch(`file://${result.path}`)
+
+                // // Get the image blob
+                // const imageBlob = await file.blob();
             }
         }
     }
@@ -122,7 +139,7 @@ function Page() {
 
                 {/*Real time lego detection info*/}
                 <Text style={{color: 'white'}}>
-                    {trackedLabel}
+                    {trackedLabel ? `Possible detection: ${trackedLabel}` : ''}
                 </Text>
 
                 {/* Help button */}

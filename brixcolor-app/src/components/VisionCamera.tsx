@@ -132,6 +132,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                     width: tracking.value.width,
                     height: tracking.value.height,
                     score: newScore,
+                    rawScore: tracking.value.rawScore,
                     label: tracking.value.label
                 }
             }
@@ -147,18 +148,25 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                         width: tracking.value.width,
                         height: tracking.value.height,
                         score: newScore,
+                        rawScore: maxScore,
                         label: tracking.value.label
                     }
                 }
             } else {
                 const [x, y, width, height] = rect
+                const hScale = frame.height / 640
+                const wScale = frame.width / 640
+                const xScaled = (x + width/2) * wScale
+                const yScaled = (y - height/2) * hScale
+                const wScaled = width * wScale
+                const hScaled = height * hScale
 
                 if (tracking.value === null) {
                     tracking.value = {
-                        x,
-                        y,
-                        width,
-                        height,
+                        x: xScaled,
+                        y: yScaled,
+                        width: wScaled,
+                        height: hScaled,
                         score: 1,
                         label: maxClass
                     }
@@ -173,11 +181,12 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                     }
 
                     tracking.value = {
-                        x,
-                        y,
-                        width,
-                        height,
+                        x: xScaled,
+                        y: yScaled,
+                        width: wScaled,
+                        height: hScaled,
                         score: newScore,
+                        rawScore: maxScore,
                         label: maxClass
                     }
                 }
