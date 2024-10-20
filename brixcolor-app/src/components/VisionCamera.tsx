@@ -15,10 +15,6 @@ import {CAMERA_FPS} from "@/constants/vision-constants";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
-    
-    // flag passed will determine whether to process the frame or pause;
-    // stop handling frames when the InfoPopup is rendered.
-    doDetect: boolean
 }
 
 type Rect = [number, number, number, number]
@@ -125,10 +121,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
         
-        // do nothing if doDetect flag is false 
-        if(!props.doDetect){
-            return
-        }
+
 
         const result = detectBrick(frame)
 
@@ -141,6 +134,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                     width: tracking.value.width,
                     height: tracking.value.height,
                     score: newScore,
+                    rawScore: tracking.value.rawScore,
                     label: tracking.value.label
                 }
             }
@@ -156,18 +150,25 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                         width: tracking.value.width,
                         height: tracking.value.height,
                         score: newScore,
+                        rawScore: maxScore,
                         label: tracking.value.label
                     }
                 }
             } else {
                 const [x, y, width, height] = rect
+                const hScale = frame.height / 640
+                const wScale = frame.width / 640
+                const xScaled = (x + width/2) * wScale
+                const yScaled = (y - height/2) * hScale
+                const wScaled = width * wScale
+                const hScaled = height * hScale
 
                 if (tracking.value === null) {
                     tracking.value = {
-                        x,
-                        y,
-                        width,
-                        height,
+                        x: xScaled,
+                        y: yScaled,
+                        width: wScaled,
+                        height: hScaled,
                         score: 1,
                         label: maxClass
                     }
@@ -182,11 +183,12 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                     }
 
                     tracking.value = {
-                        x,
-                        y,
-                        width,
-                        height,
+                        x: xScaled,
+                        y: yScaled,
+                        width: wScaled,
+                        height: hScaled,
                         score: newScore,
+                        rawScore: maxScore,
                         label: maxClass
                     }
                 }

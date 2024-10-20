@@ -15,7 +15,7 @@ import {useSettings} from "@/components/SettingsContext";
 import {useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Camera} from "react-native-vision-camera";
-import {Camera as ExpoCamera} from "expo-camera";
+// import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
 import InfoPopup from "@/components/InfoPopup";
@@ -75,29 +75,26 @@ function Page() {
         const interval = setInterval(() => {
             const trackingObject = inputRef?.current?.trackingRef?.current
 
-            if (!isModalShown){
-                if (trackingObject == null || trackingObject.score < 0.3) {
-                    setTrackedLabel('')
-                 } else if (trackingObject) {
-                        const labelName = LABEL_MAP[trackingObject.label]
-                        setTrackedLabel(`Possible detection: ${labelName}`)
+            // if (!isModalShown){
+            if (trackingObject == null || trackingObject.score < 0.3) {
+                setTrackedLabel('')
+                } else if (trackingObject) {
+                    const labelName = LABEL_MAP[trackingObject.label]
+                    setTrackedLabel(`Possible detection: ${labelName}`)
 
-                        // show modal
-                        setBrickColor("0x9B9A5A");
-                        setBrickLabel(labelName);
-                        setConfidence(trackingObject.score);
-                        setIsModalShown(true);
-                 }
-            }
+                }
+            // }
             
 
         }, 1000 / CAMERA_FPS)
 
         return () => clearInterval(interval)
-    }, [isModalShown])
+
+    }, [])
+    // }, [isModalShown])
 
 
-    const camera = useRef<ExpoCamera>(null)
+    // const camera = useRef<ExpoCamera>(null)
     const nativeCamera = useRef<Camera>(null)
     const inputRef = useRef(null)
 
@@ -106,13 +103,38 @@ function Page() {
         console.log(`Platform: ${Platform.OS}`)
         }, [isRunningInExpoGo, Platform.OS]);
 
-    const handleShutterPress = async () => {
-        if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
-            if (permissionResponse.status !== 'granted') {
-                await requestPermission();
+        const handleShutterPress = async () => {
+                if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
+                const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
+                if (!runExpoCamera && visionCameraRef) {
+                    if (permissionResponse.status !== 'granted') {
+                        await requestPermission();
+                    } else {
+                        const trackingObject = inputRef?.current?.trackingRef?.current
+        
+                        console.log(trackingObject, trackedLabel)
+
+                        // show modal
+                        setBrickColor("0x9B9A5A");
+                        setBrickLabel(trackingObject.label);
+                        setConfidence(trackingObject.score);
+                        setIsModalShown(true);
+        
+                        // Code to take picture (if needed)
+        
+                        // const result = await visionCameraRef.takePhoto({
+                        //     flash: flashOn ? 'on' : 'off',
+                        //     enableShutterSound: true
+                        // })
+                        //
+                        // const file = await fetch(`file://${result.path}`)
+        
+                        // // Get the image blob
+                        // const imageBlob = await file.blob();
+                    }
+                }
             }
         }
-    }
 
     const handleFlashPress = () => {
         setFlash(!flashOn);
@@ -178,15 +200,15 @@ function Page() {
             }}>
                 
                 {
-                    runExpoCamera ?
-                        (<View style={{height: '100%', width: '100%'}}>
-                            <ScanCamera flashOn={flashOn} style={styles.camera} ref={camera} />
-                            <Text style={{color: 'white'}}>Using Expo Camera</Text>
-                        </View>)
-                        :
+                    // runExpoCamera ?
+                        // (<View style={{height: '100%', width: '100%'}}>
+                            // <ScanCamera flashOn={flashOn} style={styles.camera} ref={camera} />
+                            // <Text style={{color: 'white'}}>Using Expo Camera</Text>
+                        // </View>)
+                        // :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} doDetect={!isModalShown}/>
+                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef}/>
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 

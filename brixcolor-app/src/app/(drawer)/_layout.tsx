@@ -56,7 +56,7 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
                                 router.push("/LoginPage");
                             }
                         }}
-                        accessibilityLabel="Log out"
+                        accessibilityLabel={props.isLoggedIn ? "Log out" : "Log In"}
                         accessibilityRole="button"
                     >
                         <Text style={{ textAlign: "center", fontSize: 20, color: "blue" }}>{props.isLoggedIn ? "Logout" : "Login"}</Text>

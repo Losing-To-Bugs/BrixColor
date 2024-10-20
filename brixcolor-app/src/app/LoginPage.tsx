@@ -9,7 +9,7 @@ import ResetPage from '@/components/ResetPage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-// need to implement persistence of user
+// TODO [] : make sure the "Show Password" Button Text isn't cutoff 
 
 const LoginPage = () =>{
     const router = useRouter()
@@ -256,7 +256,7 @@ const LoginPage = () =>{
                         </TouchableOpacity>
                         
                         {/* show and hide password buttons */}
-                        <View style={{height: "15%"}} >
+                        <View style={{height: "15%", justifyContent: "center", minHeight: 30}} >
                             {password.length > 0 && <Button title={showPass ? 'Show Password': 'Hide Password'} onPress={() => {
                                 setShowPass(!showPass)
                                 }}
