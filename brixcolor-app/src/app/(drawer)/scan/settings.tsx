@@ -264,7 +264,7 @@ const Settings = () => {
               fontSize: fontSizes[fontSize].fontSize,
             }}
           >
-            Audio Narration{" "}
+            Brick Audio Announcement{" "}
           </Text>
           <Switch
             trackColor={{
@@ -275,7 +275,7 @@ const Settings = () => {
             value={toggleAudio}
             onValueChange={handleToggleAudio}
             accessible={true}
-            accessibilityLabel="App Audio Narration"
+            accessibilityLabel="Brick Identification Audio Announcement"
             accessibilityRole="switch"
             accessibilityValue={{ text: toggleAudio ? "true" : "false" }}
           />

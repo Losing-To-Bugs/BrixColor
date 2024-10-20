@@ -18,7 +18,21 @@ import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
+//import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
+/* 
+move under useSettings. This should work with both expo-speech and react-native-tts
+colorHex and size should be strings. Change in AudioAnnounce.tsx if that is not what they are.
+  const handleAudioAnnounce = () => {
+    if (toggleAudio) {
+      const { speak } = AudioAnnounce(colorHex, size); // Destructure to get the speak method
+      speak(); // Trigger the speak method
+    }
+      else if (!toggleAudio) {
+      console.log('Audio announcement is turned off.'); 
+    }
+  };
+*/
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
@@ -124,6 +138,7 @@ function Page() {
     const {
         iconSize,
         iconSizes,
+        toggleAudio,
     } = useSettings();
 
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
