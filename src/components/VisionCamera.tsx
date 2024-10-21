@@ -88,7 +88,7 @@ const VisionCamera = function (props: ScanCameraProps, ref) {
         props.setR(colors.value[0]);
         props.setG(colors.value[1]);
         props.setB(colors.value[2]);
-
+        console.log(`RGBA: ${colors.value[0]}, ${colors.value[1]}, ${colors.value[2]}`)
         props.setLegoName(getLegoColorName(colors.value[0],colors.value[1],colors.value[2], LegoMap, ColorTree));
     }
 
@@ -98,28 +98,21 @@ const VisionCamera = function (props: ScanCameraProps, ref) {
         const data = new Uint8Array(buffer);
         const length = buffer.byteLength;
 
-        let y = data[1036799]
-        let u = data[3000000]
-        let v = data[2332799]
-        /*
-        const r = y + 1.14 * v;
-        const g = y - 0.395 * u - 0.581 * v;
-        const b = y + 2.032 * u;
-        */
-        y -= 16;
-        u -= 128;
-        v -= 128;
-        let r = 1.164 * y + 1.596 * v;
-        let g = 1.164 * y - 0.392 * u - 0.813 * v;
-        let b = 1.164 * y + 2.017 * u;
+        let pixelStart = ((((frame.width * frame.height) / 2) - (frame.width / 2)) * 4) - 1
+        //let a = data[pixelStart]
+        let b = data[pixelStart - 3]
+        let g  = data[pixelStart - 2]
+        let r  = data[pixelStart - 1]
+        
+        //console.log(`RGBA: ${r}, ${g}, ${b}, ${a}`)
 
         colors.value = [r,g,b];
 
-        
+        /*
         console.log(`YUV: ${y+16}, ${u+128}, ${v+128}`);
         console.log(`RGB: ${r}, ${g}, ${b}`);
         console.log(`${frame.height} ${frame.width}`);
-        
+        */
     }, [colors])
 
     return (
@@ -130,6 +123,7 @@ const VisionCamera = function (props: ScanCameraProps, ref) {
                     style={StyleSheet.absoluteFill}
                     device={device}
                     torch={props.flashOn ? 'on' : 'off'}
+                    pixelFormat = "rgb"
                     isActive={true}>
 
                 </Camera>
