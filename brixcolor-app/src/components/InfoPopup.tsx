@@ -4,11 +4,11 @@ import { IMAGES } from "../constants/images";
 import { legoColors } from "../constants/colors";
 import { useSettings } from "./SettingsContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { HISTORYURL } from "@/constants/database-strings";
 
 
-// TODO [x] integrate with the scan page
-// TODO [x] save the scans to local storage
-// TODO [x] save the scans (and settings) to the database
+// TODO [] : verify history works 
+// TODO [] : make sure logic behind getting and storing history in the database is efficient
 
 export interface InfoPopupProps {
     confidence: number,
@@ -21,7 +21,6 @@ export interface InfoPopupProps {
 
 const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown, uid, handlePress }) => {
 
-    const SERVERURL = "http://174.138.44.47/brixColor/userHistory"
     const {themes, theme, fontSizes, fontSize} = useSettings();
     
     // Function to handle presenting the name and the type of brick
@@ -49,7 +48,7 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
             // get current history
             try{
                 const rawData = await AsyncStorage.getItem("history");
-                dataObj = (rawData !== null) ? JSON.parse(rawData) : []
+                dataObj = (rawData !== null) ? await JSON.parse(rawData) : []
             }
             catch(err){
                 // possibly return error code
@@ -84,7 +83,7 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
 
             // load into server db
             try{
-                await fetch(SERVERURL, payload);
+                await fetch(HISTORYURL, payload);
             }
             catch(err){
                 // possibly return error code

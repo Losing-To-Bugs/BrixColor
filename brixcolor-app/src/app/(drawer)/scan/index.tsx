@@ -23,6 +23,9 @@ import InfoPopup from "@/components/InfoPopup";
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
+
+// TODO [] : verify modal popup logic
+
 function Page() {
     const runExpoCamera = isRunningInExpoGo || Platform.OS === 'web';
 

@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { View, FlatList, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { IMAGES } from "../constants/images";
 import { legoColors } from "../constants/colors";
 import { SettingsProvider, useSettings } from "@/components/SettingsContext";
 import { useRouter } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // TODO [] integrate with actual stored data
 // TODO [] add option to remove from history
@@ -161,6 +163,29 @@ const dataArr = [
 const HistoryList = () => {
 
     const router = useRouter();
+    const [history, setHistory] = useState(null);
+
+    useEffect(() =>{
+        // load the user's history
+        const getData = async () =>{
+
+            // handle when logged in
+            try{
+
+                // get history string, convert to JSON and set as what is used
+                const dataStr = await AsyncStorage.getItem("history");
+                const jsonData = await JSON.parse(dataStr);
+                setHistory(jsonData)
+
+            }
+            catch(err){
+                // set an error flag
+                console.log(err)
+            }
+        };
+
+        getData();
+    }, [])
 
 
     // Utility function to handle formatting brick names
@@ -208,6 +233,9 @@ const HistoryList = () => {
                         accessibilityRole="list"
                         accessibilityLabel="Scanned Brick History"
                         showsVerticalScrollIndicator={true}
+                        // uncomment to test loading history
+                        // data={history}
+
                         data={dataArr}
                         keyExtractor={(item, index) => index.toString()} // unique key for each item
                         renderItem={({ index, item }) =>
