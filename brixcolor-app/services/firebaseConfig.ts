@@ -1,21 +1,26 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth"
+import { initializeAuth, getReactNativePersistence  } from "firebase/auth"
+
 import { getFirestore } from "firebase/firestore"
-  
+import AsyncStorage from "@react-native-async-storage/async-storage"
+
 const firebaseConfig = {
-    apiKey: "AIzaSyCNvx_pkMLkyElGP9sO-G9e48TFBdXVnA8",
-    authDomain: "brixcolor-capstone.firebaseapp.com",
-    projectId: "brixcolor-capstone",
-    storageBucket: "brixcolor-capstone.appspot.com",
-    messagingSenderId: "3234107138",
-    appId: "1:3234107138:web:62243554e1258944e0bc1b"
+    apiKey: "AIzaSyBfkSxpoPvnC46BGGhL4inHCAwkZX0In9E",
+    authDomain: "test-settings-brixcolor.firebaseapp.com",
+    projectId: "test-settings-brixcolor",
+    storageBucket: "test-settings-brixcolor.appspot.com",
+    messagingSenderId: "163978717142",
+    appId: "1:163978717142:web:755e14a9c95eba64a5a677",
+    measurementId: "G-5L2STY7T5T"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
+const firestore = getFirestore(app);
 // check firebase later
 
-const auth = getAuth(app)
+const auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+});
 
-export {app, auth}
+export {app, auth, firestore }

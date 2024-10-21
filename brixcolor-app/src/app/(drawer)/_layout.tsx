@@ -6,6 +6,8 @@ import {DrawerContentComponentProps, DrawerContentScrollView,} from "@react-navi
 import {useRouter} from "expo-router";
 import {SettingsProvider, useSettings} from "@/components/SettingsContext";
 import {BrixDrawerItem} from "@/app/components/BrixDrawerItem";
+import { signOut } from 'firebase/auth';
+import { auth } from "@/services/firebaseConfig";
 
 function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () => void; isLoggedIn: boolean }) {
     const router = useRouter();
@@ -93,7 +95,7 @@ export default function DrawerLayout() {
     const handleLogout = async () => {
         try {
             // Clear user data from AsyncStorage or perform other logout actions
-            await AsyncStorage.removeItem("uid");
+            await signOut(auth);
             setIsLoggedIn(false); // Update login state
 
 

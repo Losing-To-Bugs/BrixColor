@@ -1,6 +1,9 @@
 // SettingsContext.js
 import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { firestore, auth } from '@/services/firebaseConfig'; 
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const themes = {
     Light: {
@@ -82,50 +85,115 @@ export const SettingsProvider = ({ children }) => {
     const [theme, setTheme] = useState("Light");
     const [fontSize, setFontSize] = useState("Medium");
     const [iconSize, setIconSize] = useState("Medium");
-    const [toggleScans, setTogglescans] = useState(false);
+    const [toggleScans, setToggleScans] = useState(false);
     const [toggleAudio, setToggleAudio] = useState(false);
     const [toggleCapture, setToggleCapture] = useState(false);
+    const [user, setUser] = useState(null);
 
-    // Load theme, font size, and toggle states from AsyncStorage
+
     useEffect(() => {
-        const loadSettings = async () => {
-            try {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setUser(user); // Update user state
+
+            if (user) {
+                // Fetch user settings from Firestore when logged in
+                const userDoc = await getDoc(doc(firestore, 'settings', user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    setTheme(data.theme || "Light");
+                    setFontSize(data.fontSize || "Medium");
+                    setIconSize(data.iconSize || "Medium");
+                    setToggleScans(data.toggleScans || false);
+                    setToggleAudio(data.toggleAudio || false);
+                    setToggleCapture(data.toggleCapture || false);
+                }
+            } else {
+                // Load settings from AsyncStorage when logged out
                 const savedTheme = await AsyncStorage.getItem("theme");
-                if (savedTheme !== null) {
-                    setTheme(savedTheme);
-                }
-
                 const savedFontSize = await AsyncStorage.getItem("fontSize");
-                if (savedFontSize !== null) {
-                    setFontSize(savedFontSize);
-                }
-
                 const savedIconSize = await AsyncStorage.getItem("iconSize");
-                if (savedIconSize !== null) {
-                    setIconSize(savedIconSize);
-                }
-
                 const savedToggleScans = await AsyncStorage.getItem("toggleScans");
-                if (savedToggleScans !== null) {
-                    setTogglescans(JSON.parse(savedToggleScans));
-                }
-
                 const savedToggleAudio = await AsyncStorage.getItem("toggleAudio");
-                if (savedToggleAudio !== null) {
-                    setToggleAudio(JSON.parse(savedToggleAudio));
-                }
-
                 const savedToggleCapture = await AsyncStorage.getItem("toggleCapture");
-                if (savedToggleCapture !== null) {
-                    setToggleCapture(JSON.parse(savedToggleCapture));
-                }
-            } catch (error) {
-                console.error("Error loading settings:", error);
-            }
-        };
 
-        loadSettings();
+                setTheme(savedTheme || "Light");
+                setFontSize(savedFontSize || "Medium");
+                setIconSize(savedIconSize || "Medium");
+                setToggleScans(savedToggleScans ? JSON.parse(savedToggleScans) : false);
+                setToggleAudio(savedToggleAudio ? JSON.parse(savedToggleAudio) : false);
+                setToggleCapture(savedToggleCapture ? JSON.parse(savedToggleCapture) : false);
+            }
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
     }, []);
+
+    const saveTheme = async () => {
+        try {
+            await AsyncStorage.setItem("theme", theme);
+            if (user) {
+                await setDoc(doc(firestore, 'settings', user.uid), { theme }, { merge: true });
+            }
+        } catch (error) {
+            console.error("Error saving theme:", error);
+        }
+    };
+    
+    const saveFontSize = async () => {
+        try {
+            await AsyncStorage.setItem("fontSize", fontSize);
+            if (user) {
+                await setDoc(doc(firestore, 'settings', user.uid), { fontSize }, { merge: true });
+            }
+        } catch (error) {
+            console.error("Error saving font size:", error);
+        }
+    };
+    
+    const saveIconSize = async () => {
+        try {
+            await AsyncStorage.setItem("iconSize", iconSize);
+            if (user) {
+                await setDoc(doc(firestore, 'settings', user.uid), { iconSize }, { merge: true });
+            }
+        } catch (error) {
+            console.error("Error saving icon size:", error);
+        }
+    };
+    
+    const saveToggleScans = async (value) => {
+        try {
+            await AsyncStorage.setItem("toggleScans", JSON.stringify(value));
+            if (user) {
+                await setDoc(doc(firestore, 'settings', user.uid), { toggleScans: value }, { merge: true });
+            }
+        } catch (error) {
+            console.error("Error saving toggle scans:", error);
+        }
+    };
+    
+    const saveToggleAudio = async (value) => {
+        try {
+            await AsyncStorage.setItem("toggleAudio", JSON.stringify(value));
+            if (user) {
+                await setDoc(doc(firestore, 'settings', user.uid), { toggleAudio: value }, { merge: true });
+            }
+        } catch (error) {
+            console.error("Error saving toggle audio:", error);
+        }
+    };
+    
+    const saveToggleCapture = async (value) => {
+        try {
+            await AsyncStorage.setItem("toggleCapture", JSON.stringify(value));
+            if (user) {
+                await setDoc(doc(firestore, 'settings', user.uid), { toggleCapture: value }, { merge: true });
+            }
+        } catch (error) {
+            console.error("Error saving toggle capture:", error);
+        }
+    };
 
     return (
         <SettingsContext.Provider
@@ -140,11 +208,17 @@ export const SettingsProvider = ({ children }) => {
             setIconSize,
             iconSizes,
             toggleScans,
-            setTogglescans,
+            setToggleScans,
             toggleAudio,
             setToggleAudio,
             toggleCapture,
             setToggleCapture,
+            saveTheme,
+            saveFontSize,
+            saveIconSize,
+            saveToggleScans,
+            saveToggleAudio,
+            saveToggleCapture
     }}
 >
     {children}

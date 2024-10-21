@@ -4,16 +4,8 @@ import { useSettings } from "@/components/SettingsContext";
 import RNPickerSelect from "react-native-picker-select";
 import { useRouter } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Settings = () => {
-  const saveSettingsToStorage = async (key, value) => {
-    try {
-      await AsyncStorage.setItem(key, value);
-    } catch (error) {
-      console.error("Error saving settings:", error);
-    }
-  };
 
   const {
     theme,
@@ -26,11 +18,17 @@ const Settings = () => {
     setIconSize,
     iconSizes,
     toggleScans,
-    setTogglescans,
+    setToggleScans,
     toggleAudio,
     setToggleAudio,
     toggleCapture,
     setToggleCapture,
+    saveTheme,
+    saveFontSize,
+    saveIconSize,
+    saveToggleScans,
+    saveToggleAudio,
+    saveToggleCapture
   } = useSettings();
 
   //might not use the select language here. For now temporpary.
@@ -39,35 +37,35 @@ const Settings = () => {
 
   const router = useRouter();
 
-  const handleToggleScans = (value: boolean) => {
-    setTogglescans(value);
-    saveSettingsToStorage("toggleScans", JSON.stringify(value));
-  };
+  const handleToggleScans = (value) => {
+    setToggleScans(value);
+    saveToggleScans(value);
+};
 
-  const handleToggleAudio = (value: boolean) => {
+const handleToggleAudio = (value) => {
     setToggleAudio(value);
-    saveSettingsToStorage("toggleAudio", JSON.stringify(value));
-  };
+    saveToggleAudio(value);
+};
 
-  const handleToggleCapture = (value: boolean) => {
+const handleToggleCapture = (value) => {
     setToggleCapture(value);
-    saveSettingsToStorage("toggleCapture", JSON.stringify(value));
-  };
+    saveToggleCapture(value);
+};
 
-  const handleChangeTheme = (selectedTheme) => {
+const handleChangeTheme = (selectedTheme) => {
     setTheme(selectedTheme);
-    saveSettingsToStorage("theme", selectedTheme);
-  };
+    saveTheme();
+};
 
-  const handleChangeFontSize = (selectedFontSize) => {
+const handleChangeFontSize = (selectedFontSize) => {
     setFontSize(selectedFontSize);
-    saveSettingsToStorage("fontSize", selectedFontSize);
-  };
+    saveFontSize();
+};
 
-  const handleChangeIconSize = (selectedIconSize) => {
+const handleChangeIconSize = (selectedIconSize) => {
     setIconSize(selectedIconSize);
-    saveSettingsToStorage("iconSize", selectedIconSize);
-  };
+    saveIconSize();
+};
   //These handle selection of the theme and font size.
 
   const themeOptions = Object.keys(themes).map((themeKey) => ({
