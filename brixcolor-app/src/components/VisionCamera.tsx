@@ -127,9 +127,9 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
         if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
             if (tracking?.value?.score) {
-                // console.log("Decreasing confidence")
+                console.log("No detection, decreasing confidence")
                 // No detection, but there was a detection shortly beforehand
-                let newScore = 0.8 * tracking.value.score
+                let newScore = 0.95 * tracking.value.score
 
                 if (newScore )
                 tracking.value = {
@@ -165,36 +165,32 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                     return label === tracking.value.label
                 })
 
-                if (previousLabelInNewResults !== undefined) {
+                if (previousLabelInNewResults !== undefined
+                && Math.abs(maxScore - previousLabelInNewResults[1]) < 0.1) {
                     // New detection contains prediction in previous detection
-                    const [label, score, newRect] = previousLabelInNewResults
 
-                    if (Math.abs(maxScore - score) < 0.1) {
-                        // If difference in confidences is less than 0.1, we will
-                        // prefer the result with same label as previous prediction over
-                        // the result with highest confidence
-                        let newScore = Math.min(1, 1 * tracking.value.score * (Math.min(iou, 0.75) + 0.5))
-                        console.log("Same label", newScore)
-                        tracking.value = {
-                            x: xScaled,
-                            y: yScaled,
-                            width: wScaled,
-                            height: hScaled,
-                            score: newScore,
-                            rawScore: maxScore,
-                            label: maxClass
-                        }
+                    // If difference in confidences is less than 0.1, we will
+                    // prefer the result with same label as previous prediction over
+                    // the result with highest confidence
+                    let newScore = Math.min(1, 1 * tracking.value.score * (Math.min(iou, 0.75) + 0.5))
+                    console.log("Same label", newScore)
+                    tracking.value = {
+                        x: xScaled,
+                        y: yScaled,
+                        width: wScaled,
+                        height: hScaled,
+                        score: newScore,
+                        rawScore: maxScore,
+                        label: maxClass
                     }
-                }
 
-                if (previousLabelInNewResults == null ||
-                Math.abs(previousLabelInNewResults[1] - maxScore) > 0.1) {
+                } else {
                     // If prediction not in previous resulst
                     // or difference in confidences is greater than 0.1, prefer
                     // the max confidence result
                     if (iou > 0.5) {
                         // New detection with different label has similar bounding box to previous detection
-                        let newScore = 0.8 * tracking.value.score
+                        let newScore = 0.95 * tracking.value.score
                         console.log("Label changed similar bounding box", newScore)
                         tracking.value = {
                             x: tracking.value.x,
@@ -219,6 +215,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                         }
                     }
                 }
+
 
 
             } else {
