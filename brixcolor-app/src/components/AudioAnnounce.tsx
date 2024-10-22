@@ -1,9 +1,8 @@
 import * as Speech from 'expo-speech';
-//import TTS from 'react-native-tts' for no expo-speech
-const AudioAnnounce = (colorHex: string, size: string) => {
 
-    //const colorName = getClosestColor(colorHex);  // Convert hex to a human-readable color name if we need this
-    const text = `This LEGO brick is ${size} and its color is ${colorHex}.`; 
+const AudioAnnounce = (color: string, size: string) => {
+
+    const text = `This LEGO brick is ${size} and its color is ${color}.`; 
     const speak = async () => {
         try {
           
@@ -11,7 +10,6 @@ const AudioAnnounce = (colorHex: string, size: string) => {
           if (!text || isSpeaking) {
             return;  
           }
-          //TTS.speak
           Speech.speak(text, {
             language: 'en',
             rate: 1,  

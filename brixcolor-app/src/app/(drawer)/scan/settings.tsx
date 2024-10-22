@@ -17,8 +17,6 @@ const Settings = () => {
     iconSize,
     setIconSize,
     iconSizes,
-    toggleScans,
-    setToggleScans,
     toggleAudio,
     setToggleAudio,
     toggleCapture,
@@ -26,7 +24,6 @@ const Settings = () => {
     saveTheme,
     saveFontSize,
     saveIconSize,
-    saveToggleScans,
     saveToggleAudio,
     saveToggleCapture
   } = useSettings();
@@ -36,11 +33,6 @@ const Settings = () => {
   const dropdownLanguage = [{ label: "English", value: "1" }];
 
   const router = useRouter();
-
-  const handleToggleScans = (value) => {
-    setToggleScans(value);
-    saveToggleScans(value);
-};
 
 const handleToggleAudio = (value) => {
     setToggleAudio(value);
@@ -196,36 +188,6 @@ const handleChangeIconSize = (selectedIconSize) => {
             onValueChange={(itemValue, itemIndex) =>
               setSelectedLanguage(itemValue)
             }
-          />
-        </View>
-        <View
-          style={[
-            styles.divider,
-            { backgroundColor: themes[theme].dividerColor },
-          ]}
-        />
-        <View style={styles.toggleContainer}>
-          <Text
-            accessible={false}
-            style={{
-              color: themes[theme].textColor,
-              fontSize: fontSizes[fontSize].fontSize,
-            }}
-          >
-            Save Scans to Phone
-          </Text>
-          <Switch
-            trackColor={{
-              false: themes[theme].switchOffColor,
-              true: themes[theme].primaryColor,
-            }}
-            ios_backgroundColor={themes[theme].switchOffColor}
-            value={toggleScans}
-            onValueChange={handleToggleScans}
-            accessible={true}
-            accessibilityLabel="Save Scans to Phone"
-            accessibilityRole="switch"
-            accessibilityValue={{ text: toggleScans ? "true" : "false" }}
           />
         </View>
       </View>

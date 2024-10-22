@@ -34,7 +34,7 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
             <DrawerContentScrollView {...props} style={{backgroundColor: themes[theme].backgroundColor}}>
                 <View style={{gap: 10}}>
                     <BrixDrawerItem href="/scan/settings"
-                                    accessibilityLabel="To settings"
+                                    accessibilityLabel="Settings"
                                     accessibilityHint="Navigates to application settings"
                                     accessibilityRole="button">
                         <Text style={drawerItemStyle}>Settings</Text>
@@ -42,7 +42,7 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
 
                     {/* uncomment to test history list and popup modal */}
                     <BrixDrawerItem href="/scan/history"
-                                    accessibilityLabel="To settings"
+                                    accessibilityLabel="History"
                                     accessibilityHint="Navigates to scan history"
                                     accessibilityRole="button">
                         <Text style={drawerItemStyle}>History</Text>
@@ -58,7 +58,7 @@ function DrawerContent(props: DrawerContentComponentProps & { handleLogout: () =
                                 router.push("/LoginPage");
                             }
                         }}
-                        accessibilityLabel="Log out"
+                        accessibilityLabel={props.isLoggedIn ? "Log out" : "Log in"}
                         accessibilityRole="button"
                     >
                         <Text style={{ textAlign: "center", fontSize: 20, color: "blue" }}>{props.isLoggedIn ? "Logout" : "Login"}</Text>

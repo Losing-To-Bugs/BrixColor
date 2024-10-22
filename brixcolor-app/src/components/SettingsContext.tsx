@@ -85,7 +85,6 @@ export const SettingsProvider = ({ children }) => {
     const [theme, setTheme] = useState("Light");
     const [fontSize, setFontSize] = useState("Medium");
     const [iconSize, setIconSize] = useState("Medium");
-    const [toggleScans, setToggleScans] = useState(false);
     const [toggleAudio, setToggleAudio] = useState(false);
     const [toggleCapture, setToggleCapture] = useState(false);
     const [user, setUser] = useState(null);
@@ -93,7 +92,7 @@ export const SettingsProvider = ({ children }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            setUser(user); // Update user state
+            setUser(user);
 
             if (user) {
                 // Fetch user settings from Firestore when logged in
@@ -103,7 +102,6 @@ export const SettingsProvider = ({ children }) => {
                     setTheme(data.theme || "Light");
                     setFontSize(data.fontSize || "Medium");
                     setIconSize(data.iconSize || "Medium");
-                    setToggleScans(data.toggleScans || false);
                     setToggleAudio(data.toggleAudio || false);
                     setToggleCapture(data.toggleCapture || false);
                 }
@@ -112,14 +110,12 @@ export const SettingsProvider = ({ children }) => {
                 const savedTheme = await AsyncStorage.getItem("theme");
                 const savedFontSize = await AsyncStorage.getItem("fontSize");
                 const savedIconSize = await AsyncStorage.getItem("iconSize");
-                const savedToggleScans = await AsyncStorage.getItem("toggleScans");
                 const savedToggleAudio = await AsyncStorage.getItem("toggleAudio");
                 const savedToggleCapture = await AsyncStorage.getItem("toggleCapture");
 
                 setTheme(savedTheme || "Light");
                 setFontSize(savedFontSize || "Medium");
                 setIconSize(savedIconSize || "Medium");
-                setToggleScans(savedToggleScans ? JSON.parse(savedToggleScans) : false);
                 setToggleAudio(savedToggleAudio ? JSON.parse(savedToggleAudio) : false);
                 setToggleCapture(savedToggleCapture ? JSON.parse(savedToggleCapture) : false);
             }
@@ -161,17 +157,7 @@ export const SettingsProvider = ({ children }) => {
             console.error("Error saving icon size:", error);
         }
     };
-    
-    const saveToggleScans = async (value) => {
-        try {
-            await AsyncStorage.setItem("toggleScans", JSON.stringify(value));
-            if (user) {
-                await setDoc(doc(firestore, 'settings', user.uid), { toggleScans: value }, { merge: true });
-            }
-        } catch (error) {
-            console.error("Error saving toggle scans:", error);
-        }
-    };
+
     
     const saveToggleAudio = async (value) => {
         try {
@@ -207,8 +193,6 @@ export const SettingsProvider = ({ children }) => {
             iconSize,
             setIconSize,
             iconSizes,
-            toggleScans,
-            setToggleScans,
             toggleAudio,
             setToggleAudio,
             toggleCapture,
@@ -216,7 +200,6 @@ export const SettingsProvider = ({ children }) => {
             saveTheme,
             saveFontSize,
             saveIconSize,
-            saveToggleScans,
             saveToggleAudio,
             saveToggleCapture
     }}

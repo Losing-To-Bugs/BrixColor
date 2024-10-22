@@ -18,14 +18,16 @@ import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
+import SystemSetting from 'react-native-system-settings';
+
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
 /* 
 move under useSettings. This should work with both expo-speech and react-native-tts
-colorHex and size should be strings. Change in AudioAnnounce.tsx if that is not what they are.
+color and size should be strings. Change in AudioAnnounce.tsx if that is not what they are.
   const handleAudioAnnounce = () => {
     if (toggleAudio) {
-      const { speak } = AudioAnnounce(colorHex, size); // Destructure to get the speak method
+      const { speak } = AudioAnnounce(color, size); // Destructure to get the speak method
       speak(); // Trigger the speak method
     }
       else if (!toggleAudio) {
@@ -139,8 +141,25 @@ function Page() {
         iconSize,
         iconSizes,
         toggleAudio,
+        toggleCapture 
     } = useSettings();
-
+/*
+    useEffect(() => {
+        const handleVolumeChange = async () => {
+          if (toggleCapture) {
+            const previousVolume = await SystemSetting.getVolume();
+            await SystemSetting.setVolume(previousVolume); // Reset to previous volume hopefully this works
+            console.log("Volume Capture");
+            handleShutterPress(); //calls normal shutter press
+          }
+        };
+    
+        const subscription = SystemSetting.addVolumeListener(handleVolumeChange);
+        return () => {
+          subscription.remove();
+        };
+      }, [toggleCapture]);
+*/
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
@@ -153,7 +172,7 @@ function Page() {
                 />
 
                 {/*Real time lego detection info*/}
-                <Text style={{color: 'white'}}>
+                <Text accessible={false} style={{color: 'white'}}>
                     {trackedLabel ? `Possible detection: ${trackedLabel}` : ''}
                 </Text>
 
@@ -244,7 +263,7 @@ function Page() {
             </View>
 
 
-            <StatusBar style="auto" />
+            <StatusBar style="light" />
         </View>
     )
 }
