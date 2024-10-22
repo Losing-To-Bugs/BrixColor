@@ -7,7 +7,7 @@ export function detectBrick(frame: Frame): [number, number, number[]][] | {error
     if (plugin == null) {
         throw new Error("Failed to load Frame Processor Plugin!")
     }
-    const result = plugin.call(frame);
+    const result = plugin.call(frame, {threshold: 0.15});
 
     return result as [number, number, number[]][] | {error: string}
 }

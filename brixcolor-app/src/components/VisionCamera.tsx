@@ -1,6 +1,6 @@
 import {Button, Text, View, StyleSheet} from "react-native";
 import {CameraProps} from "expo-camera";
-import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "react";
+import {forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState} from "react";
 import {
     Camera,
     useCameraPermission,
@@ -12,6 +12,8 @@ import {Skia} from "@shopify/react-native-skia";
 import {detectBrick} from "@/hooks/detectBrick";
 import {useSharedValue} from "react-native-worklets-core";
 import {CAMERA_FPS} from "@/constants/vision-constants";
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+import {runOnJS} from "react-native-reanimated";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
@@ -124,8 +126,12 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         const result = detectBrick(frame)
 
         if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
-            if (tracking.value !== null) {
+            if (tracking?.value?.score) {
+                // console.log("Decreasing confidence")
+                // No detection, but there was a detection shortly beforehand
                 let newScore = 0.8 * tracking.value.score
+
+                if (newScore )
                 tracking.value = {
                     x: tracking.value.x,
                     y: tracking.value.y,
@@ -137,58 +143,95 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                 }
             }
         } else {
+            // New detection
             const [maxClass, maxScore, rect] = getMaxPrediction(result)
 
-            if (maxScore < 0.7) {
-                if (tracking.value !== null) {
-                    let newScore = 0.8 * tracking.value.score
-                    tracking.value = {
-                        x: tracking.value.x,
-                        y: tracking.value.y,
-                        width: tracking.value.width,
-                        height: tracking.value.height,
-                        score: newScore,
-                        rawScore: maxScore,
-                        label: tracking.value.label
+            const [x, y, width, height] = rect
+            const wScale = frame.width / 640
+            const xScaled = (x) * wScale
+            const yScaled = (y - ((640 - (frame.height / wScale))/2) ) * wScale
+            const wScaled = width * wScale
+            const hScaled = height * wScale
+
+            const scaledRect = [xScaled, yScaled, wScaled, hScaled]
+
+            if (tracking?.value?.score > 0.1) {
+                // Previous detection with score > 0.1
+                const trackingRect = [tracking.value.x, tracking.value.y, tracking.value.width, tracking.value.height ]
+
+                const iou = IoU(trackingRect, scaledRect)
+
+                const previousLabelInNewResults = result.find(([label, score, newRect]) => {
+                    return label === tracking.value.label
+                })
+
+                if (previousLabelInNewResults !== undefined) {
+                    // New detection contains prediction in previous detection
+                    const [label, score, newRect] = previousLabelInNewResults
+
+                    if (Math.abs(maxScore - score) < 0.1) {
+                        // If difference in confidences is less than 0.1, we will
+                        // prefer the result with same label as previous prediction over
+                        // the result with highest confidence
+                        let newScore = Math.min(1, 1 * tracking.value.score * (Math.min(iou, 0.75) + 0.5))
+                        console.log("Same label", newScore)
+                        tracking.value = {
+                            x: xScaled,
+                            y: yScaled,
+                            width: wScaled,
+                            height: hScaled,
+                            score: newScore,
+                            rawScore: maxScore,
+                            label: maxClass
+                        }
                     }
                 }
+
+                if (previousLabelInNewResults == null ||
+                Math.abs(previousLabelInNewResults[1] - maxScore) > 0.1) {
+                    // If prediction not in previous resulst
+                    // or difference in confidences is greater than 0.1, prefer
+                    // the max confidence result
+                    if (iou > 0.5) {
+                        // New detection with different label has similar bounding box to previous detection
+                        let newScore = 0.8 * tracking.value.score
+                        console.log("Label changed similar bounding box", newScore)
+                        tracking.value = {
+                            x: tracking.value.x,
+                            y: tracking.value.y,
+                            width: tracking.value.width,
+                            height: tracking.value.height,
+                            score: newScore,
+                            rawScore: tracking.value.rawScore,
+                            label: tracking.value.label
+                        }
+                    } else {
+                        // New detection with different label has different bounding box to previous detection
+                        console.log("Label and bounding box changed", 1)
+                        tracking.value = {
+                            x: xScaled,
+                            y: yScaled,
+                            width: wScaled,
+                            height: hScaled,
+                            score: 1,
+                            rawScore: maxScore,
+                            label: maxClass
+                        }
+                    }
+                }
+
+
             } else {
-                const [x, y, width, height] = rect
-                const hScale = frame.height / 640
-                const wScale = frame.width / 640
-                const xScaled = (x + width/2) * wScale
-                const yScaled = (y - height/2) * hScale
-                const wScaled = width * wScale
-                const hScaled = height * hScale
-
-                if (tracking.value === null) {
-                    tracking.value = {
-                        x: xScaled,
-                        y: yScaled,
-                        width: wScaled,
-                        height: hScaled,
-                        score: 1,
-                        label: maxClass
-                    }
-                } else {
-                    const trackingRect = [tracking.value.x, tracking.value.y, tracking.value.width, tracking.value.height ]
-                    const iou = IoU(trackingRect, rect)
-
-                    let newScore = Math.min(1, 1 * tracking.value.score * (Math.min(iou, 0.75) + 0.5))
-
-                    if (iou < 0.1) {
-                        newScore = maxScore
-                    }
-
-                    tracking.value = {
-                        x: xScaled,
-                        y: yScaled,
-                        width: wScaled,
-                        height: hScaled,
-                        score: newScore,
-                        rawScore: maxScore,
-                        label: maxClass
-                    }
+                // No previous detection
+                console.log("No previous detection", 1)
+                tracking.value = {
+                    x: xScaled,
+                    y: yScaled,
+                    width: wScaled,
+                    height: hScaled,
+                    score: 1,
+                    rawScore: maxScore,
+                    label: maxClass
                 }
             }
         }
@@ -325,6 +368,18 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
     }, [])
 
+
+    const focus = useCallback((point) => {
+        const c = cameraRef.current as Camera
+        if (c == null) return
+        c.focus(point)
+    }, [])
+
+    const gesture = Gesture.Tap()
+        .onEnd(({ x, y }) => {
+            runOnJS(focus)({ x, y })
+        })
+
     if(device == null){
         return (
             <>
@@ -339,6 +394,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     return (
         <>
             <View style={[props.style, {backgroundColor: 'black'}]}>
+                <GestureDetector gesture={gesture}>
                 <Camera
 
                     ref={cameraRef}
@@ -357,6 +413,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                 >
 
                 </Camera>
+                </GestureDetector>
                 {props.children}
             </View>
         </>
