@@ -17,6 +17,7 @@ import {runOnJS} from "react-native-reanimated";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
+    size?: "t" | "m" | "x"
 }
 
 type Rect = [number, number, number, number]
@@ -89,7 +90,9 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const device = useCameraDevice('back')
     const { hasPermission, requestPermission } = useCameraPermission()
     const [currentFrame, setCurrentFrame] = useState(null)
+    const [currentFPS, setCurrentFPS] = useState(1)
     const tracking = useSharedValue<any>(null)
+    const count = useSharedValue(0)
 
     const format = useCameraFormat(device, [
         // { videoResolution: { width: 1152, height: 640 } },
@@ -101,10 +104,20 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     useEffect(() => {
         const interval = setInterval(() => {
             trackingRef.current = tracking.value
-        }, 1000 / fps)
+        }, 1000 / (currentFPS === 0 ? 1 : currentFPS))
 
         return () => clearInterval(interval)
-    }, [])
+    }, [currentFPS])
+
+    useEffect(() => {
+            const interval = setInterval(() => {
+                // console.log(count.value)
+                setCurrentFPS(count.value)
+                count.value = 0
+            }, 1000)
+
+            return () => clearInterval(interval)
+        }, [])
 
     useEffect(() => {
         if(!hasPermission){
@@ -123,11 +136,40 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
 
-        const result = detectBrick(frame)
+        count.value += 1
+
+        const result = detectBrick(frame, props?.size)
+
+        if (props?.size === "x") {
+            if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
+                return
+            }
+
+            const [maxClass, maxScore, rect] = getMaxPrediction(result)
+
+            const [x, y, width, height] = rect
+            const wScale = frame.width / 640
+            const xScaled = (x) * wScale
+            const yScaled = (y - ((640 - (frame.height / wScale))/2) ) * wScale
+            const wScaled = width * wScale
+            const hScaled = height * wScale
+            tracking.value = {
+                x: xScaled,
+                y: yScaled,
+                width: wScaled,
+                height: hScaled,
+                score: maxScore,
+                rawScore: maxScore,
+                shutter: true,
+                label: maxClass
+            }
+
+            return
+        }
 
         if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
             if (tracking?.value?.score) {
-                console.log("No detection, decreasing confidence")
+                // console.log("No detection, decreasing confidence")
                 // No detection, but there was a detection shortly beforehand
                 let newScore = 0.95 * tracking.value.score
 
@@ -173,7 +215,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                     // prefer the result with same label as previous prediction over
                     // the result with highest confidence
                     let newScore = Math.min(1, 1 * tracking.value.score * (Math.min(iou, 0.75) + 0.5))
-                    console.log("Same label", newScore)
+                    // console.log("Same label", newScore)
                     tracking.value = {
                         x: xScaled,
                         y: yScaled,
@@ -191,7 +233,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                     if (iou > 0.5) {
                         // New detection with different label has similar bounding box to previous detection
                         let newScore = 0.95 * tracking.value.score
-                        console.log("Label changed similar bounding box", newScore)
+                        // console.log("Label changed similar bounding box", newScore)
                         tracking.value = {
                             x: tracking.value.x,
                             y: tracking.value.y,
@@ -203,7 +245,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                         }
                     } else {
                         // New detection with different label has different bounding box to previous detection
-                        console.log("Label and bounding box changed", 1)
+                        // console.log("Label and bounding box changed", 1)
                         tracking.value = {
                             x: xScaled,
                             y: yScaled,
@@ -220,7 +262,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
             } else {
                 // No previous detection
-                console.log("No previous detection", 1)
+                // console.log("No previous detection", 1)
                 tracking.value = {
                     x: xScaled,
                     y: yScaled,
@@ -271,7 +313,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         // console.log(`YUV: ${y+16}, ${u+128}, ${v+128}`);
         // console.log(`RGB: ${r}, ${g}, ${b}`);
         // console.log(`${frame.height} ${frame.width}`);
-    }, [tracking])
+    }, [tracking, props?.size])
 
 
     const frameProcessor = useSkiaFrameProcessor((frame) => {

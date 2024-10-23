@@ -79,6 +79,40 @@ function Page() {
         console.log(`Platform: ${Platform.OS}`)
         }, [isRunningInExpoGo, Platform.OS]);
 
+    const [modelSize, setModelSize] = useState<"t" | "m" | "x">("t")
+
+    useEffect(() => {
+        if (modelSize === "x") {
+            const start = Date.now()
+            const interval = setInterval(() => {
+                const end = Date.now()
+
+                if (end - start > 1000) {
+                    clearInterval(interval)
+                    setModelSize("t")
+                    // setTrackedLabel('')
+                    return
+                }
+
+                const trackingObject = inputRef?.current?.trackingRef?.current
+
+                if (trackingObject == null || trackingObject.shutter !== true) {
+                    return
+                }
+
+                const labelName = LABEL_MAP[trackingObject.label]
+                // setTrackedLabel(labelName)
+                console.log(labelName, trackingObject.rawScore)
+                setModelSize("t")
+                inputRef.current.trackingRef.current = null
+            }, 100)
+
+
+
+            return () => clearInterval(interval)
+        }
+    }, [modelSize])
+
     const handleShutterPress = async () => {
         const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
         if (!runExpoCamera && visionCameraRef) {
@@ -86,8 +120,9 @@ function Page() {
                 await requestPermission();
             } else {
                 const trackingObject = inputRef?.current?.trackingRef?.current
+                setModelSize("x")
 
-                console.log(trackingObject, trackedLabel)
+                // console.log(trackingObject, trackedLabel)
 
                 // Code to take picture (if needed)
 
@@ -171,8 +206,8 @@ function Page() {
                         :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} />*/}
-                            <Text style={{color: 'white'}}>Using React Vision Camera</Text>
+                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} size={modelSize} />
+                            {/*<Text style={{color: 'white'}}>Using React Vision Camera</Text>*/}
                         </View>)
 
                 }
