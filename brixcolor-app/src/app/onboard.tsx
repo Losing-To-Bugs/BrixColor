@@ -37,6 +37,7 @@ const onboardingData = [
   },
 ];
 const DotIndicator = ({ currentIndex }) => {
+  const { theme, themes, fontSizes, fontSize } = useSettings();
   return (
     <View style={styles.dotContainer}>
       {onboardingData.map((_, index) => (
@@ -44,7 +45,7 @@ const DotIndicator = ({ currentIndex }) => {
           key={index}
           style={[
             styles.dot,
-            { backgroundColor: currentIndex === index ? "blue" : "gray" },
+            { backgroundColor: currentIndex === index ? themes[theme].textColor : themes[theme].backgroundColor },
           ]}
         />
       ))}
@@ -138,7 +139,7 @@ const OnboardingScreen = () => {
           </Text>
         </ScrollView>
 
-        <View style={styles.buttonContainer}>
+        <View style={[styles.buttonContainer, {backgroundColor: themes[theme].backgroundColor2 },]}>
           {currentIndex < onboardingData.length - 1 ? (
             <Button title="Skip" onPress={onSkip} />
           ) : (
@@ -189,7 +190,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
-    padding: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     flex: 0.1,
   },
   dotContainer: {
@@ -197,6 +199,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
+    paddingLeft: 6
   },
   dot: {
     width: 10,
