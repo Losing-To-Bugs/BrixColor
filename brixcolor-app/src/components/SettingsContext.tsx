@@ -88,6 +88,8 @@ export const SettingsProvider = ({ children }) => {
   const [toggleCapture, setToggleCapture] = useState(false);
   const [user, setUser] = useState(null);
 
+  const SERVERURL = "http://174.138.44.47/brixColor";
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
@@ -95,7 +97,9 @@ export const SettingsProvider = ({ children }) => {
       if (user) {
         // Fetch user settings from MongoDB when logged in
         try {
-          const response = await fetch(`${SERVERURL}/settings/${user.uid}`);
+          const response = await fetch(
+            `${SERVERURL}/userSettings?uid=${user.uid}`
+          );
           const data = await response.json();
 
           if (data) {
@@ -126,22 +130,33 @@ export const SettingsProvider = ({ children }) => {
       }
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
   // Save to MongoDB API
-  const saveToMongoDB = async (field, value) => {
+  const saveToMongoDB = async () => {
+    const userSetting = {
+      uid: user?.uid,
+      theme,
+      fontSize,
+      iconSize,
+      toggleAudio,
+      toggleCapture,
+    };
+
     try {
       const payload = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [field]: value }),
+        body: JSON.stringify(userSetting),
       };
 
-      await fetch(`${SERVERURL}/settings/${user.uid}`, payload);
+      const response = await fetch(`${SERVERURL}/userSettings`, payload);
+      if (!response.ok) {
+        throw new Error("Error saving settings to MongoDB");
+      }
     } catch (error) {
-      console.error(`Error saving ${field} to MongoDB:`, error);
+      console.error("Error saving settings to MongoDB:", error);
     }
   };
 
@@ -149,7 +164,7 @@ export const SettingsProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem("theme", theme);
       if (user) {
-        await saveToMongoDB("theme", theme);
+        await saveToMongoDB();
       }
     } catch (error) {
       console.error("Error saving theme:", error);
@@ -160,7 +175,7 @@ export const SettingsProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem("fontSize", fontSize);
       if (user) {
-        await saveToMongoDB("fontSize", fontSize);
+        await saveToMongoDB();
       }
     } catch (error) {
       console.error("Error saving font size:", error);
@@ -171,7 +186,7 @@ export const SettingsProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem("iconSize", iconSize);
       if (user) {
-        await saveToMongoDB("iconSize", iconSize);
+        await saveToMongoDB();
       }
     } catch (error) {
       console.error("Error saving icon size:", error);
@@ -182,7 +197,7 @@ export const SettingsProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem("toggleAudio", JSON.stringify(value));
       if (user) {
-        await saveToMongoDB("toggleAudio", value);
+        await saveToMongoDB();
       }
     } catch (error) {
       console.error("Error saving toggle audio:", error);
@@ -193,7 +208,7 @@ export const SettingsProvider = ({ children }) => {
     try {
       await AsyncStorage.setItem("toggleCapture", JSON.stringify(value));
       if (user) {
-        await saveToMongoDB("toggleCapture", value);
+        await saveToMongoDB();
       }
     } catch (error) {
       console.error("Error saving toggle capture:", error);
