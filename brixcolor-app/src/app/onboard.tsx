@@ -1,14 +1,96 @@
-import { Button, StyleSheet, Text, Image } from "react-native";
-import Onboarding from "react-native-onboarding-swiper";
-import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import {View, Text, Image, Button, StyleSheet, ScrollView, Pressable } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import { SettingsProvider, useSettings } from "@/components/SettingsContext";
+import { PanGestureHandler, GestureHandlerRootView,} from "react-native-gesture-handler";
+import {StatusBar} from "expo-status-bar";
+
+const onboardingData = [
+  {
+    image: require("../../assets/images/TutorialPage1.png"),
+    imageLabel: "the scanning page.",
+    imageHint: "what each button on the scanning page does.",
+    title: "Welcome to BrixColor!",
+    description: "Get started with BrixColor.",
+  },
+  {
+    image: require("../../assets/images/TutorialPage2.png"),
+    imageLabel: "how to position the LEGO brick.",
+    imageHint: "where place the LEGO brick.",
+    title: "Position the LEGO Brick",
+    description: "Place LEGO brick in the highlighted area.",
+  },
+  {
+    image: require("../../assets/images/TutorialPage3.gif"),
+    imageLabel: "identifying a LEGO brick",
+    imageHint: "how to identify the LEGO brick",
+    title: "Tap the Capture Button!",
+    description: "Once in view, tap the capture button.",
+  },
+  {
+    image: require("../../assets/images/GreenCheck.png"),
+    imageLabel: "a green checkmark",
+    imageHint: "the completion of the onboarding.",
+    title: "Thanks for using BrixColor!",
+    description: "We hope you find this helpful.",
+  },
+];
+const DotIndicator = ({ currentIndex }) => {
+  const { theme, themes, fontSizes, fontSize } = useSettings();
+  return (
+    <View style={styles.dotContainer}>
+      {onboardingData.map((_, index) => (
+        <View
+          key={index}
+          style={[
+            styles.dot,
+            { backgroundColor: currentIndex === index ? themes[theme].textColor : themes[theme].backgroundColor },
+          ]}
+        />
+      ))}
+    </View>
+  );
+};
 
 const OnboardingScreen = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isSwipeProcessed, setIsSwipeProcessed] = useState(false);
   const router = useRouter();
+  const { theme, themes, fontSizes, fontSize } = useSettings();
 
   const completeOnboarding = async () => {
     await AsyncStorage.setItem("isOnboarded", "true");
+  };
+
+  const onNext = () => {
+    if (currentIndex < onboardingData.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+  const onPrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const onSwipeGesture = ({ nativeEvent }) => {
+    if (isSwipeProcessed) return;
+    const { translationX } = nativeEvent;
+    if (nativeEvent.translationX < -50) {
+      onNext();
+      setIsSwipeProcessed(true);
+    } else if (nativeEvent.translationX > 50) {
+      onPrev();
+      setIsSwipeProcessed(true);
+    }
+  };
+  const onSwipeEnd = () => {
+    setIsSwipeProcessed(false);
+  };
+  const onSkip = () => {
+    completeOnboarding();
+    router.dismiss();
   };
 
   const onDone = () => {
@@ -16,152 +98,129 @@ const OnboardingScreen = () => {
     router.dismiss();
   };
 
-  //This convoluted button is for testing purposes.
-  const Next = ({ pageIndex, ...props }) => {
-    const currentPageIndex = pageIndex !== undefined ? pageIndex : 0;
-    return (
-      <Button
-        title={"Next"}
-        {...props}
-        testID={`next-button-${currentPageIndex}`}
-      />
-    );
-  };
-  const { theme, themes, fontSizes, fontSize } = useSettings();
-  //const Next = ({ ...props }) => <Button title={"Next"} {...props} />; simple button
-  const Done = ({ ...props }) => (
-    <Button title={"Done"} {...props} testID="done-button" />
-  );
   return (
-    <Onboarding
-      onDone={onDone}
-      onSkip={onDone} //should just close the onBoarding
-      NextButtonComponent={Next}
-      DoneButtonComponent={Done}
-      pages={[
-        {
-          backgroundColor: themes[theme].backgroundColor,
-          image: (
-            <Image
-              source={require("../../assets/images/TutorialPage2.png")}
-              style={styles.image}
-            />
-          ),
-          title: (
-            <Text
-              style={{
+    
+    <PanGestureHandler onGestureEvent={onSwipeGesture} onEnded={onSwipeEnd}>
+      <View style={{ flex: 1, backgroundColor: themes[theme].backgroundColor }}>
+        <ScrollView
+          contentContainerStyle={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          pagingEnabled
+          scrollEnabled={false}
+        >
+          <Image
+            source={onboardingData[currentIndex].image}
+            style={styles.image}
+            accessible={true}
+            accessibilityLabel={`Image of ${onboardingData[currentIndex].imageLabel}`}
+            accessibilityHint={`This image shows ${onboardingData[currentIndex].imageHint}`}
+          />
+          <Text
+            style={[
+              styles.title,
+              {
                 color: themes[theme].textColor,
                 fontSize: fontSizes[fontSize].fontSize,
-                textAlign: "center",
-                margin: 15,
-              }}
-            >
-              Welcome to BrixColor!
-            </Text>
-          ),
-          subtitle: "", //need subtitles to get rid of errors.
-        },
-        {
-          backgroundColor: themes[theme].backgroundColor,
-          image: (
-            <Image
-              source={require("../../assets/images/TutorialPage2.png")}
-              style={styles.image}
-            />
-          ),
-          title: (
-            <Text
-              style={{
+              },
+            ]}
+          >
+            {onboardingData[currentIndex].title}
+          </Text>
+          <Text
+            style={[
+              styles.description,
+              {
                 color: themes[theme].textColor,
-                fontSize: fontSizes[fontSize].fontSize,
-                textAlign: "center",
-                margin: 15,
-              }}
+                fontSize: fontSizes[fontSize].fontSize - 4,
+              },
+            ]}
+          >
+            {onboardingData[currentIndex].description}
+          </Text>
+        </ScrollView>
+
+        <View style={[styles.buttonContainer, {backgroundColor: themes[theme].backgroundColor2 },]}>
+          {currentIndex < onboardingData.length - 1 ? (
+            <Button title="Skip" onPress={onSkip} />
+          ) : (
+            <Pressable
+              accessible={false} // Fixes look and hides from voiceOver
             >
-              Place LEGO brick in the highlighted area.
-            </Text>
-          ),
-          subtitle: "",
-        },
-        {
-          backgroundColor: themes[theme].backgroundColor,
-          image: (
-            <Image
-              source={require("../../assets/images/TutorialPage3.gif")}
-              style={styles.image2}
-            />
-          ),
-          title: (
-            <Text
-              style={{
-                color: themes[theme].textColor,
-                fontSize: fontSizes[fontSize].fontSize,
-                textAlign: "center",
-                margin: 15,
-              }}
-            >
-              Once in view, tap the capture button!{" "}
-            </Text>
-          ),
-          subtitle: "",
-        },
-        {
-          backgroundColor: themes[theme].backgroundColor,
-          image: (
-            <Image
-              source={require("../../assets/images/GreenCheck.png")}
-              style={styles.image2}
-            />
-          ),
-          title: (
-            <Text
-              style={{
-                color: themes[theme].textColor,
-                fontSize: fontSizes[fontSize].fontSize,
-                textAlign: "center",
-                margin: 15,
-              }}
-            >
-              Thanks for using BrixColor!
-            </Text>
-          ),
-          subtitle: "",
-        },
-      ]}
-      imageContainerStyles={styles.imageContainer}
-      bottomBarHeight={50}
-    />
+              <Text style={{ opacity: 0 }}>Skip 123</Text>
+            </Pressable>
+          )}
+
+          <DotIndicator currentIndex={currentIndex} />
+
+          {currentIndex < onboardingData.length - 1 ? (
+            <Button title="Next" onPress={onNext} />
+          ) : (
+            <Button title="Done" onPress={onDone} />
+          )}
+        </View>
+        <StatusBar style="light" />
+      </View>
+    </PanGestureHandler>
   );
 };
 
 const styles = StyleSheet.create({
-  text: {
-    fontSize: 50,
-    textAlign: "center",
+  scrollView: {
+    alignItems: "center",
+    justifyContent: "center",
+    flexGrow: 1,
+    padding: 20,
   },
-  imageContainer: {
-    paddingBottom: 0,
-    width: "100%",
-    height: "70%",
-    margin: 5,
-  },
-
   image: {
     width: "100%",
-    height: "100%",
-    resizeMode: "contain",
-  },
-  image2: {
-    width: "90%",
     height: "90%",
     resizeMode: "contain",
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  title: {
+    fontSize: 24,
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  description: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    flex: 0.1,
+  },
+  dotContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    paddingLeft: 6
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "gray",
+    marginHorizontal: 5,
+  },
+  invisibleButton: {
+    width: 100,
+    height: 40,
+    backgroundColor: "transparent",
   },
 });
 
 export default () => {
   return (
     <SettingsProvider>
-      <OnboardingScreen />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <OnboardingScreen />
+      </GestureHandlerRootView>
     </SettingsProvider>
   );
 };
