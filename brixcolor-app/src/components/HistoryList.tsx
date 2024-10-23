@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// TODO [] integrate with actual stored data
+// TODO [x] integrate with actual stored data
 // TODO [] add option to remove from history
 // TODO [] add option to clear history
 
@@ -207,13 +207,13 @@ const HistoryList = () => {
     
 
     return (
-            <View style={{...styles.container, backgroundColor: themes[theme].primaryColor }}>
+            <View style={{...styles.container, backgroundColor: themes[theme].backgroundColor }}>
 
 
                 
 
                 {/* header */}
-                <View style={{height: "8%", width: "100%",alignItems: "center", backgroundColor: themes[theme].secondaryColor, justifyContent: "center"}} >
+                <View style={{height: "8%", width: "100%",alignItems: "center", backgroundColor: themes[theme].primaryColor, justifyContent: "center"}} >
                     
                     {/* Close Button */}
                     <HeaderBackButton
@@ -236,12 +236,12 @@ const HistoryList = () => {
                         // uncomment to test loading history
                         // data={history}
 
-                        data={dataArr}
+                        data={history}
                         keyExtractor={(item, index) => index.toString()} // unique key for each item
                         renderItem={({ index, item }) =>
 
                             // History Item
-                            <View style={{...styles.itemContainer, backgroundColor: themes[theme].secondaryColor}}>
+                            <View style={{...styles.itemContainer, backgroundColor: themes[theme].backgroundColor}}>
 
                                 {/* Confidence Text */}
                                 <View style={styles.confidenceContainer} accessibilityLabel="Match Confidence">

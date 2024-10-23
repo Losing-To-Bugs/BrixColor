@@ -124,7 +124,7 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
                             accessibilityLabel="Close Button"
                             accessibilityRole="button"
                             onPress={handlePress} 
-                            style={{ position: "absolute", top: 10, right: 10, padding: 5, zIndex: 1, backgroundColor: themes[theme].secondaryColor, borderRadius: 5 }}
+                            style={{ position: "absolute", top: 10, right: 10, padding: 5, zIndex: 1, backgroundColor: themes[theme].backgroundColor, borderRadius: 5 }}
                             >
                             <Text style={{ fontWeight: "bold", color: themes[theme].textColor }}>X</Text>
                         </TouchableOpacity>

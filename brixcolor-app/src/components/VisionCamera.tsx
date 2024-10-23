@@ -12,6 +12,7 @@ import {Skia} from "@shopify/react-native-skia";
 import {detectBrick} from "@/hooks/detectBrick";
 import {useSharedValue} from "react-native-worklets-core";
 import {CAMERA_FPS} from "@/constants/vision-constants";
+import { detectColor } from "@/hooks/detectColor";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
@@ -79,9 +80,11 @@ function getMaxPrediction(predictions: [number, number, number[]][]): [number, n
 const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const cameraRef = useRef(null)
     const trackingRef = useRef(null)
+    const colorRef = useRef(null);
     useImperativeHandle(ref, () => ({
         cameraRef: cameraRef,
-        trackingRef: trackingRef
+        trackingRef: trackingRef,
+        colorRef: colorRef
     }))
 
     const device = useCameraDevice('back')
@@ -202,6 +205,10 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         if (tracking.value.score < 0.1) {
             return
         }
+
+
+        const colorData = detectColor(frame, tracking.value.x, tracking.value.y, tracking.value.width, tracking.value.height);
+        console.log(colorData);
         //
         // console.log(tracking.value)
         // if (result['error'] || result['conf'] < 0.7) {

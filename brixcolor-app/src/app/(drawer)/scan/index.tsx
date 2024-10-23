@@ -104,40 +104,44 @@ function Page() {
     useEffect(() => {
         console.log(`Running in Expo Go: ${isRunningInExpoGo}`)
         console.log(`Platform: ${Platform.OS}`)
-        }, [isRunningInExpoGo, Platform.OS]);
+    }, [isRunningInExpoGo, Platform.OS]);
 
-        const handleShutterPress = async () => {
-                if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
-                const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
-                if (!runExpoCamera && visionCameraRef) {
-                    if (permissionResponse.status !== 'granted') {
-                        await requestPermission();
-                    } else {
-                        const trackingObject = inputRef?.current?.trackingRef?.current
+    const handleColorDetect = () =>{
         
-                        console.log(trackingObject, trackedLabel)
+    }
 
-                        // show modal
-                        setBrickColor("0x9B9A5A");
-                        setBrickLabel(trackingObject.label);
-                        setConfidence(trackingObject.score);
-                        setIsModalShown(true);
-        
-                        // Code to take picture (if needed)
-        
-                        // const result = await visionCameraRef.takePhoto({
-                        //     flash: flashOn ? 'on' : 'off',
-                        //     enableShutterSound: true
-                        // })
-                        //
-                        // const file = await fetch(`file://${result.path}`)
-        
-                        // // Get the image blob
-                        // const imageBlob = await file.blob();
-                    }
+    const handleShutterPress = async () => {
+            if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
+            const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
+            if (!runExpoCamera && visionCameraRef) {
+                if (permissionResponse.status !== 'granted') {
+                    await requestPermission();
+                } else {
+                    const trackingObject = inputRef?.current?.trackingRef?.current
+    
+                    console.log(trackingObject, trackedLabel)
+
+                    // show modal
+                    setBrickColor("0x9B9A5A");
+                    setBrickLabel(trackingObject.label);
+                    setConfidence(trackingObject.score);
+                    setIsModalShown(true);
+    
+                    // Code to take picture (if needed)
+    
+                    // const result = await visionCameraRef.takePhoto({
+                    //     flash: flashOn ? 'on' : 'off',
+                    //     enableShutterSound: true
+                    // })
+                    //
+                    // const file = await fetch(`file://${result.path}`)
+    
+                    // // Get the image blob
+                    // const imageBlob = await file.blob();
                 }
             }
         }
+    };
 
     const handleFlashPress = () => {
         setFlash(!flashOn);
