@@ -112,21 +112,6 @@ export const SettingsProvider = ({ children }) => {
         } catch (error) {
           console.error("Error fetching settings from MongoDB:", error);
         }
-      } else {
-        // Load settings from AsyncStorage when logged out
-        const savedTheme = await AsyncStorage.getItem("theme");
-        const savedFontSize = await AsyncStorage.getItem("fontSize");
-        const savedIconSize = await AsyncStorage.getItem("iconSize");
-        const savedToggleAudio = await AsyncStorage.getItem("toggleAudio");
-        const savedToggleCapture = await AsyncStorage.getItem("toggleCapture");
-
-        setTheme(savedTheme || "Light");
-        setFontSize(savedFontSize || "Medium");
-        setIconSize(savedIconSize || "Medium");
-        setToggleAudio(savedToggleAudio ? JSON.parse(savedToggleAudio) : false);
-        setToggleCapture(
-          savedToggleCapture ? JSON.parse(savedToggleCapture) : false
-        );
       }
     });
 
