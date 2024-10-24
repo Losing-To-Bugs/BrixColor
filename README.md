@@ -76,7 +76,7 @@ Navigate to "FrameProcessorPlugins"
 
 Select "LegoDetectorFrameProcessor" and click Add.
 
-- Repeat this process For "ColorDetectorPlugins"
+- Repeat this process for "ColorDetectionPlugins"
 
 - Repeat this process and add "brixblenderv2-t1.mlpackage". 
   - (Located in brixcolor-app/assets folder)
