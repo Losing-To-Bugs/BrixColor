@@ -18,7 +18,7 @@ import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
-import { VolumeManager } from 'react-native-volume-manager';
+import VolumeCapture from "@/components/VolumeCapture";
 
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
@@ -47,6 +47,7 @@ function Page() {
     const [isOnboarded, setIsOnboarded] = useState(null);
     const [permissionResponse, requestPermission] = usePermissions()
     const [trackedLabel, setTrackedLabel] = useState('')
+
 
     const router = useRouter();
     const openOnboarding = () => {
@@ -102,7 +103,6 @@ function Page() {
                 await requestPermission();
             } else {
                 const trackingObject = inputRef?.current?.trackingRef?.current
-
                 console.log(trackingObject, trackedLabel)
 
                 // Code to take picture (if needed)
@@ -144,67 +144,14 @@ function Page() {
         toggleCapture 
     } = useSettings();
 
-    const [currentVolume, setCurrentVolume] = useState<number>(0); // State to hold the current volume
-    // Assuming toggleCapture and handleShutterPress are defined elsewhere in your component
-    let debounceTimeout: NodeJS.Timeout | undefined;
-
-    const setVolumeWithoutChange = async (volume: number) => {
-        const prevVolume = await VolumeManager.getVolume(); // Get the current volume before changing
-        setCurrentVolume(prevVolume.volume); // Store the current volume
-
-        // Change the volume as needed
-        await VolumeManager.setVolume(volume);
-    };
-
-    useEffect(() => {
-        const fetchCurrentVolume = async () => {
-            const volume = await VolumeManager.getVolume();
-            setCurrentVolume(volume.volume);
-            console.log("Current volume on mount:", volume.volume);
-        };
-
-        fetchCurrentVolume(); // Fetch volume on mount
-
-        const volumeListener = VolumeManager.addVolumeListener((result) => {
-            console.log("Volume changed:", result); // Log the volume change data
-
-            if (toggleCapture) {
-                console.log("Previous volume before change:", currentVolume);
-
-                // Prevent the change: set back to the current volume
-                setVolumeWithoutChange(currentVolume); // Reset to the previous volume
-
-                // Debounce the handleShutterPress call
-                if (debounceTimeout) {
-                    clearTimeout(debounceTimeout);
-                }
-
-                // Set a new timeout for handleShutterPress
-                debounceTimeout = setTimeout(async () => {
-                    await handleShutterPress(); // Calls normal shutter press
-                }, 1000); // Adjust the delay as needed
-            }
-
-            // Update the current volume after the change
-            setCurrentVolume(result.volume); // Store the latest volume
-        });
-
-        console.log("Volume listener added");
-
-        return () => {
-            volumeListener.remove(); // Clean up the listener on unmount
-            if (debounceTimeout) {
-                clearTimeout(debounceTimeout); // Clear the timeout on unmount
-            }
-            console.log("Volume listener removed");
-        };
-    }, [toggleCapture]);
+  
 
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
 
         <View style={pageStyles.container}>
+            {toggleCapture && ( <VolumeCapture handleShutterPress={handleShutterPress} />)}
             <Drawer.Screen options={{headerShown: false}} />
 
             <View style={pageStyles.header }>
@@ -230,7 +177,6 @@ function Page() {
                     />
                 </TouchableOpacity>
             </View>
-
             <View style={{
                 flex: 10,
                 flexDirection: 'row',
