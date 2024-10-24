@@ -143,7 +143,7 @@ function Page() {
         toggleAudio,
         toggleCapture 
     } = useSettings();
-/*
+
     useEffect(() => {
         const handleVolumeChange = async () => {
           if (toggleCapture) {
@@ -153,13 +153,12 @@ function Page() {
             handleShutterPress(); //calls normal shutter press
           }
         };
-    
         const subscription = SystemSetting.addVolumeListener(handleVolumeChange);
         return () => {
           subscription.remove();
         };
       }, [toggleCapture]);
-*/
+
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
