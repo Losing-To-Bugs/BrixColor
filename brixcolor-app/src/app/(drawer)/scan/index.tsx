@@ -18,7 +18,7 @@ import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
-import VolumeCapture from "@/components/VolumeCapture";
+//import VolumeCapture from "@/components/VolumeCapture";
 
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
@@ -151,7 +151,7 @@ function Page() {
     return (
 
         <View style={pageStyles.container}>
-            {toggleCapture && ( <VolumeCapture handleShutterPress={handleShutterPress} />)}
+            {/*toggleCapture && ( <VolumeCapture handleShutterPress={handleShutterPress} />)*/}
             <Drawer.Screen options={{headerShown: false}} />
 
             <View style={pageStyles.header }>
