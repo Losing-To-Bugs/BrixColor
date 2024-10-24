@@ -155,9 +155,12 @@ function Page() {
         };
         const subscription = SystemSetting.addVolumeListener(handleVolumeChange);
         return () => {
-          subscription.remove();
+            if(subscription){
+            SystemSetting.removeVolumeListener(subscription);
+            }
         };
       }, [toggleCapture]);
+      
 
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
