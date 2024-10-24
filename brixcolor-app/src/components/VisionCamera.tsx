@@ -12,6 +12,7 @@ import {Skia} from "@shopify/react-native-skia";
 import {detectBrick} from "@/hooks/detectBrick";
 import {useSharedValue} from "react-native-worklets-core";
 import {CAMERA_FPS} from "@/constants/vision-constants";
+import { detectColor } from "@/hooks/detectColor";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
@@ -79,15 +80,18 @@ function getMaxPrediction(predictions: [number, number, number[]][]): [number, n
 const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const cameraRef = useRef(null)
     const trackingRef = useRef(null)
+    const colorRef = useRef(null);
     useImperativeHandle(ref, () => ({
         cameraRef: cameraRef,
-        trackingRef: trackingRef
+        trackingRef: trackingRef,
+        colorRef: colorRef
     }))
 
     const device = useCameraDevice('back')
     const { hasPermission, requestPermission } = useCameraPermission()
     const [currentFrame, setCurrentFrame] = useState(null)
     const tracking = useSharedValue<any>(null)
+    const colorObj = useSharedValue<any>(null)
 
     const format = useCameraFormat(device, [
         // { videoResolution: { width: 1152, height: 640 } },
@@ -99,6 +103,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     useEffect(() => {
         const interval = setInterval(() => {
             trackingRef.current = tracking.value
+            colorRef.current = colorObj.value
         }, 1000 / fps)
 
         return () => clearInterval(interval)
@@ -120,7 +125,28 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
+        
 
+        // if i want to implement the bounding boxes logic
+        // if (tracking.value !== null){
+        //     const colorData = detectColor(frame, {x: tracking.value.x, y: tracking.value.y, width: tracking.value.width, height: tracking.value.height});
+        //     if (typeof colorData == 'object'){
+        //         console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`)
+        //     }
+        // }
+
+        const colorData = detectColor(frame);
+        if ((typeof colorData == 'object') && (!colorData["error"])){
+
+            console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+
+            colorObj.value = {
+                r: colorData["red"] * 255.0,
+                g: colorData["green"] * 255.0,
+                b: colorData["blue"] * 255.0
+            };
+        }
+    
         const result = detectBrick(frame)
 
         if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
@@ -200,6 +226,9 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         if (tracking.value.score < 0.1) {
             return
         }
+
+
+
         //
         // console.log(tracking.value)
         // if (result['error'] || result['conf'] < 0.7) {

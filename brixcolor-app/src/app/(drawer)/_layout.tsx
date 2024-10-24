@@ -11,6 +11,7 @@ import { SettingsProvider, useSettings } from "@/components/SettingsContext";
 import { BrixDrawerItem } from "@/app/components/BrixDrawerItem";
 import { signOut } from "firebase/auth";
 import { auth } from "@/services/firebaseConfig";
+import { HISTORYKEY } from "@/constants/database-strings";
 
 function DrawerContent(
   props: DrawerContentComponentProps & {
@@ -171,6 +172,8 @@ export default function DrawerLayout() {
       // Clear user data from AsyncStorage or perform other logout actions
       await signOut(auth);
       setIsLoggedIn(false); // Update login state
+      await AsyncStorage.removeItem(HISTORYKEY);
+      await AsyncStorage.removeItem("uid");
     } catch (error) {
       console.error("Error logging out:", error);
     }
