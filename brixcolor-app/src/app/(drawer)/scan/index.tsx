@@ -18,9 +18,11 @@ import {Camera} from "react-native-vision-camera";
 // import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
+//import VolumeCapture from "@/components/VolumeCapture";
 import InfoPopup from "@/components/InfoPopup";
 import { findClosestColor } from "@/utils/ColorHelpers";
-import SystemSetting from 'react-native-system-settings';
+
+
 
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
@@ -58,6 +60,7 @@ function Page() {
     const [brickLabel, setBrickLabel] = useState("");
     const [brickColor, setBrickColor] = useState("");
     const [uid, setUID] = useState("");
+
 
     const router = useRouter();
     const openOnboarding = () => {
@@ -185,28 +188,15 @@ function Page() {
         toggleAudio,
         toggleCapture 
     } = useSettings();
-/*
-    useEffect(() => {
-        const handleVolumeChange = async () => {
-          if (toggleCapture) {
-            const previousVolume = await SystemSetting.getVolume();
-            await SystemSetting.setVolume(previousVolume); // Reset to previous volume hopefully this works
-            console.log("Volume Capture");
-            handleShutterPress(); //calls normal shutter press
-          }
-        };
-    
-        const subscription = SystemSetting.addVolumeListener(handleVolumeChange);
-        return () => {
-          subscription.remove();
-        };
-      }, [toggleCapture]);
-*/
+
+  
+
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
 
         <View style={pageStyles.container}>
+            {/*toggleCapture && ( <VolumeCapture handleShutterPress={handleShutterPress} />)*/}
             <Drawer.Screen options={{headerShown: false}} />
 
             <View style={pageStyles.header }>
@@ -232,7 +222,6 @@ function Page() {
                     />
                 </TouchableOpacity>
             </View>
-
             <View style={{
                 flex: 10,
                 flexDirection: 'row',
