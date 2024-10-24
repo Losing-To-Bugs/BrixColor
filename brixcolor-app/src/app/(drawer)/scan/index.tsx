@@ -18,7 +18,8 @@ import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
-import SystemSetting from 'react-native-system-settings';
+import SystemSetting from 'react-native-system-setting';
+import VolumeManager from 'react-native-volume-manager';
 
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
@@ -161,6 +162,36 @@ function Page() {
         };
       }, [toggleCapture]);
       
+    /*  
+      useEffect(() => {
+        const handleVolumeChange = async () => {
+            if (toggleCapture) {
+                // Get the current volume as a VolumeResult object
+                const currentVolume = await VolumeManager.getVolume();
+
+                // Log the structure to understand its properties
+                console.log("Current Volume Result:", currentVolume);
+
+
+                // Reset the volume back to the previous state
+                //await VolumeManager.setVolume(volumeValue);
+
+                //console.log("Volume Capture", volumeValue);
+                handleShutterPress();
+            }
+        };
+
+        // Add volume listener
+        const volumeListener = VolumeManager.addVolumeListener(handleVolumeChange);
+
+        // Cleanup listener on component unmount
+        return () => {
+            if (volumeListener && typeof volumeListener.remove === 'function') {
+                volumeListener.remove(); // Remove the listener safely
+            }
+        };
+    }, [toggleCapture]);
+*/
 
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
