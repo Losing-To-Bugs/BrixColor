@@ -18,8 +18,7 @@ import {Camera} from "react-native-vision-camera";
 import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
-import SystemSetting from 'react-native-system-setting';
-import VolumeManager from 'react-native-volume-manager';
+import { VolumeManager } from 'react-native-volume-manager';
 
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
@@ -145,53 +144,61 @@ function Page() {
         toggleCapture 
     } = useSettings();
 
+    const [currentVolume, setCurrentVolume] = useState<number>(0); // State to hold the current volume
+    // Assuming toggleCapture and handleShutterPress are defined elsewhere in your component
+    let debounceTimeout: NodeJS.Timeout | undefined;
+
+    const setVolumeWithoutChange = async (volume: number) => {
+        const prevVolume = await VolumeManager.getVolume(); // Get the current volume before changing
+        setCurrentVolume(prevVolume.volume); // Store the current volume
+
+        // Change the volume as needed
+        await VolumeManager.setVolume(volume);
+    };
+
     useEffect(() => {
-        const handleVolumeChange = async () => {
-          if (toggleCapture) {
-            const previousVolume = await SystemSetting.getVolume();
-            await SystemSetting.setVolume(previousVolume); // Reset to previous volume hopefully this works
-            console.log("Volume Capture");
-            handleShutterPress(); //calls normal shutter press
-          }
+        const fetchCurrentVolume = async () => {
+            const volume = await VolumeManager.getVolume();
+            setCurrentVolume(volume.volume);
+            console.log("Current volume on mount:", volume.volume);
         };
-        const subscription = SystemSetting.addVolumeListener(handleVolumeChange);
-        return () => {
-            if(subscription){
-            SystemSetting.removeVolumeListener(subscription);
-            }
-        };
-      }, [toggleCapture]);
-      
-    /*  
-      useEffect(() => {
-        const handleVolumeChange = async () => {
+
+        fetchCurrentVolume(); // Fetch volume on mount
+
+        const volumeListener = VolumeManager.addVolumeListener((result) => {
+            console.log("Volume changed:", result); // Log the volume change data
+
             if (toggleCapture) {
-                // Get the current volume as a VolumeResult object
-                const currentVolume = await VolumeManager.getVolume();
+                console.log("Previous volume before change:", currentVolume);
 
-                // Log the structure to understand its properties
-                console.log("Current Volume Result:", currentVolume);
+                // Prevent the change: set back to the current volume
+                setVolumeWithoutChange(currentVolume); // Reset to the previous volume
 
+                // Debounce the handleShutterPress call
+                if (debounceTimeout) {
+                    clearTimeout(debounceTimeout);
+                }
 
-                // Reset the volume back to the previous state
-                //await VolumeManager.setVolume(volumeValue);
-
-                //console.log("Volume Capture", volumeValue);
-                handleShutterPress();
+                // Set a new timeout for handleShutterPress
+                debounceTimeout = setTimeout(async () => {
+                    await handleShutterPress(); // Calls normal shutter press
+                }, 1000); // Adjust the delay as needed
             }
-        };
 
-        // Add volume listener
-        const volumeListener = VolumeManager.addVolumeListener(handleVolumeChange);
+            // Update the current volume after the change
+            setCurrentVolume(result.volume); // Store the latest volume
+        });
 
-        // Cleanup listener on component unmount
+        console.log("Volume listener added");
+
         return () => {
-            if (volumeListener && typeof volumeListener.remove === 'function') {
-                volumeListener.remove(); // Remove the listener safely
+            volumeListener.remove(); // Clean up the listener on unmount
+            if (debounceTimeout) {
+                clearTimeout(debounceTimeout); // Clear the timeout on unmount
             }
+            console.log("Volume listener removed");
         };
     }, [toggleCapture]);
-*/
 
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
