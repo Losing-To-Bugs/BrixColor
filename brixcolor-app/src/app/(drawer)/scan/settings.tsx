@@ -4,16 +4,8 @@ import { useSettings } from "@/components/SettingsContext";
 import RNPickerSelect from "react-native-picker-select";
 import { useRouter } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Settings = () => {
-  const saveSettingsToStorage = async (key, value) => {
-    try {
-      await AsyncStorage.setItem(key, value);
-    } catch (error) {
-      console.error("Error saving settings:", error);
-    }
-  };
 
   const {
     theme,
@@ -25,12 +17,15 @@ const Settings = () => {
     iconSize,
     setIconSize,
     iconSizes,
-    toggleScans,
-    setTogglescans,
     toggleAudio,
     setToggleAudio,
     toggleCapture,
     setToggleCapture,
+    saveTheme,
+    saveFontSize,
+    saveIconSize,
+    saveToggleAudio,
+    saveToggleCapture
   } = useSettings();
 
   //might not use the select language here. For now temporpary.
@@ -39,35 +34,30 @@ const Settings = () => {
 
   const router = useRouter();
 
-  const handleToggleScans = (value: boolean) => {
-    setTogglescans(value);
-    saveSettingsToStorage("toggleScans", JSON.stringify(value));
-  };
-
-  const handleToggleAudio = (value: boolean) => {
+const handleToggleAudio = (value) => {
     setToggleAudio(value);
-    saveSettingsToStorage("toggleAudio", JSON.stringify(value));
-  };
+    saveToggleAudio(value);
+};
 
-  const handleToggleCapture = (value: boolean) => {
+const handleToggleCapture = (value) => {
     setToggleCapture(value);
-    saveSettingsToStorage("toggleCapture", JSON.stringify(value));
-  };
+    saveToggleCapture(value);
+};
 
-  const handleChangeTheme = (selectedTheme) => {
+const handleChangeTheme = (selectedTheme) => {
     setTheme(selectedTheme);
-    saveSettingsToStorage("theme", selectedTheme);
-  };
+    saveTheme();
+};
 
-  const handleChangeFontSize = (selectedFontSize) => {
+const handleChangeFontSize = (selectedFontSize) => {
     setFontSize(selectedFontSize);
-    saveSettingsToStorage("fontSize", selectedFontSize);
-  };
+    saveFontSize();
+};
 
-  const handleChangeIconSize = (selectedIconSize) => {
+const handleChangeIconSize = (selectedIconSize) => {
     setIconSize(selectedIconSize);
-    saveSettingsToStorage("iconSize", selectedIconSize);
-  };
+    saveIconSize();
+};
   //These handle selection of the theme and font size.
 
   const themeOptions = Object.keys(themes).map((themeKey) => ({
@@ -200,36 +190,6 @@ const Settings = () => {
             }
           />
         </View>
-        <View
-          style={[
-            styles.divider,
-            { backgroundColor: themes[theme].dividerColor },
-          ]}
-        />
-        <View style={styles.toggleContainer}>
-          <Text
-            accessible={false}
-            style={{
-              color: themes[theme].textColor,
-              fontSize: fontSizes[fontSize].fontSize,
-            }}
-          >
-            Save Scans to Phone
-          </Text>
-          <Switch
-            trackColor={{
-              false: themes[theme].switchOffColor,
-              true: themes[theme].primaryColor,
-            }}
-            ios_backgroundColor={themes[theme].switchOffColor}
-            value={toggleScans}
-            onValueChange={handleToggleScans}
-            accessible={true}
-            accessibilityLabel="Save Scans to Phone"
-            accessibilityRole="switch"
-            accessibilityValue={{ text: toggleScans ? "true" : "false" }}
-          />
-        </View>
       </View>
       <Text
         accessible={false}
@@ -264,7 +224,7 @@ const Settings = () => {
               fontSize: fontSizes[fontSize].fontSize,
             }}
           >
-            Audio Narration{" "}
+            Brick Audio Announcement{" "}
           </Text>
           <Switch
             trackColor={{
@@ -275,7 +235,7 @@ const Settings = () => {
             value={toggleAudio}
             onValueChange={handleToggleAudio}
             accessible={true}
-            accessibilityLabel="App Audio Narration"
+            accessibilityLabel="Brick Identification Audio Announcement"
             accessibilityRole="switch"
             accessibilityValue={{ text: toggleAudio ? "true" : "false" }}
           />

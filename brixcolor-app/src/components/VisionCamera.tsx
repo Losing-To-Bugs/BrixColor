@@ -14,6 +14,7 @@ import {useSharedValue} from "react-native-worklets-core";
 import {CAMERA_FPS} from "@/constants/vision-constants";
 import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 import {runOnJS} from "react-native-reanimated";
+import { detectColor } from "@/hooks/detectColor";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
@@ -82,9 +83,11 @@ function getMaxPrediction(predictions: [number, number, number[]][]): [number, n
 const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const cameraRef = useRef(null)
     const trackingRef = useRef(null)
+    const colorRef = useRef(null);
     useImperativeHandle(ref, () => ({
         cameraRef: cameraRef,
-        trackingRef: trackingRef
+        trackingRef: trackingRef,
+        colorRef: colorRef
     }))
 
     const device = useCameraDevice('back')
@@ -92,6 +95,7 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const [currentFrame, setCurrentFrame] = useState(null)
     const [currentFPS, setCurrentFPS] = useState(1)
     const tracking = useSharedValue<any>(null)
+    const colorObj = useSharedValue<any>(null)
     const count = useSharedValue(0)
 
     const format = useCameraFormat(device, [
@@ -104,20 +108,22 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     useEffect(() => {
         const interval = setInterval(() => {
             trackingRef.current = tracking.value
+            colorRef.current = colorObj.value
         }, 1000 / (currentFPS === 0 ? 1 : currentFPS))
 
         return () => clearInterval(interval)
     }, [currentFPS])
 
     useEffect(() => {
-            const interval = setInterval(() => {
-                // console.log(count.value)
-                setCurrentFPS(count.value)
-                count.value = 0
-            }, 1000)
+        const interval = setInterval(() => {
+            // console.log(count.value)
+            setCurrentFPS(count.value)
+            count.value = 0
+        }, 1000)
 
-            return () => clearInterval(interval)
-        }, [])
+        return () => clearInterval(interval)
+    }, [])
+
 
     useEffect(() => {
         if(!hasPermission){
@@ -135,6 +141,27 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
 
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
+
+        // if i want to implement the bounding boxes logic
+        // if (tracking.value !== null){
+        //     const colorData = detectColor(frame, {x: tracking.value.x, y: tracking.value.y, width: tracking.value.width, height: tracking.value.height});
+        //     if (typeof colorData == 'object'){
+        //         console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`)
+        //     }
+        // }
+
+        const colorData = detectColor(frame);
+        if ((typeof colorData == 'object') && (!colorData["error"])){
+
+            console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+
+            colorObj.value = {
+                r: colorData["red"] * 255.0,
+                g: colorData["green"] * 255.0,
+                b: colorData["blue"] * 255.0
+            };
+        }
+
 
         count.value += 1
 
@@ -257,9 +284,6 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
                         }
                     }
                 }
-
-
-
             } else {
                 // No previous detection
                 // console.log("No previous detection", 1)

@@ -67,12 +67,26 @@ In the Bundle Identifier, pick something unique to avoid this error (e.g com.bri
 
 Retry the provisioning and proceed if no error messages arise.
 
-### 5. Run build
+### 5. Add FrameProcessor & ML Packages
+In the XCode filetree, right click "BrixColor" and Select "Add Files To 'BrixColor'..."
+
+A file system window will appear. 
+
+Navigate to "FrameProcessorPlugins"
+
+Select "LegoDetectorFrameProcessor" and click Add.
+
+- Repeat this process for "ColorDetectionPlugins"
+
+- Repeat this process and add "brixblenderv2-t1.mlpackage". 
+  - (Located in brixcolor-app/assets folder)
+
+### 6. Run build
 `npx expo run:ios --device`
 
 This command will prompt for which device to target when building. To deploy to your iOS device, connect it to the mac with a cable and it should appear in the menu prompt.
 
-### 6. Trust developer in iOS
+### 7. Trust developer in iOS
 After the build finishes, it should appear in your iOS device in 'Recently Added', but you first need to go to Settings > General > VPN & Device Management > Developer App
 
 Press 'Trust' for the developer account used to build the app. 
