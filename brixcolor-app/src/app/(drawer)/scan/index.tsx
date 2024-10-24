@@ -19,7 +19,7 @@ import {Camera} from "react-native-vision-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
 import InfoPopup from "@/components/InfoPopup";
-
+import { findClosestColor } from "@/utils/ColorHelpers";
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
@@ -106,10 +106,6 @@ function Page() {
         console.log(`Platform: ${Platform.OS}`)
     }, [isRunningInExpoGo, Platform.OS]);
 
-    const handleColorDetect = () =>{
-        
-    }
-
     const handleShutterPress = async () => {
             if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
             const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
@@ -118,12 +114,17 @@ function Page() {
                     await requestPermission();
                 } else {
                     const trackingObject = inputRef?.current?.trackingRef?.current
-    
+                    const colorObj = inputRef?.current.colorRef?.current
                     console.log(trackingObject, trackedLabel)
 
                     // show modal
-                    setBrickColor("0x9B9A5A");
-                    setBrickLabel(trackingObject.label);
+                    
+                    // console.log(colorObj);
+                    // console.log(findClosestColor(colorObj));
+                    // console.log(LABEL_MAP[trackingObject.label]);
+                    // console.log(trackingObject.score);
+                    setBrickColor(findClosestColor(colorObj));
+                    setBrickLabel(LABEL_MAP[trackingObject.label]);
                     setConfidence(trackingObject.score);
                     setIsModalShown(true);
     

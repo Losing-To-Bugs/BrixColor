@@ -4,11 +4,8 @@ import { IMAGES } from "../constants/images";
 import { legoColors } from "../constants/colors";
 import { useSettings } from "./SettingsContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { HISTORYURL } from "@/constants/database-strings";
+import { HISTORYURL, HISTORYKEY } from "@/constants/database-strings";
 
-
-// TODO [] : verify history works 
-// TODO [] : make sure logic behind getting and storing history in the database is efficient
 
 export interface InfoPopupProps {
     confidence: number,
@@ -47,7 +44,7 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
 
             // get current history
             try{
-                const rawData = await AsyncStorage.getItem("history");
+                const rawData = await AsyncStorage.getItem(HISTORYKEY);
                 dataObj = (rawData !== null) ? await JSON.parse(rawData) : []
             }
             catch(err){
@@ -56,13 +53,20 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
                 // return -1;
             }
 
-            // add new data to the array
-            dataObj.push(data);
+        
+            try{
+                dataObj.push(data);
+            }
+            catch(err){
+                dataObj = [];
+                dataObj.push(data);
+            }
+           
 
             // convert to string
             const dataStr = JSON.stringify(dataObj);
 
-
+            
             // load the data
             try{
                 await AsyncStorage.setItem("history", dataStr);
@@ -72,6 +76,12 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
                 console.error(err);
                 // return -1;
             }
+
+            // don't save to database if not logged in
+            if (uid.length < 1){
+                return
+            }
+            console.log("Made it")
 
             const payload = {
                 method: "POST",
@@ -132,13 +142,13 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
 
                         <View style={{flex: 1}} >
                             <View style={{flex: 1, alignItems: "center", paddingTop: 10}} >
-                                <Text accessibilityLabel="Lego Match Confidence" style={{color: themes[theme].textColor, fontSize: Math.max(fontSizes[fontSize].fontSize - 4 , 12)}}>Confidence {confidence * 100}%</Text>
+                                <Text accessibilityLabel="Lego Match Confidence" style={{color: themes[theme].textColor, fontSize: Math.max(fontSizes[fontSize].fontSize - 4 , 12)}}>Confidence {Math.round(confidence * 100)}%</Text>
                             </View>
                             <View style={{flex: 3, justifyContent: "center", alignItems: "center"}} >
                                 <Image source={IMAGES[brick]} style={{width: "60%", height: "70%", borderColor: "black", borderWidth: 1, borderRadius: 10}}/>
                             </View>
                             <View style={{flex: 1, justifyContent: "center", alignItems: "center"}} >
-                                <Text accessibilityLabel="Lego Description" style={{textAlign: "center", color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 2}} >{legoColors[color]}{"\n"}{handleIdentity()}</Text>
+                                <Text accessibilityLabel="Lego Description" style={{textAlign: "center", color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 2}} >{color}{"\n"}{handleIdentity()}</Text>
                             </View>
                         </View>
                     </View>

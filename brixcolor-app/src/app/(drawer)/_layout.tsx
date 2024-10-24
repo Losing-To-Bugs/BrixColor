@@ -96,6 +96,8 @@ export default function DrawerLayout() {
             await AsyncStorage.removeItem("uid");
             setIsLoggedIn(false); // Update login state
 
+            await AsyncStorage.removeItem("history");
+
 
         } catch (error) {
             console.error("Error logging out:", error);

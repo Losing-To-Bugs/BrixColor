@@ -5,6 +5,7 @@ import { auth } from "@/services/firebaseConfig"
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { HISTORYKEY } from '@/constants/database-strings';
 
 interface Props {
     handleFirebaseAuthError: Function,
@@ -102,6 +103,12 @@ const SignUp: React.FC<Props> = ({handleFirebaseAuthError, loginError, setRender
 
                 storeData("uid", userCredential.user['uid']);
                 storeData("username", userName);
+                try{
+                    AsyncStorage.removeItem(HISTORYKEY);
+                }
+                catch(err){
+                    console.error(err);
+                }
 
                 router.replace("/(drawer)/scan")
             })

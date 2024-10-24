@@ -10,7 +10,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HISTORYKEY, HISTORYURL } from '@/constants/database-strings';
 
 
-// TODO [] : make sure the "Show Password" Button Text isn't cutoff 
 
 const LoginPage = () =>{
     const router = useRouter()
@@ -79,8 +78,18 @@ const LoginPage = () =>{
     const getHistory = async (uid: string) =>{
         // get the users history and store it in local storage.
         try {
-            const data = await fetch(`${HISTORYURL}?uid=${uid}"`);
-            const dataStr = JSON.stringify(data);
+            const response = await fetch(`${HISTORYURL}?uid=${uid}`);
+            const data = await response.json();
+            console.log(data);
+            const dataStr = JSON.stringify([data]);
+
+            try{
+                AsyncStorage.removeItem(HISTORYKEY);
+            }
+            catch(err){
+                console.error(err);
+            }
+            
             await storeData(HISTORYKEY, dataStr);
 
         // handle errors
@@ -106,6 +115,7 @@ const LoginPage = () =>{
                 // store info and update state
                 // console.log(userCredential)
                 setUID(userCredential.user['uid'])
+                console.log(userCredential.user['uid'])
                 storeData("uid", userCredential.user['uid'])
                 getHistory(userCredential.user['uid']);
                 router.replace("/(drawer)/scan")
@@ -116,7 +126,7 @@ const LoginPage = () =>{
                 handleFirebaseAuthError(err.message)
                 setRenderLoginError(true)
 
-                
+                // WlBYQyP3J2aaxAOKgpFfyakFr5p2
             })
             .finally(() =>{
                 setIsLoading(false)

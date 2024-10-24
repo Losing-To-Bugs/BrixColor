@@ -7,7 +7,6 @@ import { useRouter } from "expo-router";
 import { HeaderBackButton } from "@react-navigation/elements";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// TODO [x] integrate with actual stored data
 // TODO [] add option to remove from history
 // TODO [] add option to clear history
 
@@ -175,6 +174,15 @@ const HistoryList = () => {
                 // get history string, convert to JSON and set as what is used
                 const dataStr = await AsyncStorage.getItem("history");
                 const jsonData = await JSON.parse(dataStr);
+                if (jsonData){
+                    jsonData.sort((a, b) => b.timestamp - a.timestamp);
+                }
+                // sort and update.
+                if (jsonData.length > 25){
+                    while(jsonData.length >= 25){
+                        jsonData.pop();
+                    }
+                }
                 setHistory(jsonData)
 
             }
@@ -190,6 +198,9 @@ const HistoryList = () => {
 
     // Utility function to handle formatting brick names
     const handleIdentity = (identity: string) => {
+        if (typeof identity !== 'string'){
+            return ''
+        }
         let name = identity.split("_");
         let type = name.length > 1 ? "Plate" : "Brick";
         return `${name[0]} ${type}`;
@@ -207,19 +218,19 @@ const HistoryList = () => {
     
 
     return (
-            <View style={{...styles.container, backgroundColor: themes[theme].backgroundColor }}>
+            <View style={{...styles.container, backgroundColor: themes[theme].primaryColor }}>
 
 
                 
 
                 {/* header */}
-                <View style={{height: "8%", width: "100%",alignItems: "center", backgroundColor: themes[theme].primaryColor, justifyContent: "center"}} >
+                <View style={{height: "8%", width: "100%",alignItems: "center", backgroundColor: themes[theme].backgroundColor, justifyContent: "center"}} >
                     
                     {/* Close Button */}
                     <HeaderBackButton
                         accessibilityLabel="Back button"
                         labelStyle={{ fontSize: fontSizes[fontSize].fontSize, color: themes[theme].textColor }}
-                        tintColor={themes[theme].headerColor}
+                        tintColor={themes[theme].primaryColor}
                         style={{position: "absolute", left: "0%"}}
                         onPress={() => router.dismiss()}
                     />
@@ -245,13 +256,13 @@ const HistoryList = () => {
 
                                 {/* Confidence Text */}
                                 <View style={styles.confidenceContainer} accessibilityLabel="Match Confidence">
-                                    <Text style={{color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize}}>Confidence {item.confidence}%</Text>
+                                    <Text style={{color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize}}>Confidence {Math.round(item.confidence * 100)}%</Text>
                                 </View>
 
                                 {/* Lego Image */}
                                 <View style={styles.imageContainer} accessibilityLabel="Lego Image">
                                     <Image
-                                        source={IMAGES[item.brick]}
+                                        source={IMAGES[item.label]}
                                         style={styles.image}
                                         resizeMode="contain"
                                     />
@@ -260,7 +271,7 @@ const HistoryList = () => {
                                 {/* Description */}
                                 <View style={styles.textContainer} accessibilityLabel="LEGO Description">
                                     <Text style={{...styles.itemText, color: themes[theme].textColor, fontSize: Math.max(fontSizes[fontSize].fontSize - 2, 14)}}>
-                                        {legoColors[item.color]}{"\n"}{handleIdentity(item.brick)}
+                                        {item.color}{"\n"}{handleIdentity(item.label)}
                                     </Text>
                                 </View>
 
