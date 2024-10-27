@@ -1,8 +1,8 @@
 import * as Speech from 'expo-speech';
 
-const AudioAnnounce = (color: string, size: string) => {
+const AudioAnnounce = (color: string, brick: string) => {
 
-    const text = `This LEGO brick is ${size} and its color is ${color}.`; 
+    const text = `This LEGO is a ${color} ${brick}.`; 
     const speak = async () => {
         try {
           
@@ -12,7 +12,7 @@ const AudioAnnounce = (color: string, size: string) => {
           }
           Speech.speak(text, {
             language: 'en',
-            rate: 1,  
+            rate: .8,  
             pitch: 1, 
           });
         } catch (error) {

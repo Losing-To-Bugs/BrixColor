@@ -5,7 +5,7 @@ import { legoColors } from "../constants/colors";
 import { useSettings } from "./SettingsContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { HISTORYURL, HISTORYKEY } from "@/constants/database-strings";
-
+import AudioAnnounce from "@/components/AudioAnnounce"; 
 
 export interface InfoPopupProps {
     confidence: number,
@@ -18,7 +18,7 @@ export interface InfoPopupProps {
 
 const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown, uid, handlePress }) => {
 
-    const {themes, theme, fontSizes, fontSize} = useSettings();
+    const {themes, theme, fontSizes, fontSize, toggleAudio} = useSettings();
     
     // Function to handle presenting the name and the type of brick
     const handleIdentity = () =>{
@@ -27,10 +27,20 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
 
         return `${name[0]} ${type}`
     }
-
+    
+    const handleAudioAnnounce = () => {
+        if (toggleAudio) {
+            const { speak } = AudioAnnounce(color, handleIdentity()); // Destructure to get the speak method
+            speak(); // Trigger the speak method
+        }
+        else if (!toggleAudio) {
+            console.log('Audio announcement is turned off.'); 
+        }
+     }
 
     useEffect(()=>{
         /** Function to update and store history */
+        /** Added audio annoucement here - Josh */
         const saveData = async () =>{
             let dataObj = []
             const timestamp = new Date().getTime();
@@ -41,6 +51,9 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
                 confidence: confidence,
                 timestamp: timestamp
             }
+            
+
+
 
             // get current history
             try{
@@ -106,6 +119,7 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
         }
 
         saveData();
+        handleAudioAnnounce();
     }, []);
 
 
