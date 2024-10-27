@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View, Platform, Button} from "react-native";
+import {Text, TouchableOpacity, View, Platform} from "react-native";
 import {Drawer} from "expo-router/drawer";
 import React, {useRef, useState, useEffect} from "react";
 import {StyleSheet} from "react-native";
