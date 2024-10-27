@@ -14,31 +14,14 @@ import Constants from 'expo-constants'
 import {useSettings} from "@/components/SettingsContext";
 import {useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {Camera} from "react-native-vision-camera";
-// import {Camera as ExpoCamera} from "expo-camera";
+//import {Camera} from "react-native-vision-camera";
+import {Camera as ExpoCamera} from "expo-camera";
 import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
 //import VolumeCapture from "@/components/VolumeCapture";
 import InfoPopup from "@/components/InfoPopup";
 import { findClosestColor } from "@/utils/ColorHelpers";
 
-
-
-//import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
-
-/* 
-move under useSettings. This should work with both expo-speech and react-native-tts
-color and size should be strings. Change in AudioAnnounce.tsx if that is not what they are.
-  const handleAudioAnnounce = () => {
-    if (toggleAudio) {
-      const { speak } = AudioAnnounce(color, size); // Destructure to get the speak method
-      speak(); // Trigger the speak method
-    }
-      else if (!toggleAudio) {
-      console.log('Audio announcement is turned off.'); 
-    }
-  };
-*/
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
@@ -114,8 +97,8 @@ function Page() {
     // }, [isModalShown])
 
 
-    // const camera = useRef<ExpoCamera>(null)
-    const nativeCamera = useRef<Camera>(null)
+    const camera = useRef<ExpoCamera>(null)
+    //const nativeCamera = useRef<Camera>(null)
     const inputRef = useRef(null)
 
     useEffect(() => {
@@ -185,7 +168,6 @@ function Page() {
     const {
         iconSize,
         iconSizes,
-        toggleAudio,
         toggleCapture 
     } = useSettings();
 
@@ -237,7 +219,7 @@ function Page() {
                         // :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef}/>
+                            {/*<VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef}/>*/}
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
