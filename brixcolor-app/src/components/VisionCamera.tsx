@@ -142,57 +142,21 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
 
-        // if i want to implement the bounding boxes logic
-        // if (tracking.value !== null){
-        //     const colorData = detectColor(frame, {x: tracking.value.x, y: tracking.value.y, width: tracking.value.width, height: tracking.value.height});
-        //     if (typeof colorData == 'object'){
-        //         console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`)
-        //     }
+
+        // if not using bounding box for initial guess
+        // const colorData = detectColor(frame);
+        // if ((typeof colorData == 'object') && (!colorData["error"])){
+
+        //     console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+
+        //     colorObj.value = {
+        //         r: colorData["red"] * 255.0,
+        //         g: colorData["green"] * 255.0,
+        //         b: colorData["blue"] * 255.0
+        //     };
         // }
-
-        const colorData = detectColor(frame);
-        if ((typeof colorData == 'object') && (!colorData["error"])){
-
-            console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
-
-            colorObj.value = {
-                r: colorData["red"] * 255.0,
-                g: colorData["green"] * 255.0,
-                b: colorData["blue"] * 255.0
-            };
-        }
-
-
-        count.value += 1
-
-        const result = detectBrick(frame, props?.size)
-
-        if (props?.size === "x") {
-            if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
-                return
-            }
-
-            const [maxClass, maxScore, rect] = getMaxPrediction(result)
-
-            const [x, y, width, height] = rect
-            const wScale = frame.width / 640
-            const xScaled = (x) * wScale
-            const yScaled = (y - ((640 - (frame.height / wScale))/2) ) * wScale
-            const wScaled = width * wScale
-            const hScaled = height * wScale
-            tracking.value = {
-                x: xScaled,
-                y: yScaled,
-                width: wScaled,
-                height: hScaled,
-                score: maxScore,
-                rawScore: maxScore,
-                shutter: true,
-                label: maxClass
-            }
-
-            return
-        }
+    
+        const result = detectBrick(frame)
 
         if ((typeof result === 'object' && !Array.isArray(result)) || result?.length === 0) {
             if (tracking?.value?.score) {
@@ -222,7 +186,29 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
             const wScaled = width * wScale
             const hScaled = height * wScale
 
+            // most recent
             const scaledRect = [xScaled, yScaled, wScaled, hScaled]
+
+            // call detection frame processor on each new detection
+            const colorData = detectColor(frame);
+            // const colorData = detectColor(frame, {x: xScaled, y: yScaled, width: wScaled, height: hScaled});
+            if (typeof colorData == 'object'){
+                if (!colorData["error"]){
+
+                    console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+    
+                    colorObj.value = {
+                        r: colorData["red"] * 255.0,
+                        g: colorData["green"] * 255.0,
+                        b: colorData["blue"] * 255.0
+                    };
+                }
+                else{
+                    console.error(colorData["error"])
+                }
+                
+            }
+
 
             if (tracking?.value?.score > 0.1) {
                 // Previous detection with score > 0.1
