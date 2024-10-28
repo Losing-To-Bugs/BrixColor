@@ -6,7 +6,7 @@ import {
     useCameraPermission,
     useCameraDevice,
     useFrameProcessor,
-    useCameraFormat, useSkiaFrameProcessor
+    useCameraFormat, useSkiaFrameProcessor, runAsync, runAtTargetFps
 } from "react-native-vision-camera";
 import {Skia} from "@shopify/react-native-skia";
 import {detectBrick} from "@/hooks/detectBrick";

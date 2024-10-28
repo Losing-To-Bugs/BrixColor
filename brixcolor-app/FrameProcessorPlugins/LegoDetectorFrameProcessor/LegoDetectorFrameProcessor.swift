@@ -6,19 +6,14 @@ import CoreImage
 import Accelerate
 
 @available(iOS 15.0, *)
-typealias BrixModelX = brixcolorv1_yv10x;
+typealias BrixModel = brixcolorv4_yv10m;
 @available(iOS 15.0, *)
-typealias BrixModelOuputX = brixcolorv1_yv10xOutput;
-@available(iOS 15.0, *)
-typealias BrixModel = brixcolorroboflow_yv10m;
-@available(iOS 15.0, *)
-typealias BrixModelOuput = brixcolorroboflow_yv10mOutput;
+typealias BrixModelOuput = brixcolorv4_yv10mOutput;
 
 @available(iOS 16.0, *)
 @objc(LegoDetectorFrameProcessorPlugin)
 public class LegoDetectorFrameProcessorPlugin: FrameProcessorPlugin {
   var brixModel: BrixModel?
-  var brixModelX: BrixModelX?
 
   public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
     // Tell Core ML to use the Neural Engine if available.
@@ -26,14 +21,11 @@ public class LegoDetectorFrameProcessorPlugin: FrameProcessorPlugin {
     config.computeUnits = .all
     self.brixModel = try? BrixModel(configuration: config)
 
-    // Tell Core ML to use the Neural Engine if available.
-    self.brixModelX = try? BrixModelX(configuration: config)
-
     super.init(proxy: proxy, options: options)
   }
 
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) -> Any? {
-    guard let brixModel = self.brixModel, let brixModelX = self.brixModelX else {
+    guard let brixModel = self.brixModel else {
       return ["error": "Model could not be initialized"]
     }
 
@@ -42,6 +34,7 @@ public class LegoDetectorFrameProcessorPlugin: FrameProcessorPlugin {
       return ["error": "Invalid frame"]
     }
 
+//    guard let grayUIImage = convertToGrayscale(image: uiImage),
     guard let scaledUIImage = scaleFit(image: uiImage) else {
       return ["error": "Could not scale UIImage"]
     }
@@ -54,40 +47,17 @@ public class LegoDetectorFrameProcessorPlugin: FrameProcessorPlugin {
       return ["Could not interpret threshold argument"]
     }
 
-    guard let size = (arguments?["size"] ?? "t") as? NSString else {
-      return ["Could not interpret size argument"]
+    guard let result = try? brixModel.prediction(image: resizedBuffer) else {
+      return ["error": "Could not predict"]
     }
 
-    if size == "t" {
-      guard let result = try? brixModel.prediction(image: resizedBuffer) else {
-        return ["error": "Could not predict"]
-      }
+    // No NMS
+    let preds =  noNmsExtract(result: result.var_1589, threshold: threshold.doubleValue)
+    let output = preds.map{ [$0.0, $0.1, [$0.2.minX, $0.2.minY, $0.2.width, $0.2.height, ]] }
 
-      // No NMS
-      let preds =  noNmsExtract(result: result.var_1589, threshold: threshold.doubleValue)
-      let output = preds.map{ [$0.0, $0.1, [$0.2.minX, $0.2.minY, $0.2.width, $0.2.height, ]] }
+    // Clean
+    CVPixelBufferGetBaseAddress(resizedBuffer)?.deallocate()
 
-      // Clean
-      CVPixelBufferGetBaseAddress(resizedBuffer)?.deallocate()
-
-      return output
-    } else {
-      guard let result = try? brixModelX.prediction(image: resizedBuffer) else {
-        return ["error": "Could not predict"]
-      }
-
-//      // With NMS
-//      let nmsPreds = multiArrayToNMSPredictions(result: result.var_3421, treshold: threshold.doubleValue)
-//      let output = nmsPreds.map{ [$0.0, $0.1, [$0.2.minX, $0.2.minY, $0.2.width, $0.2.height, ]] }
-
-      // No NMS
-      let preds =  noNmsExtract(result: result.var_2193, threshold: threshold.doubleValue)
-      let output = preds.map{ [$0.0, $0.1, [$0.2.minX, $0.2.minY, $0.2.width, $0.2.height, ]] }
-
-      // Clean
-      CVPixelBufferGetBaseAddress(resizedBuffer)?.deallocate()
-
-      return output
-    }
+    return output
   }
 }

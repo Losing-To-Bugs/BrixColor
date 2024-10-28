@@ -2,7 +2,7 @@ import {StyleSheet} from "react-native";
 
 const pageStyles = StyleSheet.create({
     header: {
-        flex: 1,
+        height:50,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',

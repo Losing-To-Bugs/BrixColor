@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View, Platform} from "react-native";
+import {Text, TouchableOpacity, View, Platform, Dimensions} from "react-native";
 import {Drawer} from "expo-router/drawer";
 import React, {useRef, useState, useEffect} from "react";
 import {StyleSheet} from "react-native";
@@ -20,6 +20,7 @@ import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
 import InfoPopup from "@/components/InfoPopup";
 import { findClosestColor } from "@/utils/ColorHelpers";
+import CornerLayout from "@/components/CornerLayout";
 
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
@@ -50,6 +51,10 @@ function Page() {
     const [isOnboarded, setIsOnboarded] = useState(null);
     const [permissionResponse, requestPermission] = usePermissions();
     const [trackedLabel, setTrackedLabel] = useState('');
+    const [top, setTop] = useState(0)
+    const [left, setLeft] = useState(0)
+    const [width, setWidth] = useState(0)
+    const [height, setHeight] = useState(0)
 
     // for modal
     const [isModalShown, setIsModalShown] = useState(false);
@@ -90,6 +95,7 @@ function Page() {
         checkLogin();
     }, []);
 
+    // Check the scan results every frame
     useEffect(() => {
         const interval = setInterval(() => {
             const trackingObject = inputRef?.current?.trackingRef?.current
@@ -100,6 +106,19 @@ function Page() {
             } else if (trackingObject) {
                 const labelName = LABEL_MAP[trackingObject.label]
                 setTrackedLabel(labelName)
+
+                const dimensions = Dimensions.get("screen")
+                const hScale = (dimensions.height - 150) / 1920
+
+                const top = (hScale * (trackingObject.x))
+                const height = hScale * trackingObject.width
+                const left = (dimensions.width / 1080) * (trackingObject.y)
+                const width = (dimensions.width / 1080) * trackingObject.height
+
+                setTop(top)
+                setHeight(height)
+                setLeft(375 - left - width)
+                setWidth(width)
             }
 
         }, 1000 / CAMERA_FPS)
@@ -119,8 +138,10 @@ function Page() {
         console.log(`Platform: ${Platform.OS}`)
     }, [isRunningInExpoGo, Platform.OS]);
 
+    // Used to switch to a larger model temporarily on shutter
+    // button press and then switching back
+    // to smaller model
     const [modelSize, setModelSize] = useState<"t" | "m" | "x">("t")
-
     useEffect(() => {
         if (modelSize === "x") {
             const start = Date.now()
@@ -248,7 +269,7 @@ function Page() {
 
                 {/*Real time lego detection info*/}
                 <Text accessible={false} style={{color: 'white'}}>
-                    {trackedLabel ? `Possible detection: ${trackedLabel}` : ''}
+                    {trackedLabel ? `Possible detection` : ''}
                 </Text>
 
                 {/* Help button */}
@@ -338,6 +359,17 @@ function Page() {
                     </View>
                 </View>
 
+                {
+                    inputRef?.current?.trackingRef?.current?.score > 0.3 &&
+                    (
+                        <CornerLayout
+                            top={top}
+                            left={left}
+                            width={width}
+                            height={height}
+                        />
+                    )
+                }
             </View>
 
 
