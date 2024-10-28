@@ -13,12 +13,11 @@ public class ColorDetectorPlugin: FrameProcessorPlugin {
         filter.inputImage = inputImage
         filter.gaussianSigma = 5
         filter.perceptual = false
-        filter.thresholdLow = 0.02
-        filter.thresholdHigh = 0.05
+        filter.thresholdLow = 0.05
+        filter.thresholdHigh = 0.15
         filter.hysteresisPasses = 1
         return filter.outputImage!
     }
-    
     func floodFillEdges(edgeImage: CIImage) -> CIImage? {
         let context = CIContext()
         
@@ -53,34 +52,45 @@ public class ColorDetectorPlugin: FrameProcessorPlugin {
         
         // Fill pixels between the first and second white pixel in each row
         for y in 0..<height {
-            var firstWhitePixel: Int? = nil
-            var paintedPixels: [(Int, Int)] = []
+            var doPaint = false
+            var paintedCells : [Int] = []
             
             for x in 0..<width {
                 let pixelIndex = y * bytesPerRow + x
                 
-                if pixels[pixelIndex] == 255 { // White pixel
-                    if let start = firstWhitePixel {
-                        // Second white pixel found, stop painting and reset painted pixels
-                        if !paintedPixels.isEmpty {
-                            // If there's an existing painted segment, we need to check if we should undo
-                            undoPaint(pixels: pixels, paintedPixels: paintedPixels, bytesPerRow: bytesPerRow)
-                            paintedPixels.removeAll() // Clear painted pixels for the next segment
+                
+                // if current is a white pixel
+                if pixels[pixelIndex] == 255{
+                    
+                    // if already started, stop
+                    if doPaint {
+                        doPaint = false
+                        
+                        // if found next white, previous were valid
+                        // clear these valid moves from the list
+                        paintedCells.removeAll()
+                    }
+                    else{
+                        // if haven't started, start now
+                        doPaint = true
+                    }
+                }
+                // if current pixel is not white
+                else{
+                    if doPaint{
+                        pixels[pixelIndex] = 255
+                        paintedCells.append(pixelIndex);
+                    }
+                    
+                    // last cell, not white: means mistakenly painted cells, undo them
+                    if (x == width - 1) && doPaint{
+                        for i in paintedCells{
+                            pixels[i] = 0
                         }
                     }
                     
-                    // Start tracking the first white pixel
-                    firstWhitePixel = x
-                } else if let _ = firstWhitePixel {
-                    // Paint the pixel if we are between two white pixels
-                    paintedPixels.append((x, y))
-                    pixels[pixelIndex] = 255 // Paint white
+                    
                 }
-            }
-            
-            // At the end of the row, if there is one white pixel and painted pixels, undo painting
-            if firstWhitePixel != nil && !paintedPixels.isEmpty {
-                undoPaint(pixels: pixels, paintedPixels: paintedPixels, bytesPerRow: bytesPerRow)
             }
         }
         
@@ -168,54 +178,67 @@ public class ColorDetectorPlugin: FrameProcessorPlugin {
             // Return a dictionary with RGBA values
             return ["red": r, "green": g, "blue": b, "alpha": a]
         }
-        return nil
+        return ["red": 0, "green": 0, "blue": 0, "alpha": 1.0]
     }
+    
+    func saveCIImageToDisk(image: CIImage, filename: String, timeStamp: String) {
+           let context = CIContext()
+           guard let cgImage = context.createCGImage(image, from: image.extent) else { return }
+           
+           let uiImage = UIImage(cgImage: cgImage)
+           if let data = uiImage.pngData() {
+               let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+               let documentsDirectory = paths[0]
+               let fileURL = documentsDirectory.appendingPathComponent("\(timeStamp)_\(filename).png")
+               
+               do {
+                   try data.write(to: fileURL)
+                   print("Saved image to \(fileURL)")
+               } catch {
+                   print("Error saving image: \(error)")
+               }
+           }
+       }
+    
     
     
     
     public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable : Any]?) -> Any {
         let buffer = frame.buffer
-        let orientation = frame.orientation
+//        let orientation = frame.orientation
         
         // convert to CI image.
-        guard let pixelBuf = CMSampleBufferGetImageBuffer(buffer) else {return 0}
-        let ciImage = CIImage(cvPixelBuffer: pixelBuf)
+        guard let pixelBuf = CMSampleBufferGetImageBuffer(buffer) else {return ["error": "Cannot Detect Color"]}
+        let ogImage = CIImage(cvPixelBuffer: pixelBuf)
         
-// can be optimized to take in args and crop the image to the bounding box first
-       /*
-        // Get the dimensions of the image
-        let imageHeight = ciImage.extent.height
-         
-        // make sure arguments were passed
-        guard let args = arguments else {return ["error": "No args passed to frame detector"]}
-            
-        // check args valid
-        guard let x = args["x"] as? CGFloat,
-                let y = args["y"] as? CGFloat,
-                let width = args["width"] as? CGFloat,
-              let height = args["height"] as? CGFloat else {return ["error": "invalid arguments"]}
         
-        // make sure the bounding box uses the bottom left instead of top left
-        let bottomY = imageHeight - y - height
-        
-        // use the arguments to crop the image before detecting edges
-        let cropRect = CGRect(x: x, y: bottomY, width: width, height: height)
-        let cleanedImage = ciImage.cropped(to: cropRect)
-        
-        // create image with edges detected
-        let edgesImage = cannyEdgeDetector(inputImage: cleanedImage)
-        */
-        
-        let edgesImage = cannyEdgeDetector(inputImage: ciImage)
+        let dateFormatter = DateFormatter()
+                dateFormatter.dateStyle = .short
+                dateFormatter.timeStyle = .medium
+                var timestamp = dateFormatter.string(from: Date())
+                
+                // Replace spaces, commas, and colons with underscores
+                timestamp = timestamp.replacingOccurrences(of: " ", with: "_")
+                    .replacingOccurrences(of: ":", with: "-")
+                    .replacingOccurrences(of: ",", with: "")
+                    .replacingOccurrences(of: "/", with: "_")
+
+//        saveCIImageToDisk(image: ogImage, filename: "d-originalImage", timeStamp: timestamp)
+        let edgesImage = cannyEdgeDetector(inputImage: ogImage)
+//        saveCIImageToDisk(image: edgesImage, filename: "c-edges", timeStamp: timestamp)
         
         // get mask
-        guard let mask = floodFillEdges(edgeImage: edgesImage) else {return 0}
+        guard let mask = floodFillEdges(edgeImage: edgesImage) else {return ["error": "Cannot Detect Color"]}
         
+//        saveCIImageToDisk(image: mask, filename: "b-filledMask", timeStamp: timestamp)
         
         // crop out the background
-        let croppedImage = multiplyCompositing(inputImage: ciImage, backgroundImage: mask)
+        let croppedImage = multiplyCompositing(inputImage: ogImage, backgroundImage: mask)
+        
+//        saveCIImageToDisk(image: croppedImage, filename: "a-croppedImage", timeStamp: timestamp)
         
         
+//        saveCIImageToDisk(image: crop, filename: "c-filledMask", timeStamp: timestamp)
         
         if let dominantColor = computeDominantColor(from: croppedImage) {
                     // print("Dominant Color: \(dominantColor)")
