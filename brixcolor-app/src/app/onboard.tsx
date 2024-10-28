@@ -1,10 +1,21 @@
 import React, { useState } from "react";
-import {View, Text, Image, Button, StyleSheet, ScrollView, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  Button,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { SettingsProvider, useSettings } from "@/components/SettingsContext";
-import { PanGestureHandler, GestureHandlerRootView,} from "react-native-gesture-handler";
-import {StatusBar} from "expo-status-bar";
+import {
+  PanGestureHandler,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
 
 const onboardingData = [
   {
@@ -45,7 +56,12 @@ const DotIndicator = ({ currentIndex }) => {
           key={index}
           style={[
             styles.dot,
-            { backgroundColor: currentIndex === index ? themes[theme].textColor : themes[theme].backgroundColor },
+            {
+              backgroundColor:
+                currentIndex === index
+                  ? themes[theme].textColor
+                  : themes[theme].backgroundColor,
+            },
           ]}
         />
       ))}
@@ -64,30 +80,36 @@ const OnboardingScreen = () => {
   };
 
   const onNext = () => {
-    if (currentIndex < onboardingData.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex + 1;
+      return newIndex > onboardingData.length - 1 ? prevIndex : newIndex;
+    });
   };
+
   const onPrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+    setCurrentIndex((prevIndex) => {
+      const newIndex = prevIndex - 1;
+      return newIndex < 0 ? prevIndex : newIndex;
+    });
   };
 
   const onSwipeGesture = ({ nativeEvent }) => {
     if (isSwipeProcessed) return;
+
     const { translationX } = nativeEvent;
-    if (nativeEvent.translationX < -50) {
+    if (translationX < -50) {
       onNext();
       setIsSwipeProcessed(true);
-    } else if (nativeEvent.translationX > 50) {
+    } else if (translationX > 50) {
       onPrev();
       setIsSwipeProcessed(true);
     }
   };
+
   const onSwipeEnd = () => {
-    setIsSwipeProcessed(false);
+    setIsSwipeProcessed(false); 
   };
+
   const onSkip = () => {
     completeOnboarding();
     router.dismiss();
@@ -99,7 +121,6 @@ const OnboardingScreen = () => {
   };
 
   return (
-    
     <PanGestureHandler onGestureEvent={onSwipeGesture} onEnded={onSwipeEnd}>
       <View style={{ flex: 1, backgroundColor: themes[theme].backgroundColor }}>
         <ScrollView
@@ -139,14 +160,17 @@ const OnboardingScreen = () => {
           </Text>
         </ScrollView>
 
-        <View style={[styles.buttonContainer, {backgroundColor: themes[theme].backgroundColor2 },]}>
+        <View
+          style={[
+            styles.buttonContainer,
+            { backgroundColor: themes[theme].backgroundColor2 },
+          ]}
+        >
           {currentIndex < onboardingData.length - 1 ? (
             <Button title="Skip" onPress={onSkip} />
           ) : (
-            <Pressable
-              accessible={false} // Fixes look and hides from voiceOver
-            >
-              <Text style={{ opacity: 0 }}>Skip 123</Text>
+            <Pressable accessible={false}>
+              <Text style={{ opacity: 0 }}>Skip</Text>
             </Pressable>
           )}
 
@@ -199,7 +223,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    paddingLeft: 6
+    paddingLeft: 6,
   },
   dot: {
     width: 10,
