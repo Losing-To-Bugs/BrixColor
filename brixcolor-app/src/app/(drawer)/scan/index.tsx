@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View, Platform} from "react-native";
+import {Text, TouchableOpacity, View, Platform, Dimensions} from "react-native";
 import {Drawer} from "expo-router/drawer";
 import React, {useRef, useState, useEffect} from "react";
 import {StyleSheet} from "react-native";
@@ -20,11 +20,11 @@ import {usePermissions} from "expo-media-library";
 import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
 import InfoPopup from "@/components/InfoPopup";
 import { findClosestColor } from "@/utils/ColorHelpers";
-import SystemSetting from 'react-native-system-settings';
+import CornerLayout from "@/components/CornerLayout";
 
 //import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
 
-/* 
+/*
 move under useSettings. This should work with both expo-speech and react-native-tts
 color and size should be strings. Change in AudioAnnounce.tsx if that is not what they are.
   const handleAudioAnnounce = () => {
@@ -33,7 +33,7 @@ color and size should be strings. Change in AudioAnnounce.tsx if that is not wha
       speak(); // Trigger the speak method
     }
       else if (!toggleAudio) {
-      console.log('Audio announcement is turned off.'); 
+      console.log('Audio announcement is turned off.');
     }
   };
 */
@@ -51,6 +51,10 @@ function Page() {
     const [isOnboarded, setIsOnboarded] = useState(null);
     const [permissionResponse, requestPermission] = usePermissions();
     const [trackedLabel, setTrackedLabel] = useState('');
+    const [top, setTop] = useState(0)
+    const [left, setLeft] = useState(0)
+    const [width, setWidth] = useState(0)
+    const [height, setHeight] = useState(0)
 
     // for modal
     const [isModalShown, setIsModalShown] = useState(false);
@@ -91,6 +95,7 @@ function Page() {
         checkLogin();
     }, []);
 
+    // Check the scan results every frame
     useEffect(() => {
         const interval = setInterval(() => {
             const trackingObject = inputRef?.current?.trackingRef?.current
@@ -101,6 +106,19 @@ function Page() {
             } else if (trackingObject) {
                 const labelName = LABEL_MAP[trackingObject.label]
                 setTrackedLabel(labelName)
+
+                const dimensions = Dimensions.get("screen")
+                const hScale = (dimensions.height - 150) / 1920
+
+                const top = (hScale * (trackingObject.x))
+                const height = hScale * trackingObject.width
+                const left = (dimensions.width / 1080) * (trackingObject.y)
+                const width = (dimensions.width / 1080) * trackingObject.height
+
+                setTop(top)
+                setHeight(height)
+                setLeft(375 - left - width)
+                setWidth(width)
             }
 
         }, 1000 / CAMERA_FPS)
@@ -120,6 +138,42 @@ function Page() {
         console.log(`Platform: ${Platform.OS}`)
     }, [isRunningInExpoGo, Platform.OS]);
 
+    // Used to switch to a larger model temporarily on shutter
+    // button press and then switching back
+    // to smaller model
+    const [modelSize, setModelSize] = useState<"t" | "m" | "x">("t")
+    useEffect(() => {
+        if (modelSize === "x") {
+            const start = Date.now()
+            const interval = setInterval(() => {
+                const end = Date.now()
+
+                if (end - start > 1000) {
+                    clearInterval(interval)
+                    setModelSize("t")
+                    // setTrackedLabel('')
+                    return
+                }
+
+                const trackingObject = inputRef?.current?.trackingRef?.current
+
+                if (trackingObject == null || trackingObject.shutter !== true) {
+                    return
+                }
+
+                const labelName = LABEL_MAP[trackingObject.label]
+                // setTrackedLabel(labelName)
+                console.log(labelName, trackingObject.rawScore)
+                setModelSize("t")
+                inputRef.current.trackingRef.current = null
+            }, 100)
+
+
+
+            return () => clearInterval(interval)
+        }
+    }, [modelSize])
+
     const handleShutterPress = async () => {
             if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
             const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
@@ -133,9 +187,9 @@ function Page() {
                     }
                     const colorObj = inputRef?.current.colorRef?.current
                     console.log(trackingObject, trackedLabel)
-
+                    setModelSize("x")
                     // show modal
-                    
+
                     // console.log(colorObj);
                     // console.log(findClosestColor(colorObj));
                     // console.log(LABEL_MAP[trackingObject.label]);
@@ -144,16 +198,16 @@ function Page() {
                     setBrickLabel(LABEL_MAP[trackingObject.label]);
                     setConfidence(trackingObject.score);
                     setIsModalShown(true);
-    
+
                     // Code to take picture (if needed)
-    
+
                     // const result = await visionCameraRef.takePhoto({
                     //     flash: flashOn ? 'on' : 'off',
                     //     enableShutterSound: true
                     // })
                     //
                     // const file = await fetch(`file://${result.path}`)
-    
+
                     // // Get the image blob
                     // const imageBlob = await file.blob();
                 }
@@ -186,7 +240,7 @@ function Page() {
         iconSize,
         iconSizes,
         toggleAudio,
-        toggleCapture 
+        toggleCapture
     } = useSettings();
 /*
     useEffect(() => {
@@ -198,7 +252,7 @@ function Page() {
             handleShutterPress(); //calls normal shutter press
           }
         };
-    
+
         const subscription = SystemSetting.addVolumeListener(handleVolumeChange);
         return () => {
           subscription.remove();
@@ -218,7 +272,7 @@ function Page() {
 
                 {/*Real time lego detection info*/}
                 <Text accessible={false} style={{color: 'white'}}>
-                    {trackedLabel ? `Possible detection: ${trackedLabel}` : ''}
+                    {trackedLabel ? `Possible detection` : ''}
                 </Text>
 
                 {/* Help button */}
@@ -241,7 +295,7 @@ function Page() {
                 flexDirection: 'row',
                 alignItems: 'center',
             }}>
-                
+
                 {
                     // runExpoCamera ?
                         // (<View style={{height: '100%', width: '100%'}}>
@@ -251,7 +305,7 @@ function Page() {
                         // :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef}/>
+                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} size={modelSize} />
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
@@ -308,6 +362,17 @@ function Page() {
                     </View>
                 </View>
 
+                {
+                    inputRef?.current?.trackingRef?.current?.score > 0.3 &&
+                    (
+                        <CornerLayout
+                            top={top}
+                            left={left}
+                            width={width}
+                            height={height}
+                        />
+                    )
+                }
             </View>
 
 
