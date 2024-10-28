@@ -224,7 +224,7 @@ const handleChangeIconSize = (selectedIconSize) => {
               fontSize: fontSizes[fontSize].fontSize,
             }}
           >
-            Brick Audio Announcement{" "}
+          Brick Audio Announcement
           </Text>
           <Switch
             trackColor={{
