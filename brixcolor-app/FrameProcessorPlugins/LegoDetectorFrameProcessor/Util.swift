@@ -899,24 +899,24 @@ func getPixelValue(cgImage: CGImage, coords: [Int]) -> [NSNumber] {
 }
 
 @available(iOS 15.0, *)
-func multiArrayToNMSPredictions(result: MLMultiArray) -> [NMSPrediction] {
-    
+func multiArrayToNMSPredictions(result: MLMultiArray, treshold: Double = 0.5) -> [NMSPrediction] {
+
 
     var maxConf = 0.0
     var maxConfCol = 0
     var maxConfRow = 0
-  
+
   var nmsPreds = [] as [NMSPrediction]
 
     for col in 0...result.shape[2].intValue-1 {
-      
+
       let rect = CGRect(
         x: CGFloat(truncating: result[[0, 0, col as NSNumber]]),
         y: CGFloat(truncating: result[[0, 1, col as NSNumber]]),
         width: CGFloat(truncating: result[[0, 2, col as NSNumber]]),
         height: CGFloat(truncating: result[[0, 3, col as NSNumber]])
       )
-      
+
       var score = 0.0
       var classIdx = 0
 
@@ -928,7 +928,7 @@ func multiArrayToNMSPredictions(result: MLMultiArray) -> [NMSPrediction] {
                 maxConfCol = col
                 maxConfRow = row
             }
-          
+
           if conf.doubleValue > score {
             score = conf.doubleValue
             classIdx = row - 4
@@ -936,15 +936,107 @@ func multiArrayToNMSPredictions(result: MLMultiArray) -> [NMSPrediction] {
 
         }
 
-      if score > 0.5 {
+      if score > treshold {
         nmsPreds.append((classIdx, Float(score), rect))
       }
     }
-  
+
   let selectedIdx = nonMaxSuppression(predictions: nmsPreds, iouThreshold: 0.45, maxBoxes: 12)
-  
+
   let selected = selectedIdx.map{ nmsPreds[$0]  }
-  
+
     return selected
 }
 
+func scaleFit(image: UIImage, targetSize: CGSize = CGSize(width: 640, height: 640)) -> UIImage? {
+    let originalSize = image.size
+
+    // Calculate the scale factor that preserves the aspect ratio
+    let widthRatio = targetSize.width / originalSize.width
+    let heightRatio = targetSize.height / originalSize.height
+    let scaleFactor = min(widthRatio, heightRatio)
+
+    // Compute the new size while maintaining aspect ratio
+    let scaledSize = CGSize(width: originalSize.width * scaleFactor,
+                            height: originalSize.height * scaleFactor)
+
+    // Create a new white background image of targetSize
+    UIGraphicsBeginImageContextWithOptions(targetSize, false, 0.0)
+
+    // Fill the background with white
+    UIColor.white.setFill()
+    let backgroundRect = CGRect(origin: .zero, size: targetSize)
+    UIRectFill(backgroundRect)
+
+    // Draw the scaled image centered in the background
+    let xOffset = (targetSize.width - scaledSize.width) / 2
+    let yOffset = (targetSize.height - scaledSize.height) / 2
+    let drawRect = CGRect(origin: CGPoint(x: xOffset, y: yOffset), size: scaledSize)
+
+    image.draw(in: drawRect)
+
+    // Get the final image from the context
+    let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+
+    // End the context
+    UIGraphicsEndImageContext()
+
+    return resizedImage
+}
+
+
+func convertToGrayscale(image: UIImage) -> UIImage? {
+    // Convert UIImage to CIImage, passing the orientation in the options dictionary
+    guard let ciImage = CIImage(image: image, options: [CIImageOption.applyOrientationProperty: true]) else {
+        return nil
+    }
+
+    // Apply grayscale filter
+    let grayscaleFilter = CIFilter(name: "CIPhotoEffectMono")
+    grayscaleFilter?.setValue(ciImage, forKey: kCIInputImageKey)
+
+    // Get the output CIImage from the filter
+    guard let outputCIImage = grayscaleFilter?.outputImage else {
+        return nil
+    }
+
+    // Convert CIImage back to UIImage, preserving the original orientation
+    let context = CIContext()
+    guard let cgImage = context.createCGImage(outputCIImage, from: outputCIImage.extent) else {
+        return nil
+    }
+
+    // Return a UIImage with the original orientation
+    return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+}
+
+@available(iOS 15.0, *)
+func noNmsExtract(result: MLMultiArray, threshold: Double = 0.5) -> [NMSPrediction] {
+  var nmsPreds = [] as [NMSPrediction]
+
+  for row in 0...result.shape[1].intValue-1 {
+    let width = result[[0, row as NSNumber, 2 ]].doubleValue - result[[0, row as NSNumber, 0]].doubleValue
+    let height = result[[0, row as NSNumber, 3 ]].doubleValue - result[[0, row as NSNumber, 1]].doubleValue
+
+    let rect = CGRect(
+      x: CGFloat(truncating: result[[0, row as NSNumber, 0]]),
+      y: CGFloat(truncating: result[[0, row as NSNumber, 1 ]]),
+      width: CGFloat(width),
+      height: CGFloat(height)
+
+    )
+
+    let score = result[[0, row as NSNumber, 4 ]]
+    let label = result[[0, row as NSNumber, 5 ]]
+
+
+
+    if score.doubleValue > threshold {
+      nmsPreds.append((label.intValue, Float(truncating: score), rect))
+    }
+  }
+
+  nmsPreds.forEach{ print($0.0, $0.1, threshold ) }
+
+  return nmsPreds
+}
