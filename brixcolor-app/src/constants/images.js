@@ -23,7 +23,7 @@ import plate2x8 from "../../assets/images/2x8_thin.jpg";
 
 const IMAGES = {
     "1x1": brick1x1,
-    "1x2": brick1x2,
+    "2x1": brick1x2,
     "1x3": brick1x3,
     "1x4": brick1x4,
     "1x6": brick1x6,

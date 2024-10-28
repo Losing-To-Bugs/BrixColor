@@ -128,24 +128,32 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
         
 
         // if i want to implement the bounding boxes logic
-        // if (tracking.value !== null){
-        //     const colorData = detectColor(frame, {x: tracking.value.x, y: tracking.value.y, width: tracking.value.width, height: tracking.value.height});
-        //     if (typeof colorData == 'object'){
-        //         console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`)
-        //     }
-        // }
+        if (tracking.value !== null){
+            const colorData = detectColor(frame, {x: tracking.value.x, y: tracking.value.y, width: tracking.value.width, height: tracking.value.height, });
+            if (typeof colorData == 'object' && (!colorData["error"])){
 
-        const colorData = detectColor(frame);
-        if ((typeof colorData == 'object') && (!colorData["error"])){
-
-            console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
-
-            colorObj.value = {
-                r: colorData["red"] * 255.0,
-                g: colorData["green"] * 255.0,
-                b: colorData["blue"] * 255.0
-            };
+                console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+    
+                colorObj.value = {
+                    r: colorData["red"] * 255.0,
+                    g: colorData["green"] * 255.0,
+                    b: colorData["blue"] * 255.0
+                };
+            }
         }
+
+        // if not using bounding box for initial guess
+        // const colorData = detectColor(frame);
+        // if ((typeof colorData == 'object') && (!colorData["error"])){
+
+        //     console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+
+        //     colorObj.value = {
+        //         r: colorData["red"] * 255.0,
+        //         g: colorData["green"] * 255.0,
+        //         b: colorData["blue"] * 255.0
+        //     };
+        // }
     
         const result = detectBrick(frame)
 

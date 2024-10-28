@@ -128,6 +128,9 @@ function Page() {
                     await requestPermission();
                 } else {
                     const trackingObject = inputRef?.current?.trackingRef?.current
+                    if (trackingObject == null){
+                        return;
+                    }
                     const colorObj = inputRef?.current.colorRef?.current
                     console.log(trackingObject, trackedLabel)
 
