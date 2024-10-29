@@ -21,22 +21,7 @@ import {CAMERA_FPS, LABEL_MAP} from "@/constants/vision-constants";
 import InfoPopup from "@/components/InfoPopup";
 import { findClosestColor } from "@/utils/ColorHelpers";
 import CornerLayout from "@/components/CornerLayout";
-
-//import AudioAnnounce from "@/components/AudioAnnounce"; Add when identifier is ready.
-
-/*
-move under useSettings. This should work with both expo-speech and react-native-tts
-color and size should be strings. Change in AudioAnnounce.tsx if that is not what they are.
-  const handleAudioAnnounce = () => {
-    if (toggleAudio) {
-      const { speak } = AudioAnnounce(color, size); // Destructure to get the speak method
-      speak(); // Trigger the speak method
-    }
-      else if (!toggleAudio) {
-      console.log('Audio announcement is turned off.');
-    }
-  };
-*/
+import VolumeCapture from "@/components/VolumeCapture"
 
 const isRunningInExpoGo = Constants.appOwnership === 'expo'
 
@@ -239,32 +224,17 @@ function Page() {
     const {
         iconSize,
         iconSizes,
-        toggleAudio,
         toggleCapture
     } = useSettings();
-/*
-    useEffect(() => {
-        const handleVolumeChange = async () => {
-          if (toggleCapture) {
-            const previousVolume = await SystemSetting.getVolume();
-            await SystemSetting.setVolume(previousVolume); // Reset to previous volume hopefully this works
-            console.log("Volume Capture");
-            handleShutterPress(); //calls normal shutter press
-          }
-        };
 
-        const subscription = SystemSetting.addVolumeListener(handleVolumeChange);
-        return () => {
-          subscription.remove();
-        };
-      }, [toggleCapture]);
-*/
     const iconSetSize: number = iconSizes[iconSize].Size ?? 32
 
     return (
 
         <View style={pageStyles.container}>
             <Drawer.Screen options={{headerShown: false}} />
+            
+            {toggleCapture && ( <VolumeCapture handleShutterPress={handleShutterPress} />)}
 
             <View style={pageStyles.header }>
                 <BrixDrawerToggleButton
