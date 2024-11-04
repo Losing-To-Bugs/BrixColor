@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { auth } from "@/services/firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
+import { SETTINGSURL } from "@/constants/database-strings";
 
 const themes = {
   Light: {
@@ -87,7 +88,29 @@ export const SettingsProvider = ({ children }) => {
   const [toggleCapture, setToggleCapture] = useState(false);
   const [user, setUser] = useState(null);
 
-  const SERVERURL = "http://174.138.44.47/brixColor";
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const storedTheme = await AsyncStorage.getItem("theme");
+        const storedFontSize = await AsyncStorage.getItem("fontSize");
+        const storedIconSize = await AsyncStorage.getItem("iconSize");
+        const storedToggleAudio = await AsyncStorage.getItem("toggleAudio");
+        const storedToggleCapture = await AsyncStorage.getItem("toggleCapture");
+
+        if (storedTheme) setTheme(storedTheme);
+        if (storedFontSize) setFontSize(storedFontSize);
+        if (storedIconSize) setIconSize(storedIconSize);
+        if (storedToggleAudio !== null)
+          setToggleAudio(JSON.parse(storedToggleAudio));
+        if (storedToggleCapture !== null)
+          setToggleCapture(JSON.parse(storedToggleCapture));
+      } catch (error) {
+        console.error("Error loading settings from AsyncStorage:", error);
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -96,9 +119,7 @@ export const SettingsProvider = ({ children }) => {
       if (user) {
         // Fetch user settings from MongoDB when logged in
         try {
-          const response = await fetch(
-            `${SERVERURL}/userSettings?uid=${user.uid}`
-          );
+          const response = await fetch(`${SETTINGSURL}?uid=${user.uid}`);
           const data = await response.json();
 
           if (data) {
@@ -135,7 +156,7 @@ export const SettingsProvider = ({ children }) => {
         body: JSON.stringify(userSetting),
       };
 
-      const response = await fetch(`${SERVERURL}/userSettings`, payload);
+      const response = await fetch(`${SETTINGSURL}`, payload);
       if (!response.ok) {
         throw new Error("Error saving settings to MongoDB");
       }
