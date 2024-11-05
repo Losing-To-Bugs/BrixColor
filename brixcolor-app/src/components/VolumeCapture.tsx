@@ -9,7 +9,9 @@ const VolumeCapture: React.FC<VolumeCaptureProps> = ({
   handleShutterPress,
 }) => {
 
-  const originalVolumeRef = useRef<number>(0); 
+  const [changingVolume, setChangingVolume] = useState(false)
+  const originalVolumeRef = useRef<number>(0);
+  const changingVolumeRef = useRef<boolean>(false);
   let debounceTimeout: NodeJS.Timeout | undefined;
 
   const setVolumeWithoutChange = async (volume: number) => {
@@ -17,39 +19,33 @@ const VolumeCapture: React.FC<VolumeCaptureProps> = ({
   };
 
   useEffect(() => {
-    const fetchCurrentVolume = async () => {
-      const volume = await VolumeManager.getVolume();
+    VolumeManager.getVolume().then(volume => {
       originalVolumeRef.current = volume.volume;
-    };
+    })
+  })
 
-    fetchCurrentVolume(); 
+  useEffect(() => {
+    const volumeListener = VolumeManager.addVolumeListener(async (result) => {
+      if (changingVolumeRef.current) {
+        return
+      }
+        changingVolumeRef.current = true
+        await setVolumeWithoutChange(originalVolumeRef.current).then(() =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve();
+              }, 500);
+            }))
 
-    const volumeListener = VolumeManager.addVolumeListener((result) => {
+        await handleShutterPress()
 
-
-        setVolumeWithoutChange(originalVolumeRef.current); 
-
-
-        if (debounceTimeout) {
-          clearTimeout(debounceTimeout);
-        }
-
-        debounceTimeout = setTimeout(async () => {
-          await handleShutterPress();
-        }, 200); 
-      
-
-    
-
+        changingVolumeRef.current = false
     });
 
     return () => {
-      volumeListener.remove(); 
-      if (debounceTimeout) {
-        clearTimeout(debounceTimeout);
-      }
-    };
-  }, [ handleShutterPress]); 
+      volumeListener.remove()
+    }
+  }, [changingVolume]);
 
   return null; 
 };
