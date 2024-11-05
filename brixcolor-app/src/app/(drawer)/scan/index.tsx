@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View, Platform, Dimensions} from "react-native";
+import {Text, TouchableOpacity, View, Platform, Dimensions, ActivityIndicator} from "react-native";
 import {Drawer} from "expo-router/drawer";
 import React, {useRef, useState, useEffect} from "react";
 import {StyleSheet} from "react-native";
@@ -57,6 +57,7 @@ function Page() {
     const [height, setHeight] = useState(0)
 
     // for modal
+    const [doDetection, setDoDetection] = useState(false);
     const [isModalShown, setIsModalShown] = useState(false);
     const [confidence, setConfidence] = useState(0.0);
     const [brickLabel, setBrickLabel] = useState("");
@@ -174,6 +175,33 @@ function Page() {
         }
     }, [modelSize])
 
+    // function to handle toggling the color detection logic
+    // const handleColorTrigger = (triggerLoading: boolean) =>{
+    //     'worklet'
+        
+    //     const trackingObject = inputRef?.current?.trackingRef?.current
+    //     if (trackingObject == null){
+    //         return;
+    //     }
+
+    //     // toggle on or off the color detection.
+    //     setDoDetection(!doDetection);
+
+    //     // if turning loading indicator off:
+    //     if (!triggerLoading){
+
+    //         const colorObj = inputRef?.current.colorRef?.current
+    //         console.log(trackingObject, trackedLabel)
+
+    //         setModelSize("x");
+    //         setBrickColor(findClosestColor(colorObj));
+    //         setBrickLabel(LABEL_MAP[trackingObject.label]);
+    //         setConfidence(trackingObject.score);
+    //         setIsModalShown(true);
+
+    //     }
+    // }
+
     const handleShutterPress = async () => {
             if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
             const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
@@ -181,23 +209,27 @@ function Page() {
                 if (permissionResponse.status !== 'granted') {
                     await requestPermission();
                 } else {
+
                     const trackingObject = inputRef?.current?.trackingRef?.current
                     if (trackingObject == null){
                         return;
                     }
                     const colorObj = inputRef?.current.colorRef?.current
                     console.log(trackingObject, trackedLabel)
-                    setModelSize("x")
-                    // show modal
 
-                    // console.log(colorObj);
-                    // console.log(findClosestColor(colorObj));
-                    // console.log(LABEL_MAP[trackingObject.label]);
-                    // console.log(trackingObject.score);
+                    setModelSize("x");
                     setBrickColor(findClosestColor(colorObj));
                     setBrickLabel(LABEL_MAP[trackingObject.label]);
                     setConfidence(trackingObject.score);
                     setIsModalShown(true);
+
+
+                    // handleColorTrigger(true);
+                    // console.log(colorObj);
+                    // console.log(findClosestColor(colorObj));
+                    // console.log(LABEL_MAP[trackingObject.label]);
+                    // console.log(trackingObject.score);
+
 
                     // Code to take picture (if needed)
 
@@ -305,7 +337,7 @@ function Page() {
                         // :
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
-                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} size={modelSize} />
+                            <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} size={modelSize}/>
                             <Text style={{color: 'white'}}>Using React Vision Camera</Text>
                         </View>)
 
@@ -375,6 +407,11 @@ function Page() {
                 }
             </View>
 
+            {/* {doDetection && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="white" />
+                </View>
+            )} */}
 
             <StatusBar style="light" />
         </View>
@@ -411,4 +448,14 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0,0,0,0.375)",
         marginTop: "auto",
     },
+    // loadingOverlay: {
+    //     position: 'absolute',
+    //     top: 0,
+    //     left: 0,
+    //     right: 0,
+    //     bottom: 0,
+    //     justifyContent: 'center',
+    //     alignItems: 'center',
+    //     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    // },
 });

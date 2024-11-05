@@ -18,7 +18,9 @@ import { detectColor } from "@/hooks/detectColor";
 
 export type ScanCameraProps = CameraProps & {
     flashOn: boolean,
-    size?: "t" | "m" | "x"
+    size?: "t" | "m" | "x",
+    // handleColorTrigger: Function,
+    // doDetectColor: boolean
 }
 
 type Rect = [number, number, number, number]
@@ -138,23 +140,35 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
     }
 
 
-
+    let lastProcessedTime = Date.now();
     const frameProcess = useFrameProcessor((frame) => {
         'worklet'
 
 
-        // if not using bounding box for initial guess
-        // const colorData = detectColor(frame);
-        // if ((typeof colorData == 'object') && (!colorData["error"])){
+        // only run the detection when triggered
+        // if (props.doDetectColor){
+        //     console.log("Reached")
 
-        //     console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+        //     if (Date.now() - lastProcessedTime > 200) {  // Only process every 100 ms
+        //             lastProcessedTime = Date.now();
 
-        //     colorObj.value = {
-        //         r: colorData["red"] * 255.0,
-        //         g: colorData["green"] * 255.0,
-        //         b: colorData["blue"] * 255.0
-        //     };
+        //         const colorData = detectColor(frame);
+        //         if ((typeof colorData == 'object') && (!colorData["error"])){
+
+        //             console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+
+        //             colorObj.value = {
+        //                 r: colorData["red"] * 255.0,
+        //                 g: colorData["green"] * 255.0,
+        //                 b: colorData["blue"] * 255.0
+        //             };
+        //         }
+
+        //         // stop detecting
+        //         props.handleColorTrigger(false);
+        //     }
         // }
+        
     
         const result = detectBrick(frame)
 
