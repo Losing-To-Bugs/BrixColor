@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Modal, Text, Button, TouchableWithoutFeedback, Image, TouchableOpacity } from "react-native";
+import {
+    View,
+    Modal,
+    Text,
+    Button,
+    TouchableWithoutFeedback,
+    Image,
+    TouchableOpacity,
+    ActivityIndicator
+} from "react-native";
 import { IMAGES } from "../constants/images";
 import { legoColors } from "../constants/colors";
 import { useSettings } from "./SettingsContext";
@@ -162,7 +171,14 @@ const InfoPopup: React.FC<InfoPopupProps> = ({ confidence, brick, color, isShown
                                 <Image source={IMAGES[brick]} style={{width: "60%", height: "70%", borderColor: "black", borderWidth: 1, borderRadius: 10}}/>
                             </View>
                             <View style={{flex: 1, justifyContent: "center", alignItems: "center"}} >
-                                <Text accessibilityLabel="Lego Description" style={{textAlign: "center", color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 2}} >{color}{"\n"}{handleIdentity()}</Text>
+                                {color ? (
+                                    <Text accessibilityLabel="Lego Description" style={{textAlign: "center", color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 2}} >{color}</Text>
+                                ) : (
+                                    <ActivityIndicator size="large"/>
+                                )}
+
+                                <Text accessibilityLabel="Lego Description" style={{textAlign: "center", color: themes[theme].textColor, fontSize: fontSizes[fontSize].fontSize + 2}} >{handleIdentity()}</Text>
+
                             </View>
                         </View>
                     </View>

@@ -6,9 +6,9 @@ import CoreImage
 import Accelerate
 
 @available(iOS 15.0, *)
-typealias BrixModel = brixcolorv4_yv10m;
+typealias BrixModel = brixcolorv5_yv10m;
 @available(iOS 15.0, *)
-typealias BrixModelOuput = brixcolorv4_yv10mOutput;
+typealias BrixModelOuput = brixcolorv5_yv10mOutput;
 
 @available(iOS 16.0, *)
 @objc(LegoDetectorFrameProcessorPlugin)

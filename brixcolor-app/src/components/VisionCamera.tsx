@@ -189,24 +189,31 @@ const VisionCamera = forwardRef(function (props: ScanCameraProps, ref) {
             // most recent
             const scaledRect = [xScaled, yScaled, wScaled, hScaled]
 
-            // call detection frame processor on each new detection
-            const colorData = detectColor(frame);
-            // const colorData = detectColor(frame, {x: xScaled, y: yScaled, width: wScaled, height: hScaled});
-            if (typeof colorData == 'object'){
-                if (!colorData["error"]){
+            // on shutter press
+            if (props?.size === 'x') {
+                colorObj.value = null
+                // call detection frame processor on each new detection
+                // console.log('Started', colorRef.current == null)
+                const colorData = detectColor(frame);
+                // const colorData = detectColor(frame, {x: xScaled, y: yScaled, width: wScaled, height: hScaled});
 
-                    console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
-    
-                    colorObj.value = {
-                        r: colorData["red"] * 255.0,
-                        g: colorData["green"] * 255.0,
-                        b: colorData["blue"] * 255.0
-                    };
+                // console.log('ended' , colorRef.current == null)
+                if (typeof colorData == 'object'){
+                    if (!colorData["error"]){
+
+                        console.log(`Detected RGB: (${colorData["red"] * 255}, ${colorData["green"] * 255}, ${colorData["blue"] * 255})`);
+
+                        colorObj.value = {
+                            r: colorData["red"] * 255.0,
+                            g: colorData["green"] * 255.0,
+                            b: colorData["blue"] * 255.0
+                        };
+                    }
+                    else{
+                        console.error(colorData["error"])
+                    }
+
                 }
-                else{
-                    console.error(colorData["error"])
-                }
-                
             }
 
 

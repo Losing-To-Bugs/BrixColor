@@ -127,39 +127,51 @@ function Page() {
     // button press and then switching back
     // to smaller model
     const [modelSize, setModelSize] = useState<"t" | "m" | "x">("t")
+    const [coloring, setColoring] = useState(false)
     useEffect(() => {
-        if (modelSize === "x") {
+        if (coloring) {
+            inputRef.current.colorRef.current = null
             const start = Date.now()
+
             const interval = setInterval(() => {
                 const end = Date.now()
+                // Buffer
+                if (end - start < 1000) {
+                    inputRef.current.colorRef.current = null
+                    return
+                }
 
-                if (end - start > 1000) {
+                // Timeout
+                if (end - start > 1000 * 6) {
                     clearInterval(interval)
-                    setModelSize("t")
-                    // setTrackedLabel('')
+                    setColoring(false)
                     return
                 }
 
-                const trackingObject = inputRef?.current?.trackingRef?.current
-
-                if (trackingObject == null || trackingObject.shutter !== true) {
+                const colorObj = inputRef?.current.colorRef?.current
+                if (colorObj == null) {
                     return
                 }
 
-                const labelName = LABEL_MAP[trackingObject.label]
-                // setTrackedLabel(labelName)
-                console.log(labelName, trackingObject.rawScore)
-                setModelSize("t")
-                inputRef.current.trackingRef.current = null
+                const closestColor = findClosestColor(colorObj)
+                setBrickColor(closestColor);
+                setModelSize('t')
+                setColoring(false)
+                inputRef.current.colorRef.current = null
             }, 100)
 
-
+            setInterval(() => {setModelSize('t')}, 100)
 
             return () => clearInterval(interval)
         }
-    }, [modelSize])
+    }, [coloring])
 
     const handleShutterPress = async () => {
+            if (isModalShown) {
+                setIsModalShown(false)
+                setBrickColor('')
+                return
+            }
             if (!runExpoCamera && inputRef?.current.cameraRef?.current) {
             const visionCameraRef = inputRef?.current.cameraRef?.current as (Camera | undefined)
             if (!runExpoCamera && visionCameraRef) {
@@ -171,15 +183,16 @@ function Page() {
                         return;
                     }
                     const colorObj = inputRef?.current.colorRef?.current
+
                     console.log(trackingObject, trackedLabel)
                     setModelSize("x")
+                    setColoring(true)
                     // show modal
 
                     // console.log(colorObj);
                     // console.log(findClosestColor(colorObj));
                     // console.log(LABEL_MAP[trackingObject.label]);
                     // console.log(trackingObject.score);
-                    setBrickColor(findClosestColor(colorObj));
                     setBrickLabel(LABEL_MAP[trackingObject.label]);
                     setConfidence(trackingObject.score);
                     setIsModalShown(true);
@@ -219,6 +232,7 @@ function Page() {
 
     const handleCloseModal = () =>{
         setIsModalShown(false);
+        setBrickColor('')
     }
 
     const {
@@ -276,7 +290,7 @@ function Page() {
                         (<View style={{height: '100%', width: '100%'}}>
                             {/*Uncomment the line below to enable VisionCamera in a development build. Does not work in Expo Go*/}
                             <VisionCamera flashOn={flashOn} style={styles.camera} ref={inputRef} size={modelSize} />
-                            <Text style={{color: 'white'}}>Using React Vision Camera</Text>
+                            {/*<Text style={{color: 'white'}}>Using React Vision Camera</Text>*/}
                         </View>)
 
                 }
